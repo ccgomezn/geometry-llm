@@ -10,6 +10,7 @@ from nnsight import LanguageModel
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 MODELS = {
+    "qwen3-32b": "Qwen/Qwen3-32B",
     "qwen3-1.7b": "Qwen/Qwen3-1.7B",
     "qwen3-4b": "Qwen/Qwen3-4B",
     "qwen3-8b": "Qwen/Qwen3-8B",
@@ -17,7 +18,7 @@ MODELS = {
     "gemma3-4b": "google/gemma-3-4b-it",
     "llama3.2-3b": "meta-llama/Llama-3.2-3B-Instruct",
 }
-FAMILY = {"qwen3-1.7b": "qwen3", "qwen3-4b": "qwen3", "qwen3-8b": "qwen3", "qwen3-14b": "qwen3",
+FAMILY = {"qwen3-1.7b": "qwen3", "qwen3-4b": "qwen3", "qwen3-8b": "qwen3", "qwen3-14b": "qwen3", "qwen3-32b": "qwen3",
           "gemma3-4b": "gemma3", "llama3.2-3b": "llama3", "tiny": "qwen3"}
 
 
@@ -55,17 +56,27 @@ def _wrap(hf, tok, key: str) -> LoadedModel:
                        layers_path=layers_path, embed_path=embed_path)
 
 
-def load(key: str, device: str = "mps", dtype=torch.bfloat16, random_init: bool = False) -> LoadedModel:
+def default_device() -> str:
+    if torch.cuda.is_available():
+        return "auto"  # spread across all visible GPUs
+    return "mps" if torch.backends.mps.is_available() else "cpu"
+
+
+def load(key: str, device: str | None = None, dtype=torch.bfloat16, random_init: bool = False) -> LoadedModel:
     if key == "tiny":  # smoke tests of the scripts
         return load_tiny_for_tests()
+    device = device or default_device()
     repo = MODELS[key]
     tok = AutoTokenizer.from_pretrained(repo)
     if random_init:
         torch.manual_seed(0)
-        hf = AutoModelForCausalLM.from_config(AutoConfig.from_pretrained(repo), torch_dtype=dtype)
+        hf = AutoModelForCausalLM.from_config(AutoConfig.from_pretrained(repo), dtype=dtype)
+        hf = hf.to("cuda:0" if device == "auto" else device)
+    elif device == "auto":
+        hf = AutoModelForCausalLM.from_pretrained(repo, dtype=dtype, device_map="auto")
     else:
-        hf = AutoModelForCausalLM.from_pretrained(repo, torch_dtype=dtype)
-    return _wrap(hf.to(device), tok, key)
+        hf = AutoModelForCausalLM.from_pretrained(repo, dtype=dtype).to(device)
+    return _wrap(hf, tok, key)
 
 
 def load_tiny_for_tests() -> LoadedModel:

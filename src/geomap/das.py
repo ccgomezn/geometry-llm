@@ -75,7 +75,8 @@ def _forward(m: LoadedModel, batch: list[dict], iv: nn.Module | None, layer: int
         h = (out[0] if isinstance(out, tuple) else out).clone()
         for j, r in enumerate(batch):
             pos = torch.tensor(r["pos"], device=h.device)
-            h[j, pos] = iv(h[j, pos].float(), r["src_h"].to(h.device)).to(h.dtype)
+            ivdev = iv.mask.device
+            h[j, pos] = iv(h[j, pos].float().to(ivdev), r["src_h"].to(ivdev)).to(h.device, h.dtype)
         return (h,) + tuple(out[1:]) if isinstance(out, tuple) else h
 
     if iv is not None:

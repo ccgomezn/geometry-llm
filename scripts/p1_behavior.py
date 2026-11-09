@@ -108,7 +108,10 @@ def screen(key, a):
     df.to_parquet(OUT / f"{key}.parquet")
     del m
     gc.collect()
-    torch.mps.empty_cache()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    elif torch.backends.mps.is_available():
+        torch.mps.empty_cache()
     return df
 
 

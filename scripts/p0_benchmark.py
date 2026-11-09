@@ -31,7 +31,9 @@ def main():
     rows = sum(len(q.candidates) for _, q in items)
 
     score(m, items[:8], batch_size=a.batch_size)  # warm-up
-    if torch.backends.mps.is_available():
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
+    elif torch.backends.mps.is_available():
         torch.mps.synchronize()
     t0 = time.time()
     score(m, items, batch_size=a.batch_size)
