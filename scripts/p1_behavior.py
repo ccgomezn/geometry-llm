@@ -145,11 +145,13 @@ def summarize(key, df):
         lines.append(f"- Validity: median probability on the allowed answers {float(np.exp(main['mass'].median())):.2f} "
                      f"(5th percentile {float(np.exp(main['mass'].quantile(0.05))):.2f})")
     nt = df[df.set == "neartie"]
-    lines.append(f"- Near-tie set (margin 0.25–1 unit / 2.5–10°): {fmt(bootstrap_ci(nt.correct.astype(float), groups=nt.scene_id))}")
+    if len(nt):
+        lines.append(f"- Near-tie set (margin 0.25–1 unit / 2.5–10°): {fmt(bootstrap_ci(nt.correct.astype(float), groups=nt.scene_id))}")
     wl, nl = df[df.set == "list"], df[df.set == "nolist"]
-    diff = wl.correct.astype(float).values - nl.correct.astype(float).values
-    lines.append(f"- Object-list line: with {wl.correct.mean():.2f}, without {nl.correct.mean():.2f}, "
-                 f"difference {fmt(bootstrap_ci(diff, groups=wl.scene_id.values))}")
+    if len(wl):
+        diff = wl.correct.astype(float).values - nl.correct.astype(float).values
+        lines.append(f"- Object-list line: with {wl.correct.mean():.2f}, without {nl.correct.mean():.2f}, "
+                     f"difference {fmt(bootstrap_ci(diff, groups=wl.scene_id.values))}")
     if (df.set == "cot").any():
         c, nc = df[df.set == "cot"], df[df.set == "nocot"]
         lines.append(f"- Chain of thought on: {fmt(bootstrap_ci(c.correct.astype(float)))} vs off "
