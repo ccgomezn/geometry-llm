@@ -105,3 +105,12 @@ def test_other_families_prefix_and_alignment(family, repo):
             assert t.decode([pre.input_ids[i]]).strip() == n
         base, src, leaf = make_pair_aligned(s, rng, t, family)
         assert aligned(build_prompt(base, None, t, family), build_prompt(src, None, t, family), leaf)
+
+
+def test_prompt_without_list(tok, names):
+    s = _scene(5, names)
+    q = battery(s, np.random.default_rng(0))[0]
+    spec = build_prompt(s, q, tok, "qwen3", include_list=False)
+    text = tok.decode(spec.input_ids)
+    assert "The objects are" not in text and q.text in text
+    assert spec.list_pos == {}

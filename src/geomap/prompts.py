@@ -50,7 +50,8 @@ def render_chat(tok, family: str, content: str, thinking: bool = False) -> str:
                                    add_generation_prompt=True, **kwargs)
 
 
-def build_prompt(scene: Scene, question: Question | None, tok, family: str, thinking: bool = False) -> PromptSpec:
+def build_prompt(scene: Scene, question: Question | None, tok, family: str, thinking: bool = False,
+                 include_list: bool = True) -> PromptSpec:
     if family not in FAMILIES:
         raise ValueError(family)
     # content pieces, tracking character spans inside the content string
@@ -62,15 +63,18 @@ def build_prompt(scene: Scene, question: Question | None, tok, family: str, thin
         start = len(content)
         content += relation_text(r)
         rel_spans_chars[r.subj] = (start, len(content))
-    content += "\n\nThe objects are: "
     name_chars: dict[str, int] = {}
-    for i, n in enumerate(scene.names):
-        if i:
-            content += ", "
-        name_chars[n] = len(content)
-        content += n
-    eol_char = len(content)
-    content += "."
+    if include_list:
+        content += "\n\nThe objects are: "
+        for i, n in enumerate(scene.names):
+            if i:
+                content += ", "
+            name_chars[n] = len(content)
+            content += n
+        eol_char = len(content)
+        content += "."
+    else:  # behavioural ablation: the end of the description stands in for the end of the list
+        eol_char = len(content) - 1
     qtext = question.text if question is not None else f"Which object is farthest from {scene.names[0]}?"
     content += "\n\n" + qtext + ANSWER_SUFFIX
 

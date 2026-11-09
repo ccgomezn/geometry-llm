@@ -95,3 +95,12 @@ def test_append_entry_writes_header(tmp_path):
     out = p.read_text()
     assert re.search(r"## \d{4}-\d{2}-\d{2} \d{2}:\d{2} · P0 benchmark", out)
     assert "body text" in out and "![x](figures/x.png)" in out
+
+
+def test_parse_cot_answer():
+    from geomap.scoring import parse_cot_answer
+    from geomap.questions import COMPASS
+    assert parse_cot_answer("<think>north... east</think>\n\nNortheast", COMPASS) == "northeast"
+    assert parse_cot_answer("<think>x</think> The answer is south.", COMPASS) == "south"
+    assert parse_cot_answer("<think>never closed", COMPASS) is None
+    assert parse_cot_answer("<think>x</think> Bob, not Alice... final: Alice", ("Alice", "Bob")) == "Alice"

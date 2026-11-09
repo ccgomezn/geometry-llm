@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Callable, Sequence
 
 import torch
@@ -63,3 +64,16 @@ def score(m: LoadedModel, items: Sequence[tuple[PromptSpec, Question]], edit: Ed
 
 def predict(scores: dict[str, float]) -> str:
     return max(scores, key=scores.get)
+
+
+def parse_cot_answer(text: str, candidates) -> str | None:
+    """Final answer after </think>: the candidate whose last whole-word match ends latest (longer wins ties)."""
+    if "</think>" not in text:
+        return None
+    tail = text.split("</think>")[-1].lower()
+    best, best_key = None, (-1, 0)
+    for c in candidates:
+        for mt in re.finditer(r"\b" + re.escape(c.lower()) + r"\b", tail):
+            if (mt.end(), len(c)) > best_key:
+                best, best_key = c, (mt.end(), len(c))
+    return best
