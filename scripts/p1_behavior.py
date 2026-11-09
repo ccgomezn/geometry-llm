@@ -103,7 +103,7 @@ def screen(key, a):
                          correct=predict(sc) == answer_for(q, s.coords), chance=chance(q),
                          answer=predict(sc), scores=json.dumps(sc)))
     if m.family == "qwen3" and a.cot_n:
-        recs += run_cot(m, cot, a.cot_tokens)
+        recs += run_cot(m, cot, a.cot_tokens, batch_size=a.cot_batch)
     df = pd.DataFrame(recs)
     df.to_parquet(OUT / f"{key}.parquet")
     del m
@@ -189,6 +189,7 @@ def main():
     ap.add_argument("--abl-n", type=int, default=200)
     ap.add_argument("--cot-n", type=int, default=100)
     ap.add_argument("--cot-tokens", type=int, default=1024)
+    ap.add_argument("--cot-batch", type=int, default=8)
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--reuse", action="store_true", help="reuse saved parquet files")
