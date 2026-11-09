@@ -44,3 +44,25 @@ def test_zero_delta_is_identity():
     df = slider(m, s, leaf, layer=1, dirs=dirs, deltas=np.zeros((1, 2)), qs=qs)
     ref = [predict(sc) for sc in score(m, [(build_prompt(s, q, m.tok, m.family), q) for q in qs])]
     assert df.sort_values("qid").model_ans.tolist() == ref
+
+
+def test_das_directions_move_readout_by_delta():
+    from geomap.steering import das_directions
+    rng = np.random.default_rng(0)
+    d, k = 40, 2
+    Q, _ = np.linalg.qr(rng.normal(size=(d, k)))
+    Y = rng.normal(size=(500, 2))
+    M = rng.normal(size=(2, k))
+    X = (Y @ M) @ Q.T + rng.normal(size=(500, d)) * 0.01
+    D, B = das_directions(Q, X, Y)
+    for delta in [np.array([1.0, 0.0]), np.array([0.0, 2.0]), np.array([-1.5, 0.5])]:
+        moved = ((D @ delta) @ Q) @ B
+        assert np.allclose(moved, delta, atol=1e-2)
+
+
+def test_agreement_uses_first_observed_flip_at_midpoints():
+    seq = [("C", "C"), ("C", "T"), ("C", "C"), ("T", "T"), ("T", "T")]  # model flickers early
+    rows = [dict(scene=0, axis="x", qid=0, step=i, dx=i * 0.5, dy=0.0, predicted_ans=p, model_ans=o)
+            for i, (p, o) in enumerate(seq)]
+    a = slider_agreement(pd.DataFrame(rows), n_boot=10)
+    assert a["flip_offsets"] == [-1.0]  # first observed flip at 0.25 vs predicted at 1.25

@@ -85,8 +85,8 @@ def slider_agreement(df: pd.DataFrame, n_boot: int = 1000) -> dict:
         if not of:
             continue
         n_obs += 1
-        p0 = coord[pf[0]]
-        o0 = coord[min(of, key=lambda i: abs(coord[i] - p0))]
+        mid = lambda i: (coord[i - 1] + coord[i]) / 2  # a flip happens between two grid points
+        p0, o0 = mid(pf[0]), mid(of[0])  # first predicted vs first observed flip (no nearest-match leniency)
         pred_pos.append(p0)
         obs_pos.append(o0)
         offsets.append(float(o0 - p0))
@@ -100,3 +100,12 @@ def natural_range(steered_norms: np.ndarray, ref_norms: np.ndarray) -> float:
     lo, hi = np.quantile(ref_norms, [0.01, 0.99])
     s = np.asarray(steered_norms)
     return float(((s >= lo) & (s <= hi)).mean())
+
+
+def das_directions(Q: np.ndarray, X: np.ndarray, Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Directions [d, 2] that move an object by (dx, dy) inside a DAS subspace Q [d, k].
+
+    B [k, 2] maps subspace coordinates of centred activations X to coordinates Y (Y ≈ X Q B). Moving the
+    activation by D δ with D = Q pinv(B)ᵀ changes the read-out by δ."""
+    B, *_ = np.linalg.lstsq(X @ Q, Y, rcond=None)
+    return Q @ np.linalg.pinv(B).T, B

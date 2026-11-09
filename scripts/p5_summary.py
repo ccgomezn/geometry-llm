@@ -33,28 +33,34 @@ def main():
         stated = pd.read_csv(R / "p2" / f"{model}_stated_relation.csv")
         b = int(real.r2.idxmax())
         r = real.iloc[b]
-        ctrl = [shuf.r2.iloc[b], stated.r2.item(), real.r2.iloc[0]]
+        ctrl = [shuf.r2.iloc[b], real.r2.iloc[0]]
         randp = R / "p2" / f"{model}_rand.csv"
         if randp.exists():
             ctrl.append(pd.read_csv(randp).r2.iloc[b])
-        crit["map_r2"] = r.r2 >= 0.6 and all(r.r2 - c >= 0.3 for c in ctrl)
-        crit["map_hops"] = (r.r2_hop1 - r.r2_hop2p) <= 0.1
-        crit["rel_r2"] = r.r2 < 0.3 or (r.r2_hop1 - r.r2_hop2p) > 0.2
-        notes.append(f"P2: best layer {b}, R² {r.r2:.2f}; 1-step {r.r2_hop1:.2f} vs 2+-step {r.r2_hop2p:.2f}")
+        gap = r.r2_hop1 - r.r2_hop2p
+        crit["map_r2"] = bool(r.r2 >= 0.6 and all(r.r2 - c >= 0.3 for c in ctrl)
+                              and r.r2_hop2p - stated.r2_hop2p.item() >= 0.3)
+        crit["map_hops"] = bool(gap <= 0.1)
+        crit["rel_r2"] = bool(r.r2 < 0.3 or gap > 0.2)
+        notes.append(f"P2: best layer {b}, R² {r.r2:.2f}; 1-step {r.r2_hop1:.2f} vs 2-step {r.r2_hop2p:.2f}; "
+                     f"stated-relation baseline on 2-step objects {stated.r2_hop2p.item():.2f}")
     p3 = R / "p3" / f"{model}_confirm_consistency.csv"
     if p3.exists():
         c = pd.read_csv(p3)
-        ro = c[c.site.isin(["list", "eol"])].joint_consistency.max()
-        rel = c[c.site == "relation"].joint_consistency.max()
-        crit["map_jc"] = ro >= 0.6
-        crit["rel_jc"] = ro < 0.2 and rel > ro
-        notes.append(f"P3: joint consistency at readout positions {ro:.2f}, at relation tokens {rel:.2f}")
+        ro = c[c.site.isin(["list", "eol"]) & (c.layer > 0)]
+        best = ro.joint_iia.max()
+        lay = int(ro.loc[ro.joint_iia.idxmax(), "layer"])
+        rel = c[(c.site == "relation") & (c.layer == lay)].joint_iia
+        rel = float(rel.iloc[0]) if len(rel) else float("nan")
+        crit["map_jc"] = bool(best >= 0.6)
+        crit["rel_jc"] = bool(best < 0.2 and rel > best)
+        notes.append(f"P3: joint agreement at readout positions {best:.2f} (layer {lay}); relation sentence at that layer {rel:.2f}")
     p4 = R / "p4" / f"{model}_das.csv"
     if p4.exists():
         d = pd.read_csv(p4)
         d = d[(d.method == "DAS k=2") & (d.qtype != "ALL")]
         crit["map_das"] = bool((d.acc >= 0.7).all())
-        notes.append(f"P4: DAS k=2 lowest per-type accuracy {d.acc.min():.2f}")
+        notes.append(f"P4: DAS k=2 lowest per-type interchange accuracy {d.acc.min():.2f}")
 
     map_keys = ["map_r2", "map_hops", "map_jc", "map_das"]
     rel_keys = ["rel_r2", "rel_jc"]

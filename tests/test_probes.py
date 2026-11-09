@@ -111,3 +111,17 @@ def test_joint_eol_probe_any_object_count():
         eol[i, 0] = torch.tensor(A @ c.reshape(6) + rng.normal(size=D) * 0.1)
     j = joint_eol_probe(eol, scenes, scene_split(300), n_boot=20)
     assert j.r2.item() > 0.9
+
+
+def test_probe_does_not_interpolate_noise_with_scene_groups():
+    # 3-object scenes, more features than training rows: within-scene LOO would pick a tiny alpha and overfit
+    rng = np.random.default_rng(3)
+    scenes = [generate_scene(np.random.default_rng(i), POOL, 3) for i in range(80)]
+    lst = torch.full((80, 1, 6, 400), float("nan"))
+    lst[:, :, :3] = torch.tensor(rng.normal(size=(80, 1, 3, 400)), dtype=torch.float32)
+    df = probe_by_layer({"list": lst}, scenes, scene_split(80), n_boot=10)
+    assert df.r2.item() < 0.05
+    from geomap.probes import fit_probe, ALPHA_GRID
+    X, Y, meta = centered_xy(lst[:, 0].numpy(), scenes, np.arange(64))
+    p = fit_probe(X, Y, groups=meta["scene"].values)
+    assert p.alpha_ > ALPHA_GRID[0] * p.scale_

@@ -81,3 +81,20 @@ def test_make_pairs_object_count_and_exclusion(m):
     for base, src, leaf, qs in pairs:
         assert len(base.names) == 3
         assert all(q.qtype.value != "closer_than" for q in qs)
+
+
+def test_model_relative_joint_iia():
+    def r(pair, site, layer, qid, ans, b="A", s="B"):
+        return dict(pair=pair, site=site, layer=layer, qtype="farthest", qid=qid, diagnostic=b != s,
+                    base_ans=b, src_ans=s, model_ans=ans)
+    rows = []
+    # pair 0: model is wrong on the clean base for q1 (geometry says A, model says C); patch reproduces the
+    # model's own source answers on both questions -> joint IIA 1 even though geometry-joint would fail
+    rows += [r(0, "none", -1, 0, "A"), r(0, "source", -1, 0, "B"), r(0, "list", 5, 0, "B"),
+             r(0, "none", -1, 1, "C", "A", "A"), r(0, "source", -1, 1, "C", "A", "A"), r(0, "list", 5, 1, "C", "A", "A")]
+    # pair 1: patch fails to move q0
+    rows += [r(1, "none", -1, 0, "A"), r(1, "source", -1, 0, "B"), r(1, "list", 5, 0, "A")]
+    # pair 2: model gives the same answer on base and source for every question -> dropped
+    rows += [r(2, "none", -1, 0, "A"), r(2, "source", -1, 0, "A"), r(2, "list", 5, 0, "A")]
+    c = consistency(pd.DataFrame(rows), n_boot=20).iloc[0]
+    assert c.joint_iia == 0.5 and c.n_pairs_iia == 2 and c.iia_rate == 0.5

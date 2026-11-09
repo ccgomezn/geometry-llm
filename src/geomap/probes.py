@@ -6,15 +6,14 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
+import torch
 from scipy.spatial.distance import pdist
 from scipy.stats import spearmanr
-from sklearn.linear_model import RidgeCV
 from sklearn.metrics import r2_score
 from sklearn.neural_network import MLPRegressor
 
 from geomap.analysis import bootstrap_ci
 
-ALPHAS = np.logspace(-2, 5, 15)
 
 
 def scene_split(n_scenes: int, test_frac: float = 0.2, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
@@ -63,8 +62,60 @@ def centered_xy(acts: np.ndarray, scenes, scene_idx, control: str | None = None,
     return Xc, Yc, meta
 
 
-def fit_probe(X, Y) -> RidgeCV:
-    return RidgeCV(alphas=ALPHAS).fit(X, Y)
+ALPHA_GRID = np.logspace(-5, 2, 15)  # multiples of the mean squared row norm (scale-free)
+
+
+class GroupRidge:
+    """Ridge regression (no intercept; inputs are centred) with the penalty chosen by group-wise CV.
+
+    Leave-one-row-out CV leaks within a scene after per-scene centring (in a 3-object scene each row is minus
+    the sum of the other two), so the penalty is chosen with folds that keep whole scenes together. Solved in
+    kernel form on the GPU when available."""
+
+    def __init__(self, n_folds: int = 3, seed: int = 0):
+        self.n_folds, self.seed = n_folds, seed
+
+    @staticmethod
+    def _dev():
+        return "cuda" if torch.cuda.is_available() else "cpu"
+
+    def _solve(self, X, Y, alphas):
+        dt = torch.float32 if self._dev() == "cuda" else torch.float64
+        Xt = torch.as_tensor(X, dtype=dt, device=self._dev())
+        Yt = torch.as_tensor(Y, dtype=dt, device=self._dev())
+        w, Q = torch.linalg.eigh(Xt @ Xt.T)
+        QtY = Q.T @ Yt
+        return Xt, Q, w, QtY
+
+    def fit(self, X, Y, groups=None):
+        X, Y = np.asarray(X, dtype=np.float64), np.asarray(Y, dtype=np.float64)
+        groups = np.arange(len(X)) if groups is None else np.asarray(groups)
+        self.scale_ = float((X ** 2).sum(1).mean()) or 1.0
+        alphas = ALPHA_GRID * self.scale_
+        uniq = np.random.default_rng(self.seed).permutation(np.unique(groups))
+        fold_of = {g: k % self.n_folds for k, g in enumerate(uniq)}
+        f = np.array([fold_of[g] for g in groups])
+        err = np.zeros(len(alphas))
+        for k in range(self.n_folds):
+            tr, va = f != k, f == k
+            Xt, Q, w, QtY = self._solve(X[tr], Y[tr], alphas)
+            Kva = torch.as_tensor(X[va], dtype=Xt.dtype, device=Xt.device) @ Xt.T
+            Yva = torch.as_tensor(Y[va], dtype=Xt.dtype, device=Xt.device)
+            for j, a in enumerate(alphas):
+                P = Kva @ (Q @ (QtY / (w + a)[:, None]))
+                err[j] += float(((P - Yva) ** 2).sum())
+        self.alpha_ = float(alphas[int(err.argmin())])
+        Xt, Q, w, QtY = self._solve(X, Y, [self.alpha_])
+        A = Q @ (QtY / (w + self.alpha_)[:, None])
+        self.coef_ = (Xt.T @ A).T.double().cpu().numpy()  # [n_outputs, d]
+        return self
+
+    def predict(self, X):
+        return np.asarray(X, dtype=np.float64) @ self.coef_.T
+
+
+def fit_probe(X, Y, groups=None) -> GroupRidge:
+    return GroupRidge().fit(X, Y, groups)
 
 
 def _r2(Y, P) -> float:
@@ -100,13 +151,13 @@ def probe_by_layer(cache: dict, scenes, split, control: Literal[None, "shuffled"
         feat = "stated_relation" if control == "stated_relation" else None
         ytr = _shuffled_targets(scenes, tr, seed) if control == "shuffled" else None
         yte = _shuffled_targets(scenes, te, seed + 1) if control == "shuffled" else None
-        Xtr, Ytr, _ = centered_xy(acts, scenes, tr, feat, ytr)
+        Xtr, Ytr, mtr = centered_xy(acts, scenes, tr, feat, ytr)
         Xte, Yte, mte = centered_xy(acts, scenes, te, feat, yte)
         if nonlinear:
             model = MLPRegressor(hidden_layer_sizes=(256,), max_iter=300, early_stopping=True,
                                  random_state=seed).fit(Xtr, Ytr)
         else:
-            model = fit_probe(Xtr, Ytr)
+            model = fit_probe(Xtr, Ytr, groups=mtr["scene"].values)
         P = model.predict(Xte)
         lo, hi = _r2_ci(Yte, P, mte["scene"].values, n_boot, seed)
         hop = mte["hop"].values
@@ -138,7 +189,7 @@ def joint_eol_probe(cache_eol, scenes4, split, n_boot: int = 200, seed: int = 0)
     return pd.DataFrame(rows)
 
 
-def rsa_by_layer(cache: dict, scenes, n_boot: int = 200, min_objects: int = 4) -> pd.DataFrame:
+def rsa_by_layer(cache: dict, scenes, n_boot: int = 200, min_objects: int = 3) -> pd.DataFrame:
     """Per scene: Spearman correlation between activation distances and true distances (centred acts)."""
     acts_all = cache["list"]
     idx = [i for i, s in enumerate(scenes) if len(s.names) >= min_objects]
@@ -150,7 +201,8 @@ def rsa_by_layer(cache: dict, scenes, n_boot: int = 200, min_objects: int = 4) -
             A = acts_all[i, li, :n].float().numpy()
             C = np.array([scenes[i].coords[nm] for nm in scenes[i].names], float)
             rhos.append(spearmanr(pdist(A), pdist(C)).statistic)
-        est, lo, hi = bootstrap_ci(np.nan_to_num(rhos), n_boot=n_boot)
+        rhos = [r for r in rhos if np.isfinite(r)]
+        est, lo, hi = bootstrap_ci(rhos, n_boot=n_boot) if rhos else (np.nan, np.nan, np.nan)
         rows.append(dict(layer=li, rho=est, rho_lo=lo, rho_hi=hi))
     return pd.DataFrame(rows)
 

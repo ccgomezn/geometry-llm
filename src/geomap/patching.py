@@ -80,10 +80,25 @@ def run_pair(m: LoadedModel, base: Scene, src: Scene, leaf: str, qs: Sequence[Qu
 
 
 def consistency(df_all: pd.DataFrame, n_boot: int = 1000) -> pd.DataFrame:
-    """Per (site, layer): flip rate on diagnostic questions, control stability, joint consistency per pair."""
+    """Per (site, layer).
+
+    Headline (model-relative, ceiling 1): joint_iia = share of pairs whose patched answers equal the model's own
+    clean-source answers on every question, over pairs where at least one clean answer differs between base
+    and source; iia_rate = the same per question, on those differing questions.
+    Geometric (secondary): flip rate on diagnostic questions, control stability, joint consistency per pair."""
     d = df_all[~df_all.site.isin(["none", "source"])].copy()
     d["follows_src"] = d.model_ans == d.src_ans
     d["stays_base"] = d.model_ans == d.base_ans
+    # the model's own clean answers (targets of the model-relative interchange metric, ceiling 1)
+    clean_b = df_all[df_all.site == "none"].set_index(["pair", "qid"]).model_ans
+    clean_s = df_all[df_all.site == "source"].set_index(["pair", "qid"]).model_ans
+    have = len(clean_b) > 0 and len(clean_s) > 0
+    if have:
+        key = list(zip(d.pair, d.qid))
+        d["m_base"] = clean_b.reindex(key).values
+        d["m_src"] = clean_s.reindex(key).values
+        d["m_diag"] = d.m_src != d.m_base
+        d["iia"] = d.model_ans == d.m_src
     out = []
     for (site, layer), g in d.groupby(["site", "layer"]):
         per_pair = []
@@ -102,6 +117,15 @@ def consistency(df_all: pd.DataFrame, n_boot: int = 1000) -> pd.DataFrame:
             row.update(joint_consistency=jc[0], jc_lo=jc[1], jc_hi=jc[2],
                        flip_rate=fr[0], flip_lo=fr[1], flip_hi=fr[2])
         row["control_stability"] = float(ctrl.stays_base.mean()) if len(ctrl) else np.nan
+        if have:
+            jp = [(p, float(gp.iia.all())) for p, gp in g.groupby("pair") if gp.m_diag.any()]
+            row["n_pairs_iia"] = len(jp)
+            if jp:
+                ji = bootstrap_ci([v for _, v in jp], n_boot=n_boot)
+                md = g[g.m_diag]
+                row.update(joint_iia=ji[0], jiia_lo=ji[1], jiia_hi=ji[2], iia_rate=float(md.iia.mean()))
+                for qt, gq in md.groupby("qtype"):
+                    row[f"iia_{qt}"] = float(gq.iia.mean())
         for qt, gq in diag.groupby("qtype"):
             row[f"flip_{qt}"] = float(gq.follows_src.mean())
         out.append(row)

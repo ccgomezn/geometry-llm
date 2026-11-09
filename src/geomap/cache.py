@@ -15,11 +15,14 @@ MAX_OBJS = 6
 
 def cache_prefix(m: LoadedModel, specs: Sequence[PromptSpec], layers: Sequence[int],
                  batch_size: int = 16) -> dict[str, torch.Tensor]:
-    """Returns {"list": [N, L, 6, d] float16 (NaN-padded, slots in object-list order), "eol": [N, L, d]}."""
+    """Returns {"list": [N, L, 6, d] bfloat16 (NaN-padded, slots in object-list order), "eol": [N, L, d]}.
+
+    bfloat16, not float16: Gemma 3 residual-stream values exceed float16's range. Raises if any cached value
+    is not finite."""
     layers = sorted(layers)
     N, L, d = len(specs), len(layers), m.d_model
-    out_list = torch.full((N, L, MAX_OBJS, d), float("nan"), dtype=torch.float16)
-    out_eol = torch.empty((N, L, d), dtype=torch.float16)
+    out_list = torch.full((N, L, MAX_OBJS, d), float("nan"), dtype=torch.bfloat16)
+    out_eol = torch.empty((N, L, d), dtype=torch.bfloat16)
     pad = m.tok.pad_token_id if m.tok.pad_token_id is not None else m.tok.eos_token_id
     for b0 in range(0, N, batch_size):
         batch = specs[b0:b0 + batch_size]
@@ -42,9 +45,11 @@ def cache_prefix(m: LoadedModel, specs: Sequence[PromptSpec], layers: Sequence[i
             for l in layers:
                 h = layer_out(m, l)
                 dev = h.device
-                saved.append((h[rows.to(dev)[:, None], pos.to(dev)].half().cpu().save(),
-                              h[rows.to(dev), eol.to(dev)].half().cpu().save()))
+                saved.append((h[rows.to(dev)[:, None], pos.to(dev)].to(torch.bfloat16).cpu().save(),
+                              h[rows.to(dev), eol.to(dev)].to(torch.bfloat16).cpu().save()))
         for k, (hl, he) in enumerate(saved):
+            if not (torch.isfinite(hl).all() and torch.isfinite(he).all()):
+                raise ValueError(f"non-finite activations at layer {layers[k]}")
             for j in range(B):
                 out_list[b0 + j, k, :n_obj[j]] = hl[j, :n_obj[j]]
             out_eol[b0:b0 + B, k] = he

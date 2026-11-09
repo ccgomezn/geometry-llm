@@ -90,31 +90,39 @@ def main():
     fig.savefig(FIG / "p2_r2_by_hop.png", dpi=150)
     plt.close(fig)
 
-    controls = {"shuffled": shuf.r2.iloc[best], "stated relation": stated.r2.item(), "layer 0": real.r2.iloc[0]}
+    # preregistered criteria, as clarified for 3-object scenes (before any P2 data)
+    controls = {"shuffled": shuf.r2.iloc[best], "layer 0": real.r2.iloc[0]}
     if rand is not None:
         controls["random-init (same layer)"] = rand.r2.iloc[best]
-    margin_ok = all(best_row.r2 - v >= 0.3 for v in controls.values())
+    stated_hop2 = float(stated.r2_hop2p.item())
+    margin_ok = all(best_row.r2 - v >= 0.3 for v in controls.values()) and (best_row.r2_hop2p - stated_hop2 >= 0.3)
     hop_gap = best_row.r2_hop1 - best_row.r2_hop2p
+    rsa_ok = rsa.dropna(subset=["rho"])
     lines = [
-        f"Model **{a.model}**, {len(scenes)} scenes (80/20 split by scene), per-object readout in the object list.",
+        f"Model **{a.model}**, {len(scenes)} scenes (80/20 split by scene), per-object readout in the object list; "
+        f"ridge penalty chosen by scene-grouped cross-validation.",
         "",
         f"- **Best layer {best}: R² = {fmt(best_row)}** (1000 bootstrap resamples over test scenes)",
         "- Controls at that layer: " + ", ".join(f"{k} {v:.2f}" for k, v in controls.items()),
-        f"- By chain length at layer {best}: 1 step {best_row.r2_hop1:.2f}, 2+ steps {best_row.r2_hop2p:.2f} "
-        f"(gap {hop_gap:+.2f})",
-        f"- RSA (activation vs true distances, Spearman) at layer {best}: {fmt(rsa.iloc[best], 'rho')}; "
-        f"peak {rsa.rho.max():.2f} at layer {int(rsa.rho.idxmax())}",
+        f"- Stated-relation baseline (each object's own sentence only): overall {stated.r2.item():.2f}; "
+        f"1-step {stated.r2_hop1.item():.2f}, 2+-step {stated_hop2:.2f}",
+        f"- By chain length at layer {best}: probe 1-step {best_row.r2_hop1:.2f}, 2+-step {best_row.r2_hop2p:.2f} "
+        f"(gap {hop_gap:+.2f}); 2+-step advantage over the stated-relation baseline {best_row.r2_hop2p - stated_hop2:+.2f}",
     ]
+    if len(rsa_ok):
+        lines.append(f"- RSA (activation vs true distances, Spearman) at layer {best}: {fmt(rsa.iloc[best], 'rho')}; "
+                     f"peak {rsa_ok.rho.max():.2f} at layer {int(rsa_ok.loc[rsa_ok.rho.idxmax(), 'layer'])}")
     if eol is not None:
         lines.append(f"- Joint end-of-list probe (all objects from one position): peak R² {eol.r2.max():.2f} "
                      f"at layer {int(eol.r2.idxmax())}")
     if nonlin is not None:
         lines.append(f"- Nonlinear (MLP) probe, run because linear R² < 0.3: peak {nonlin.r2.max():.2f}")
-    lines += ["", "Against the preregistered P2 criteria:",
+    lines += ["", "Against the preregistered P2 criteria (as clarified):",
               f"- R² ≥ 0.6: {'yes' if best_row.r2 >= 0.6 else 'no'}",
-              f"- beats every control by ≥ 0.3: {'yes' if margin_ok else 'no'}",
-              f"- 2+ step objects within 0.1 of 1-step: {'yes' if hop_gap <= 0.1 else 'no'}",
-              f"- H-rel signature (R² < 0.3 or a clear drop with hops): "
+              f"- beats shuffled, layer-0 and random-init by ≥ 0.3, and the stated-relation baseline by ≥ 0.3 on "
+              f"2-step objects: {'yes' if margin_ok else 'no'}",
+              f"- 2-step objects within 0.1 of 1-step: {'yes' if hop_gap <= 0.1 else 'no'}",
+              f"- H-rel signature (R² < 0.3, or 2-step more than 0.2 below 1-step): "
               f"{'yes' if best_row.r2 < 0.3 or hop_gap > 0.2 else 'no'}"]
     append_entry(f"P2 probes ({a.model})", "\n".join(lines), [FIG / "p2_r2_by_layer.png", FIG / "p2_r2_by_hop.png"])
     print("\n".join(lines))

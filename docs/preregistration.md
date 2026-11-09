@@ -41,3 +41,22 @@ Every metric is reported with 95% bootstrap confidence intervals. The sample siz
 - **P1 outcome.** No model reached the gate on 4-object scenes. Best: Gemma 3 27B, 68% [67, 69]. The preregistered fallback (3-object scenes) was applied. On 3-object scenes, Gemma 3 27B passes: 76% [75, 77], with accuracy above chance on 2-hop questions of +0.27 [0.26, 0.29]. Gemma 3 12B narrowly fails (74.5%). **Chosen model: Gemma 3 27B; all P2–P4 scenes have 3 objects** (hop depth ≤ 2, so the multi-hop comparison is hop 1 vs hop 2).
 - **Question types at chance.** Question types where the chosen model's P1 accuracy CI on 3-object scenes includes chance are excluded from the P3 joint-consistency and P4 DAS/slider headline metrics, and reported separately. For Gemma 3 27B this is `closer_than` (0.53 [0.50, 0.56]).
 - Analyses on 4–5-object scenes with this model, if any, are exploratory.
+
+## Clarification 3 (2026-11-09, after an independent code review; before any P2–P4 result was produced or read)
+
+An independent review found defects that would bias the numbers or make criteria impossible on 3-object scenes. A P2 run had started on the old code; it was stopped before writing any output, and no P2–P4 number exists. Changes:
+
+- **Scoring.** Candidates are scored with case variants ("west" and "West"), and a candidate that is a token-prefix of another ("north" of "northwest") must be followed by a newline or end-of-turn token. The old scoring made "northwest" and "southwest" impossible answers. **P1 is rerun for all models.** The 4-object gate, the 3-object fallback and the "smallest passing model" rule are unchanged and applied automatically (`analysis.choose_model`, models ordered by parameter count). Small models are rerun on the main set only (150 scenes per object count).
+- **Exclusions.** Question types whose accuracy CI includes chance for the chosen model and configuration are excluded from the P3/P4 headline metrics, recomputed after rescoring. This replaces the earlier `closer_than` exclusion.
+- **P2.**
+  - The ridge penalty is chosen by scene-grouped cross-validation. Row-wise leave-one-out leaked within scenes after centring.
+  - Criterion (1): R² ≥ 0.6; the probe beats the shuffled, layer-0 and random-init controls by ≥ 0.3; and on 2-step objects it beats the stated-relation baseline by ≥ 0.3. Reason: on 3-object scenes the stated-relation baseline reaches R² ≈ 0.70 overall, by construction.
+  - The H-rel "clear drop" is defined as 2-step R² more than 0.2 below 1-step R².
+  - Activations are cached in bfloat16, since float16 overflowed on Gemma 3.
+- **P3.**
+  - The headline is the *joint agreement*: the share of pairs in which, after patching, every answer equals the model's own answer on the clean source prompt. It is computed over pairs where at least one clean answer differs between base and source (ceiling 1). Geometric joint consistency, on all pairs and on fully-correct pairs, is secondary; with ~80% per-question accuracy its ceiling is ≈ 0.2.
+  - H-map criterion (3): joint agreement ≥ 0.6 at the list position or the end of list (layers ≥ 1).
+  - H-rel criterion: joint agreement < 0.2 at those positions, with the relation-sentence site exceeding them at the same layer. Layer 0 is excluded, because patching the relation sentence there equals running the source prompt.
+- **P4.**
+  - DAS is trained and evaluated against the model's own clean-source answers. Criterion (4): ≥ 0.7 on every included question type, on questions where the model's clean answers differ.
+  - The slider grid is offset by half a step, so it never lands on exact geometric ties, and flips are matched first-to-first.

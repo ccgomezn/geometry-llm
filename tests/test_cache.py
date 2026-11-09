@@ -23,7 +23,7 @@ def test_cache_shapes_and_padding(m):
     specs = [build_prompt(s, None, m.tok, m.family) for s in scenes]
     c = cache_prefix(m, specs, layers=[0, 1, 2], batch_size=2)
     assert c["list"].shape == (5, 3, 6, m.d_model) and c["eol"].shape == (5, 3, m.d_model)
-    assert c["list"].dtype == torch.float16
+    assert c["list"].dtype == torch.bfloat16  # float16 overflows on Gemma 3 residuals (>65504)
     for i, s in enumerate(scenes):
         n = len(s.names)
         assert not torch.isnan(c["list"][i, :, :n]).any()
@@ -56,3 +56,19 @@ def test_save_load_roundtrip(m, tmp_path):
     c2, s2, layers = load_cache(tmp_path / "x.pt")
     assert s2 == scenes and layers == [1]
     assert torch.equal(torch.nan_to_num(c2["list"]), torch.nan_to_num(c["list"]))
+
+
+def test_cache_rejects_non_finite(m, monkeypatch):
+    import geomap.cache as gc
+    scenes = _scenes(2)
+    specs = [build_prompt(s, None, m.tok, m.family) for s in scenes]
+    real = gc.layer_out
+
+    def huge(mm, layer):
+        h = real(mm, layer)
+        h[:] = h * 1e39
+        return h
+
+    monkeypatch.setattr(gc, "layer_out", huge)
+    with pytest.raises(ValueError):
+        cache_prefix(m, specs, layers=[1])

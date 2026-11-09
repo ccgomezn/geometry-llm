@@ -75,7 +75,9 @@ def load(key: str, device: str | None = None, dtype=torch.bfloat16, random_init:
         hf = AutoModelForCausalLM.from_config(AutoConfig.from_pretrained(repo), dtype=dtype)
         if device == "auto":
             from accelerate import dispatch_model, infer_auto_device_map
-            dmap = infer_auto_device_map(hf, no_split_module_classes=getattr(hf, "_no_split_modules", None) or [])
+            cap = {i: int(torch.cuda.get_device_properties(i).total_memory * 0.75) for i in range(torch.cuda.device_count())}
+            dmap = infer_auto_device_map(hf, max_memory=cap,  # leave headroom for activations
+                                         no_split_module_classes=getattr(hf, "_no_split_modules", None) or [])
             hf = dispatch_model(hf, device_map=dmap)
         else:
             hf = hf.to(device)

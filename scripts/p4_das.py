@@ -20,8 +20,9 @@ FIG = ROOT / "results" / "figures"
 
 def best_layer(model):
     c = pd.read_csv(ROOT / "results" / "p3" / f"{model}_sweep_consistency.csv")
-    c = c[c.site == "list"]
-    return int(c.loc[c.joint_consistency.idxmax(), "layer"])
+    c = c[(c.site == "list") & (c.layer > 0)]
+    col = "joint_iia" if c.joint_iia.notna().any() else "joint_consistency"
+    return int(c.loc[c[col].idxmax(), "layer"]) if c[col].notna().any() else int(c.layer.median())
 
 
 def main():
@@ -45,6 +46,7 @@ def main():
     train, test = make_pairs(m, a.n_train, seed=5, **kw), make_pairs(m, a.n_test, seed=6, **kw)
 
     results = {}
+    torch.manual_seed(123)
     rnd = SubspaceIntervention(m.d_model, 2)  # untrained random 2-D subspace: control
     results["random k=2"] = eval_das(m, rnd, test, layer, a.site)
     for k in a.ks:
@@ -74,18 +76,21 @@ def main():
     plt.close(fig)
 
     lines = [f"Model **{a.model}**, layer {layer}, site {a.site}; {a.n_train} training pairs, {a.n_test} test pairs. "
-             "Interchange accuracy = the share of questions answered as the *source* map says, after swapping only "
-             "the learned subspace.", "",
-             "| method | " + " | ".join(qts) + " |", "|---|" + "---|" * len(qts)]
+             "Interchange accuracy = on questions where the model answers differently when the object is really "
+             "elsewhere, the share whose answer after swapping only the learned subspace equals that answer "
+             "(ceiling 1). Geometric accuracy (answers equal the moved layout) in the last column.", "",
+             "| method | " + " | ".join(qts) + " | |", "|---|" + "---|" * (len(qts) + 1)]
     for meth, d in results.items():
         d = d.set_index("qtype").reindex(qts)
-        lines.append(f"| {meth} | " + " | ".join(f"{r.acc:.2f} [{r.acc_lo:.2f}, {r.acc_hi:.2f}]" for r in d.itertuples()) + " |")
+        lines.append(f"| {meth} | " + " | ".join(f"{r.acc:.2f} [{r.acc_lo:.2f}, {r.acc_hi:.2f}]" for r in d.itertuples())
+                     + f" | geometric {d.loc['ALL', 'acc_geom']:.2f} |")
     d2 = results.get("DAS k=2")
     if d2 is not None:
         per = d2[d2.qtype != "ALL"]
-        ok = bool((per.acc >= 0.7).all())
-        lines += ["", f"Preregistered criterion (k = 2, ≥ 0.7 on every question type): **{'met' if ok else 'not met'}** "
-                  f"(lowest: {per.acc.min():.2f} on {per.loc[per.acc.idxmin(), 'qtype']})."]
+        ok = bool(per.acc.notna().all() and (per.acc >= 0.7).all())
+        low = (f"lowest: {per.acc.min():.2f} on {per.loc[per.acc.idxmin(), 'qtype']}" if per.acc.notna().any()
+               else "no question where the model's answer changes")
+        lines += ["", f"Preregistered criterion (k = 2, ≥ 0.7 on every question type): **{'met' if ok else 'not met'}** ({low})."]
     append_entry(f"P4 DAS ({a.model})", "\n".join(lines), [FIG / "p4_das.png"])
     print("\n".join(lines))
 

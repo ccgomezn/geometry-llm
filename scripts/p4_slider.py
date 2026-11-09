@@ -20,7 +20,7 @@ from geomap.prompts import NAME_POOLS, build_prompt, single_token_names
 from geomap.questions import all_questions
 from geomap.report import ROOT, append_entry
 from geomap.scenes import generate_scene, leaves
-from geomap.steering import natural_range, predicted_answers, slider, slider_agreement
+from geomap.steering import das_directions as subspace_directions, natural_range, predicted_answers, slider, slider_agreement
 
 FIG = ROOT / "results" / "figures"
 OUT = ROOT / "results" / "p4"
@@ -41,8 +41,8 @@ def das_directions(model, m, cache, scenes):
     iv.load_state_dict(torch.load(ckpt, map_location="cpu"))
     Q = iv.Q.detach().numpy()
     X, Y, _ = centered_xy(cache["list"][:, layer].float().numpy(), scenes, np.arange(len(scenes)))
-    B, *_ = np.linalg.lstsq(X @ Q, Y, rcond=None)  # subspace coords -> (x, y)
-    return layer, Q @ np.linalg.pinv(B), "DAS subspace"
+    D, _ = subspace_directions(Q, X, Y)
+    return layer, D, "DAS subspace"
 
 
 def main():
@@ -75,7 +75,7 @@ def main():
 
     rng = np.random.default_rng(7)
     names = single_token_names(m.tok, NAME_POOLS["people"])
-    grid = np.arange(-a.span, a.span + 1e-9, a.step)
+    grid = np.arange(-a.span, a.span + 1e-9, a.step) + a.step / 2  # offset: no exact geometric ties on grid points
     sweeps = {"x": np.stack([grid, np.zeros_like(grid)], 1), "y": np.stack([np.zeros_like(grid), grid], 1)}
     ref = cache["list"][:, layer].float().numpy().reshape(-1, m.d_model)
     ref_norms = np.linalg.norm(ref[~np.isnan(ref).any(1)], axis=1)

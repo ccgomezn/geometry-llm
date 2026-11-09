@@ -19,7 +19,7 @@ from geomap.prompts import NAME_POOLS, build_prompt, single_token_names
 from geomap.questions import QType, all_questions, answer_for, battery, margin
 from geomap.report import ROOT, append_entry
 from geomap.scenes import generate_scene
-from geomap.scoring import parse_cot_answer, predict, score
+from geomap.scoring import candidate_mass, parse_cot_answer, predict, score
 
 OUT = ROOT / "results" / "p1"
 FIG = ROOT / "results" / "figures"
@@ -101,7 +101,7 @@ def screen(key, a):
         recs.append(dict(set=st, scene_id=sid, n_objects=len(s.names), qtype=q.qtype.value,
                          max_hop=max_hop(s, q), margin=margin(q, s.coords), pool=pool,
                          correct=predict(sc) == answer_for(q, s.coords), chance=chance(q),
-                         answer=predict(sc), scores=json.dumps(sc)))
+                         answer=predict(sc), scores=json.dumps(sc), mass=candidate_mass(sc)))
     if m.family == "qwen3" and a.cot_n:
         recs += run_cot(m, cot, a.cot_tokens, batch_size=a.cot_batch)
     df = pd.DataFrame(recs)
@@ -141,6 +141,9 @@ def summarize(key, df):
     except Exception as e:  # noqa: BLE001
         sig = None
         lines.append(f"- Error signature failed: {e}")
+    if "mass" in main:
+        lines.append(f"- Validity: median probability on the allowed answers {float(np.exp(main['mass'].median())):.2f} "
+                     f"(5th percentile {float(np.exp(main['mass'].quantile(0.05))):.2f})")
     nt = df[df.set == "neartie"]
     lines.append(f"- Near-tie set (margin 0.25–1 unit / 2.5–10°): {fmt(bootstrap_ci(nt.correct.astype(float), groups=nt.scene_id))}")
     wl, nl = df[df.set == "list"], df[df.set == "nolist"]

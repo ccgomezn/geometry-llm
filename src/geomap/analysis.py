@@ -81,3 +81,24 @@ def gate(df: pd.DataFrame, min_acc: float = 0.75, min_excess: float = 0.15) -> d
     deep = df[(df["set"] == "main") & (df["max_hop"] >= 2)]
     excess = bootstrap_ci(deep["correct"].astype(float) - deep["chance"], groups=deep["scene_id"])
     return {"pass": bool(acc4[0] >= min_acc and excess[1] > min_excess), "acc4": acc4, "hop2_excess": excess}
+
+
+def choose_model(results: dict[str, pd.DataFrame], order: list[str]) -> dict:
+    """Preregistered P1 rule: the smallest model (in `order`) passing the gate on 4-object scenes; if none, the
+    smallest passing on 3-object scenes (fallback). Question types whose accuracy CI includes chance on the
+    chosen configuration are excluded from P3/P4 headline metrics."""
+    for n in (4, 3):
+        for name in order:
+            df = results[name].copy()
+            if n == 3:  # evaluate the gate on 3-object scenes
+                df = df[~((df["set"] == "main") & (df["n_objects"] != 3))].assign(
+                    n_objects=lambda d: d["n_objects"].where(d["set"] != "main", 4))
+            if gate(df)["pass"]:
+                main = results[name][(results[name]["set"] == "main") & (results[name]["n_objects"] == n)]
+                excl = []
+                for qt, d in main.groupby("qtype"):
+                    lo = bootstrap_ci(d["correct"].astype(float), groups=d["scene_id"], n_boot=500)[1]
+                    if lo <= d["chance"].mean():
+                        excl.append(qt)
+                return {"model": name, "n_objects": [n], "exclude": sorted(excl)}
+    return {"model": None, "n_objects": [], "exclude": []}

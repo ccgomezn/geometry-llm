@@ -56,3 +56,27 @@ def test_gate_pass_and_fail():
     assert gate(good)["pass"] and not gate(bad)["pass"]
     g = gate(good)
     assert 0.85 < g["acc4"][0] < 0.95 and g["hop2_excess"][1] > 0.15
+
+
+def _p1(acc4, acc3, closer3=0.5, seed=0):
+    rng = np.random.default_rng(seed)
+    rows = []
+    for n, acc in [(4, acc4), (3, acc3)]:
+        for i in range(600):
+            qt = ["farthest", "direction", "closer_than"][i % 3]
+            p = closer3 if (qt == "closer_than") else acc
+            rows.append(dict(set="main", n_objects=n, scene_id=n * 1000 + i // 3, max_hop=2, qtype=qt,
+                             chance=0.5 if qt == "closer_than" else 0.3, correct=rng.random() < p))
+    return pd.DataFrame(rows)
+
+
+def test_choose_model_prefers_smallest_on_4_objects_then_falls_back():
+    from geomap.analysis import choose_model
+    order = ["small", "big"]
+    c = choose_model({"small": _p1(0.5, 0.6), "big": _p1(0.9, 0.95)}, order)
+    assert c["model"] == "big" and c["n_objects"] == [4]
+    c = choose_model({"small": _p1(0.5, 0.8, closer3=0.8), "big": _p1(0.6, 0.9, closer3=0.8)}, order)
+    assert c["model"] == "small" and c["n_objects"] == [3] and c["exclude"] == []
+    c = choose_model({"small": _p1(0.5, 0.6), "big": _p1(0.6, 0.92)}, order)
+    assert c["model"] == "big" and c["exclude"] == ["closer_than"]  # at chance on the chosen configuration
+    assert choose_model({"small": _p1(0.3, 0.3)}, ["small"])["model"] is None
