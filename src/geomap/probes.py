@@ -121,11 +121,13 @@ def probe_by_layer(cache: dict, scenes, split, control: Literal[None, "shuffled"
 
 
 def joint_eol_probe(cache_eol, scenes4, split, n_boot: int = 200, seed: int = 0) -> pd.DataFrame:
-    """Predict all 4 objects' centred coordinates (list order, 8 outputs) from the end-of-list activation."""
+    """Predict all objects' centred coordinates (list order, 2k outputs) from the end-of-list activation.
+    All scenes must have the same number of objects."""
     tr, te = split
+    k = len(scenes4[0].names)
     Y = np.array([[c for n in s.names for c in s.coords[n]] for s in scenes4], dtype=float)
-    Y = Y.reshape(len(scenes4), 4, 2)
-    Y = (Y - Y.mean(1, keepdims=True)).reshape(len(scenes4), 8)
+    Y = Y.reshape(len(scenes4), k, 2)
+    Y = (Y - Y.mean(1, keepdims=True)).reshape(len(scenes4), 2 * k)
     rows = []
     for li in range(cache_eol.shape[1]):
         X = cache_eol[:, li].float().numpy()

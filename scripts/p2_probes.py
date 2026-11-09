@@ -25,6 +25,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
     ap.add_argument("--n-boot", type=int, default=200)
+    ap.add_argument("--eol", default="eol4", help="end-of-list cache name, e.g. eol3")
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     cache, scenes, layers = load_cache(ROOT / "cache" / a.model / "main.pt")
@@ -42,7 +43,7 @@ def main():
     best_row = probe_by_layer(cache, scenes, split, n_boot=1000, layers=[best]).iloc[0]
     rsa = rsa_by_layer(cache, scenes, n_boot=a.n_boot)
     eol = None
-    eol_path = ROOT / "cache" / a.model / "eol4.pt"
+    eol_path = ROOT / "cache" / a.model / f"{a.eol}.pt"
     if eol_path.exists():
         ec, es, _ = load_cache(eol_path)
         eol = joint_eol_probe(ec["eol"], es, scene_split(len(es)), n_boot=a.n_boot)
@@ -105,7 +106,7 @@ def main():
         f"peak {rsa.rho.max():.2f} at layer {int(rsa.rho.idxmax())}",
     ]
     if eol is not None:
-        lines.append(f"- Joint end-of-list probe (all 4 objects from one position): peak R² {eol.r2.max():.2f} "
+        lines.append(f"- Joint end-of-list probe (all objects from one position): peak R² {eol.r2.max():.2f} "
                      f"at layer {int(eol.r2.idxmax())}")
     if nonlin is not None:
         lines.append(f"- Nonlinear (MLP) probe, run because linear R² < 0.3: peak {nonlin.r2.max():.2f}")

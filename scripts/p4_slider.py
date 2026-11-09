@@ -53,6 +53,8 @@ def main():
     ap.add_argument("--step", type=float, default=0.5)
     ap.add_argument("--max-q", type=int, default=6)
     ap.add_argument("--force", action="store_true", help="smoke tests only: ignore the skip branch")
+    ap.add_argument("--n-objects", type=int, default=4)
+    ap.add_argument("--exclude", nargs="*", default=[])
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     p2 = pd.read_csv(ROOT / "results" / "p2" / f"{a.model}_real.csv")
@@ -79,9 +81,9 @@ def main():
     ref_norms = np.linalg.norm(ref[~np.isnan(ref).any(1)], axis=1)
     dfs, steered_norms = [], []
     for sc in range(a.n_scenes):
-        s = generate_scene(rng, names, 4)
+        s = generate_scene(rng, names, a.n_objects)
         leaf = leaves(s)[0]
-        qs = all_questions(s, min_margin=0.0, min_angle=0.0)
+        qs = [q for q in all_questions(s, min_margin=0.0, min_angle=0.0) if q.qtype.value not in a.exclude]
         moving = [q for q in qs if any(len(set(predicted_answers(s, leaf, d, q))) > 1 for d in sweeps.values())]
         still = [q for q in qs if q not in moving]
         pick = [moving[i] for i in rng.permutation(len(moving))[:a.max_q - 2]] + \

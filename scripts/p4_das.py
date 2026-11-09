@@ -35,11 +35,14 @@ def main():
     ap.add_argument("--epochs", type=int, default=5)
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--batch-size", type=int, default=8)
+    ap.add_argument("--n-objects", type=int, nargs="+", default=[4, 5])
+    ap.add_argument("--exclude", nargs="*", default=[])
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     layer = a.layer if a.layer is not None else best_layer(a.model)
     m = load(a.model)
-    train, test = make_pairs(m, a.n_train, seed=5), make_pairs(m, a.n_test, seed=6)
+    kw = dict(n_objects=tuple(a.n_objects), exclude_qtypes=tuple(a.exclude))
+    train, test = make_pairs(m, a.n_train, seed=5, **kw), make_pairs(m, a.n_test, seed=6, **kw)
 
     results = {}
     rnd = SubspaceIntervention(m.d_model, 2)  # untrained random 2-D subspace: control

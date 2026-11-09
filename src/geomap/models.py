@@ -73,7 +73,12 @@ def load(key: str, device: str | None = None, dtype=torch.bfloat16, random_init:
     if random_init:
         torch.manual_seed(0)
         hf = AutoModelForCausalLM.from_config(AutoConfig.from_pretrained(repo), dtype=dtype)
-        hf = hf.to("cuda:0" if device == "auto" else device)
+        if device == "auto":
+            from accelerate import dispatch_model, infer_auto_device_map
+            dmap = infer_auto_device_map(hf, no_split_module_classes=getattr(hf, "_no_split_modules", None) or [])
+            hf = dispatch_model(hf, device_map=dmap)
+        else:
+            hf = hf.to(device)
     elif device == "auto":
         hf = AutoModelForCausalLM.from_pretrained(repo, dtype=dtype, device_map="auto")
     else:

@@ -48,13 +48,15 @@ def main():
     ap.add_argument("--layer-step", type=int, default=2)
     ap.add_argument("--batch-size", type=int, default=32)
     ap.add_argument("--stage", choices=["A", "B", "AB"], default="AB")
+    ap.add_argument("--n-objects", type=int, nargs="+", default=[4, 5])
+    ap.add_argument("--exclude", nargs="*", default=[], help="question types excluded (preregistered: at chance)")
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     m = load(a.model)
     layers = list(range(0, m.n_layers + 1, a.layer_step))
 
     if "A" in a.stage:
-        pairs = make_pairs(m, a.n_sweep, seed=3)
+        pairs = make_pairs(m, a.n_sweep, seed=3, n_objects=tuple(a.n_objects), exclude_qtypes=tuple(a.exclude))
         dfA = run(m, pairs, SITES, layers, a.batch_size, "sweep")
         dfA.to_parquet(OUT / f"{a.model}_sweep.parquet")
     else:
@@ -79,7 +81,7 @@ def main():
 
     if "B" in a.stage:
         conf_layers = sorted({l for v in best2.values() for l in v})
-        pairsB = make_pairs(m, a.n_confirm, seed=4)
+        pairsB = make_pairs(m, a.n_confirm, seed=4, n_objects=tuple(a.n_objects), exclude_qtypes=tuple(a.exclude))
         dfB = run(m, pairsB, SITES[:3], conf_layers, a.batch_size, "confirm")
         dfB.to_parquet(OUT / f"{a.model}_confirm.parquet")
         cB = consistency(dfB, n_boot=1000)

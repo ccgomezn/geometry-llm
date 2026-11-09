@@ -98,3 +98,16 @@ def test_layer_subset_and_hop2p():
     cache, scenes = _synthetic()
     df = probe_by_layer(cache, scenes, scene_split(len(scenes)), n_boot=20, layers=[1])
     assert df.layer.tolist() == [1] and "r2_hop2p" in df.columns and df.r2_hop2p.item() > 0.9
+
+
+def test_joint_eol_probe_any_object_count():
+    scenes = [generate_scene(np.random.default_rng(i), POOL, 3) for i in range(300)]
+    rng = np.random.default_rng(0)
+    A = rng.normal(size=(D, 6))
+    eol = torch.zeros((300, 1, D))
+    for i, s in enumerate(scenes):
+        c = np.array([s.coords[n] for n in s.names], float)
+        c -= c.mean(0)
+        eol[i, 0] = torch.tensor(A @ c.reshape(6) + rng.normal(size=D) * 0.1)
+    j = joint_eol_probe(eol, scenes, scene_split(300), n_boot=20)
+    assert j.r2.item() > 0.9

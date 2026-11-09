@@ -73,3 +73,11 @@ def test_make_pairs(m):
     for base, src, leaf, qs in pairs:
         diag, ctrl = split_questions(qs, base.coords, src.coords)
         assert len(diag) >= 1 and len(diag) + len(ctrl) == len(qs)
+
+
+def test_make_pairs_object_count_and_exclusion(m):
+    from geomap.patching import make_pairs
+    pairs = make_pairs(m, 6, seed=1, n_objects=(3,), exclude_qtypes=("closer_than",))
+    for base, src, leaf, qs in pairs:
+        assert len(base.names) == 3
+        assert all(q.qtype.value != "closer_than" for q in qs)
