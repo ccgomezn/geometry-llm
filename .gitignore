@@ -1,0 +1,9 @@
+.venv/
+data/
+cache/
+__pycache__/
+.qodo/
+.DS_Store
+.superpowers/
+*.egg-info/
+.pytest_cache/
