@@ -56,6 +56,8 @@ def _wrap(hf, tok, key: str) -> LoadedModel:
 
 
 def load(key: str, device: str = "mps", dtype=torch.bfloat16, random_init: bool = False) -> LoadedModel:
+    if key == "tiny":  # smoke tests of the scripts
+        return load_tiny_for_tests()
     repo = MODELS[key]
     tok = AutoTokenizer.from_pretrained(repo)
     if random_init:
