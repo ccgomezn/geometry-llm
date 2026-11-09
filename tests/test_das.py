@@ -1,0 +1,54 @@
+import numpy as np
+import pytest
+import torch
+
+from geomap.das import SubspaceIntervention, eval_das, pair_rows, row_logprobs, train_das
+from geomap.models import load_tiny_for_tests
+from geomap.patching import make_pairs, run_pair
+
+
+@pytest.fixture(scope="module")
+def m():
+    return load_tiny_for_tests()
+
+
+@pytest.fixture(scope="module")
+def pairs(m):
+    return make_pairs(m, 6, seed=1)
+
+
+def test_q_orthonormal():
+    iv = SubspaceIntervention(64, 2)
+    Q = iv.Q
+    assert Q.shape == (64, 2)
+    assert torch.allclose(Q.T @ Q, torch.eye(2), atol=1e-5)
+
+
+def test_full_rank_replaces_and_masked_keeps_base():
+    torch.manual_seed(0)
+    hb, hs = torch.randn(5, 64), torch.randn(5, 64)
+    full = SubspaceIntervention(64, 64)
+    assert torch.allclose(full(hb, hs), hs, atol=1e-4)
+    iv = SubspaceIntervention(64, 2)
+    iv.mask.zero_()
+    assert torch.allclose(iv(hb, hs), hb)
+
+
+def test_full_rank_equals_patch(m, pairs):
+    base, src, leaf, qs = pairs[0]
+    full = SubspaceIntervention(m.d_model, m.d_model)
+    rows = pair_rows(m, [pairs[0]], layer=1, site="list")
+    lp = row_logprobs(m, rows, full, layer=1, grad=False)
+    ref = run_pair(m, base, src, leaf, qs, sites=["list"], layers=[1])
+    ref = ref[ref.site == "list"].set_index("qid")
+    for r, v in zip(rows, lp.tolist()):
+        if r["cand"] == r["src_ans"]:
+            assert abs(v - ref.loc[r["qid"], "lp_src_ans"]) < 1e-3
+
+
+def test_training_reduces_loss_and_eval_shape(m, pairs):
+    iv = train_das(m, pairs[:4], layer=1, site="list", k=2, epochs=6, lr=1e-2, batch_size=4, seed=0)
+    assert len(iv.history) >= 2 and iv.history[-1] <= iv.history[0] + 1e-6
+    df = eval_das(m, iv, pairs[4:], layer=1, site="list", n_boot=20)
+    assert {"qtype", "acc", "acc_lo", "acc_hi", "n"} <= set(df.columns)
+    assert "ALL" in df.qtype.tolist()

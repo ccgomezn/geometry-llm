@@ -64,3 +64,12 @@ def test_joint_consistency_math():
     assert c.joint_consistency == 0.5 and c.n_pairs == 2 and c.n_dropped == 1
     assert c.flip_rate == 0.75 and c.control_stability == 1.0
     assert c.flip_farthest == 1.0 and c.flip_direction == 0.5
+
+
+def test_make_pairs(m):
+    from geomap.patching import make_pairs
+    pairs = make_pairs(m, 5, seed=0)
+    assert len(pairs) == 5
+    for base, src, leaf, qs in pairs:
+        diag, ctrl = split_questions(qs, base.coords, src.coords)
+        assert len(diag) >= 1 and len(diag) + len(ctrl) == len(qs)

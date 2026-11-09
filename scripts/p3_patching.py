@@ -11,42 +11,12 @@ import numpy as np
 import pandas as pd
 
 from geomap.models import load
-from geomap.patching import consistency, run_pair
-from geomap.prompts import NAME_POOLS, make_pair_aligned, single_token_names
-from geomap.questions import all_questions, split_questions
+from geomap.patching import consistency, make_pairs, run_pair
 from geomap.report import ROOT, append_entry
-from geomap.scenes import generate_scene
 
 OUT = ROOT / "results" / "p3"
 FIG = ROOT / "results" / "figures"
 SITES = ["list", "relation", "eol", "all"]
-
-
-def make_pairs(m, n, seed, max_diag=6, max_ctrl=4):
-    rng = np.random.default_rng(seed)
-    pools = [single_token_names(m.tok, NAME_POOLS[k]) for k in ("people", "objects")]
-    pairs = []
-    while len(pairs) < n:
-        s = generate_scene(rng, pools[len(pairs) % 2], 4 + len(pairs) % 2)
-        try:
-            base, src, leaf = make_pair_aligned(s, rng, m.tok, m.family)
-        except ValueError:
-            continue
-        diag, ctrl = split_questions(all_questions(base), base.coords, src.coords)
-        if not diag:
-            continue
-        # spread diagnostic questions across question types
-        by_t = {}
-        for q in rng.permutation(len(diag)):
-            by_t.setdefault(diag[q].qtype, []).append(diag[q])
-        chosen = []
-        while len(chosen) < max_diag and any(by_t.values()):
-            for t in list(by_t):
-                if by_t[t] and len(chosen) < max_diag:
-                    chosen.append(by_t[t].pop())
-        chosen += [ctrl[i] for i in rng.permutation(len(ctrl))[:max_ctrl]]
-        pairs.append((base, src, leaf, chosen))
-    return pairs
 
 
 def run(m, pairs, sites, layers, bs, label):

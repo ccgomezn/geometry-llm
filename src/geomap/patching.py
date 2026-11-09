@@ -10,9 +10,9 @@ import torch
 
 from geomap.analysis import bootstrap_ci
 from geomap.models import LoadedModel, layer_out
-from geomap.prompts import PromptSpec, build_prompt
-from geomap.questions import Question, answer_for
-from geomap.scenes import Scene
+from geomap.prompts import NAME_POOLS, PromptSpec, build_prompt, make_pair_aligned, single_token_names
+from geomap.questions import Question, all_questions, answer_for, split_questions
+from geomap.scenes import Scene, generate_scene
 from geomap.scoring import predict, score
 
 Site = Literal["list", "relation", "eol", "all"]
@@ -106,3 +106,31 @@ def consistency(df_all: pd.DataFrame, n_boot: int = 1000) -> pd.DataFrame:
             row[f"flip_{qt}"] = float(gq.follows_src.mean())
         out.append(row)
     return pd.DataFrame(out)
+
+
+def make_pairs(m, n, seed, max_diag=6, max_ctrl=4):
+    """Aligned (base, source, leaf, questions) pairs; diagnostic questions spread across types, plus controls."""
+    rng = np.random.default_rng(seed)
+    pools = [single_token_names(m.tok, NAME_POOLS[k]) for k in ("people", "objects")]
+    pairs = []
+    while len(pairs) < n:
+        s = generate_scene(rng, pools[len(pairs) % 2], 4 + len(pairs) % 2)
+        try:
+            base, src, leaf = make_pair_aligned(s, rng, m.tok, m.family)
+        except ValueError:
+            continue
+        diag, ctrl = split_questions(all_questions(base), base.coords, src.coords)
+        if not diag:
+            continue
+        # spread diagnostic questions across question types
+        by_t = {}
+        for q in rng.permutation(len(diag)):
+            by_t.setdefault(diag[q].qtype, []).append(diag[q])
+        chosen = []
+        while len(chosen) < max_diag and any(by_t.values()):
+            for t in list(by_t):
+                if by_t[t] and len(chosen) < max_diag:
+                    chosen.append(by_t[t].pop())
+        chosen += [ctrl[i] for i in rng.permutation(len(ctrl))[:max_ctrl]]
+        pairs.append((base, src, leaf, chosen))
+    return pairs
