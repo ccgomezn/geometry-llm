@@ -35,3 +35,9 @@ Every metric is reported with 95% bootstrap confidence intervals. The sample siz
 ## Clarification (2026-11-09, before any model data)
 
 - DAS criterion (4): "interchange accuracy" is computed on **diagnostic questions only** (those whose answer differs between the base and source maps). Counting control questions would let a model that ignores the intervention score highly. All-question accuracy and control stability are reported alongside. This makes the criterion stricter.
+
+## Clarification (2026-11-09, after P1, before any P2–P4 data)
+
+- **P1 outcome.** No model reached the gate on 4-object scenes. Best: Gemma 3 27B, 68% [67, 69]. The preregistered fallback (3-object scenes) was applied. On 3-object scenes, Gemma 3 27B passes: 76% [75, 77], with accuracy above chance on 2-hop questions of +0.27 [0.26, 0.29]. Gemma 3 12B narrowly fails (74.5%). **Chosen model: Gemma 3 27B; all P2–P4 scenes have 3 objects** (hop depth ≤ 2, so the multi-hop comparison is hop 1 vs hop 2).
+- **Question types at chance.** Question types where the chosen model's P1 accuracy CI on 3-object scenes includes chance are excluded from the P3 joint-consistency and P4 DAS/slider headline metrics, and reported separately. For Gemma 3 27B this is `closer_than` (0.53 [0.50, 0.56]).
+- Analyses on 4–5-object scenes with this model, if any, are exploratory.
