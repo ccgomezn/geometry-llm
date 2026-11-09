@@ -31,3 +31,7 @@ Every metric is reported with 95% bootstrap confidence intervals. The sample siz
 - Multi-hop comparison: R² on objects with hop 1 vs hop ≥ 2 (centred coordinates), at the best layer.
 - Joint consistency (P3) uses only question types with ≥ 1 diagnostic question per pair; pairs with no diagnostic question are dropped and counted.
 - CIs: 95% percentile bootstrap, 1000 resamples, resampling scenes (P2) or pairs (P3, P4).
+
+## Clarification (2026-11-09, before any model data)
+
+- DAS criterion (4): "interchange accuracy" is computed on **diagnostic questions only** (those whose answer differs between the base and source maps). Counting control questions would let a model that ignores the intervention score highly. All-question accuracy and control stability are reported alongside. This makes the criterion stricter.

@@ -52,3 +52,13 @@ def test_training_reduces_loss_and_eval_shape(m, pairs):
     df = eval_das(m, iv, pairs[4:], layer=1, site="list", n_boot=20)
     assert {"qtype", "acc", "acc_lo", "acc_hi", "n"} <= set(df.columns)
     assert "ALL" in df.qtype.tolist()
+
+
+def test_eval_headline_counts_only_diagnostic(m, pairs):
+    iv = SubspaceIntervention(m.d_model, 2)
+    iv.mask.zero_()  # no intervention at all: diagnostic accuracy must not be inflated by controls
+    df = eval_das(m, iv, pairs, layer=1, site="list", n_boot=20).set_index("qtype")
+    assert {"acc_all", "control_stability"} <= set(df.columns)
+    assert df.loc["ALL", "n"] == sum(1 for b, s, l, qs in pairs for q in qs
+                                     if __import__("geomap.questions", fromlist=["answer_for"]).answer_for(q, b.coords)
+                                     != __import__("geomap.questions", fromlist=["answer_for"]).answer_for(q, s.coords))

@@ -147,7 +147,8 @@ def train_das(m: LoadedModel, train_pairs, layer: int, site: Site = "list", k: i
 
 def eval_das(m: LoadedModel, iv: SubspaceIntervention, test_pairs, layer: int, site: Site,
              n_boot: int = 1000) -> pd.DataFrame:
-    """Interchange accuracy: fraction of questions whose answer equals the source-map answer."""
+    """Interchange accuracy on diagnostic questions (the source map changes the answer); also reports
+    accuracy over all questions and stability on control questions."""
     rows = pair_rows(m, test_pairs, layer, site)
     lp = row_logprobs(m, rows, iv, layer).cpu().numpy()
     recs = []
@@ -159,7 +160,12 @@ def eval_das(m: LoadedModel, iv: SubspaceIntervention, test_pairs, layer: int, s
     df = pd.DataFrame(recs)
     out = []
     for qt, d in list(df.groupby("qtype")) + [("ALL", df)]:
-        est, lo, hi = bootstrap_ci(d.correct, groups=d.pair, n_boot=n_boot)
-        out.append(dict(qtype=qt, acc=est, acc_lo=lo, acc_hi=hi, n=len(d),
-                        acc_diagnostic=d[d.diagnostic].correct.mean() if d.diagnostic.any() else np.nan))
+        dd = d[d.diagnostic]  # headline: only questions whose answer should change
+        if len(dd):
+            est, lo, hi = bootstrap_ci(dd.correct, groups=dd.pair, n_boot=n_boot)
+        else:
+            est = lo = hi = np.nan
+        cc = d[~d.diagnostic]
+        out.append(dict(qtype=qt, acc=est, acc_lo=lo, acc_hi=hi, n=len(dd),
+                        acc_all=d.correct.mean(), control_stability=cc.correct.mean() if len(cc) else np.nan))
     return pd.DataFrame(out)
