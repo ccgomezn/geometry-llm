@@ -16,10 +16,12 @@ MODELS = {
     "qwen3-8b": "Qwen/Qwen3-8B",
     "qwen3-14b": "Qwen/Qwen3-14B",
     "gemma3-4b": "google/gemma-3-4b-it",
+    "gemma3-12b": "google/gemma-3-12b-it",
+    "gemma3-27b": "google/gemma-3-27b-it",
     "llama3.2-3b": "meta-llama/Llama-3.2-3B-Instruct",
 }
 FAMILY = {"qwen3-1.7b": "qwen3", "qwen3-4b": "qwen3", "qwen3-8b": "qwen3", "qwen3-14b": "qwen3", "qwen3-32b": "qwen3",
-          "gemma3-4b": "gemma3", "llama3.2-3b": "llama3", "tiny": "qwen3"}
+          "gemma3-4b": "gemma3", "gemma3-12b": "gemma3", "gemma3-27b": "gemma3", "llama3.2-3b": "llama3", "tiny": "qwen3"}
 
 
 @dataclass

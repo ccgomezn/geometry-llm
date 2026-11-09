@@ -91,3 +91,26 @@ Dated entries are appended after each phase. Every number carries a 95% bootstra
 - Object-list line: with 0.53, without 0.48, difference 0.05 [0.01, 0.08]
 
 ![p1_accuracy](figures/p1_accuracy.png)
+
+## 2026-11-09 19:27 · P1 behaviour screen
+**No model passed the gate**, so the fallback applies: qwen3-8b locally, then 14B on a rented GPU, then 3-object scenes.
+
+### qwen3-8b
+- 4-object accuracy: 0.42 [0.41, 0.44]; accuracy above chance on 2+ hop questions: 0.01 [0.00, 0.02] → gate **fail**
+
+| question | chance | 3 objects | 4 objects | 5 objects |
+|---|---|---|---|---|
+| closer_than | 0.50 | 0.49 [0.46, 0.51] | 0.49 [0.46, 0.51] | 0.48 [0.45, 0.51] |
+| closest | 0.36 | 0.59 [0.55, 0.62] | 0.34 [0.31, 0.38] | 0.26 [0.24, 0.29] |
+| direction | 0.12 | 0.36 [0.33, 0.39] | 0.18 [0.15, 0.20] | 0.13 [0.11, 0.15] |
+| farthest | 0.36 | 0.44 [0.40, 0.47] | 0.32 [0.29, 0.35] | 0.22 [0.19, 0.26] |
+| more_east | 0.50 | 0.69 [0.66, 0.73] | 0.57 [0.54, 0.60] | 0.50 [0.47, 0.53] |
+| more_north | 0.50 | 0.73 [0.70, 0.76] | 0.63 [0.60, 0.66] | 0.55 [0.52, 0.58] |
+
+- By deepest object involved: hop 1: 0.52 [0.50, 0.53]; hop 2: 0.42 [0.41, 0.43]; hop 3: 0.36 [0.34, 0.38]; hop 4: 0.35 [0.31, 0.38]
+- Error signature (standardised logistic coefficients): hop -0.29 [-0.32, -0.26], log margin 0.08 [0.05, 0.11]
+- Near-tie set (margin 0.25–1 unit / 2.5–10°): 0.36 [0.34, 0.39]
+- Object-list line: with 0.43, without 0.42, difference 0.00 [-0.01, 0.02]
+- Chain of thought on: 0.87 [0.77, 0.95] vs off 0.27 [0.17, 0.38] (same 60 questions; unparsed 10%, median 1625 tokens)
+
+![p1_accuracy](figures/p1_accuracy.png)
