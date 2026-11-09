@@ -35,20 +35,46 @@ def test_candidate_ids_in_answer_context(m):
         assert full[len(spec.input_ids):] == candidate_ids(m.tok, cand)
 
 
+def test_candidate_sequences_terminate_prefixes_and_cover_case(m):
+    from geomap.questions import COMPASS
+    from geomap.scoring import candidate_sequences, terminator_ids
+    seqs = candidate_sequences(m.tok, m.family, COMPASS)
+    terms = set(terminator_ids(m.tok, m.family))
+    north_variants = {tuple(m.tok.encode(v, add_special_tokens=False)) for v in ("north", "North")}
+    # "north" is a token-prefix of "northwest": every north sequence must end with a terminator
+    for sq in seqs["north"]:
+        assert sq[-1] in terms and tuple(sq[:-1]) in north_variants
+    assert {tuple(sq[:-1]) for sq in seqs["north"]} == north_variants
+    # a candidate that prefixes nothing is scored without a terminator, in both cases
+    ne = {tuple(m.tok.encode(v, add_special_tokens=False)) for v in ("northeast", "Northeast")}
+    assert {tuple(sq) for sq in seqs["northeast"]} <= ne | {t + (x,) for t in ne for x in terms}
+    assert len(seqs["northeast"]) >= 2
+
+
 def test_score_matches_manual_logprob(m):
+    from geomap.scoring import candidate_sequences
     spec, q = next((s, q) for s, q in _items(m, 1) if q.qtype == QType.DIRECTION)
     got = score(m, [(spec, q)])[0]
+    seqs = candidate_sequences(m.tok, m.family, q.candidates)
     hf = m.hf
     dev = next(hf.parameters()).device
-    for cand in ["northeast", "south"]:
-        c = candidate_ids(m.tok, cand)
-        ids = torch.tensor([spec.input_ids + c], device=dev)
-        with torch.no_grad():
-            lp = hf(input_ids=ids).logits[0].float().log_softmax(-1)
-        n = len(spec.input_ids)
-        manual = sum(lp[n - 1 + j, t].item() for j, t in enumerate(c))
+    n = len(spec.input_ids)
+    for cand in ["north", "northwest", "south"]:
+        parts = []
+        for c in seqs[cand]:
+            ids = torch.tensor([spec.input_ids + c], device=dev)
+            with torch.no_grad():
+                lp = hf(input_ids=ids).logits[0].float().log_softmax(-1)
+            parts.append(sum(lp[n - 1 + j, t].item() for j, t in enumerate(c)))
+        manual = float(torch.logsumexp(torch.tensor(parts), 0))
         assert abs(got[cand] - manual) < 1e-3
     assert set(got) == set(q.candidates)
+
+
+def test_candidate_mass_at_most_one(m):
+    from geomap.scoring import candidate_mass
+    for spec, q in _items(m, 2):
+        assert candidate_mass(score(m, [(spec, q)])[0]) <= 1e-4  # log of total probability <= 0
 
 
 def test_batching_invariance(m):

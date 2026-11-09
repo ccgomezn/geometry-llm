@@ -19,26 +19,63 @@ def candidate_ids(tok, cand: str) -> list[int]:
     return tok.encode(cand, add_special_tokens=False)
 
 
+_EOT = {"qwen3": "<|im_end|>", "llama3": "<|eot_id|>", "gemma3": "<end_of_turn>"}
+
+
+def terminator_ids(tok, family: str) -> list[int]:
+    """Tokens that can end a one-word answer: a newline or the chat end-of-turn token."""
+    out = []
+    nl = tok.encode("\n", add_special_tokens=False)
+    if len(nl) == 1:
+        out.append(nl[0])
+    eot = tok.convert_tokens_to_ids(_EOT.get(family, ""))
+    if isinstance(eot, int) and eot >= 0 and eot != tok.unk_token_id:
+        out.append(eot)
+    return out
+
+
+def candidate_sequences(tok, family: str, candidates: Sequence[str]) -> dict[str, list[list[int]]]:
+    """Token sequences whose total probability is a candidate's score.
+
+    Each candidate is scored as itself and, if lowercase, capitalised ("west" and "West"). A variant that is a
+    token-prefix of another candidate's variant ("North" of "Northwest") must be followed by a terminator, so
+    the shorter answer does not also count every longer answer that starts with it."""
+    variants = {c: list(dict.fromkeys([c] + ([c[0].upper() + c[1:]] if c[:1].islower() else []))) for c in candidates}
+    toks = {c: [candidate_ids(tok, v) for v in vs] for c, vs in variants.items()}
+    every = [(c, t) for c, ts in toks.items() for t in ts]
+    terms = terminator_ids(tok, family)
+    out = {}
+    for c, ts in toks.items():
+        seqs = []
+        for t in ts:
+            is_prefix = any(len(u) > len(t) and u[:len(t)] == t for c2, u in every if c2 != c)
+            seqs += [t + [x] for x in terms] if is_prefix else [t]
+        out[c] = seqs
+    return out
+
+
 def _rows(m: LoadedModel, items: Sequence[tuple[PromptSpec, Question]]):
-    """One row per distinct answer prefix (a trie over candidate tokens): the row's last position predicts
-    the next token of every candidate sharing that prefix. Single-token answers need one row per question."""
-    rows, cand_tok = [], []  # rows: (item, prefix, ids, next tokens needed)
+    """One row per distinct answer prefix (a trie over candidate token sequences): the row's last position
+    predicts the next token of every sequence sharing that prefix."""
+    rows, cand_seqs = [], []  # rows: (item, prefix, ids, next tokens needed)
     for i, (spec, q) in enumerate(items):
-        ct = {c: candidate_ids(m.tok, c) for c in q.candidates}
-        cand_tok.append(ct)
+        cs = candidate_sequences(m.tok, m.family, q.candidates)
+        cand_seqs.append(cs)
         need: dict[tuple, set] = {}
-        for toks in ct.values():
-            for k in range(len(toks)):
-                need.setdefault(tuple(toks[:k]), set()).add(toks[k])
+        for seqs in cs.values():
+            for toks in seqs:
+                for k in range(len(toks)):
+                    need.setdefault(tuple(toks[:k]), set()).add(toks[k])
         for pre, nxt in need.items():
             rows.append((i, pre, spec.input_ids + list(pre), sorted(nxt)))
-    return rows, cand_tok
+    return rows, cand_seqs
 
 
 def score(m: LoadedModel, items: Sequence[tuple[PromptSpec, Question]], edit: Edit | None = None,
           batch_size: int = 16) -> list[dict[str, float]]:
-    """Summed log-probability of each candidate. Rows are right-padded so prompt positions align for edits."""
-    rows, cand_tok = _rows(m, items)
+    """Log-probability of each candidate (summed over tokens, log-sum-exp over its variants; see
+    candidate_sequences). Rows are right-padded so prompt positions align for edits."""
+    rows, cand_seqs = _rows(m, items)
     next_lp: list[dict[tuple, dict[int, float]]] = [dict() for _ in items]
     pad = m.tok.pad_token_id if m.tok.pad_token_id is not None else m.tok.eos_token_id
     for b0 in range(0, len(rows), batch_size):
@@ -64,9 +101,18 @@ def score(m: LoadedModel, items: Sequence[tuple[PromptSpec, Question]], edit: Ed
         for j, (i, pre, _, nxt) in enumerate(batch):
             next_lp[i][pre] = {t: float(lp[j, k]) for k, t in enumerate(nxt)}
     out = []
-    for i, ct in enumerate(cand_tok):
-        out.append({c: sum(next_lp[i][tuple(toks[:k])][toks[k]] for k in range(len(toks))) for c, toks in ct.items()})
+    for i, cs in enumerate(cand_seqs):
+        d = {}
+        for c, seqs in cs.items():
+            parts = [sum(next_lp[i][tuple(t[:k])][t[k]] for k in range(len(t))) for t in seqs]
+            d[c] = float(torch.logsumexp(torch.tensor(parts, dtype=torch.float64), 0))
+        out.append(d)
     return out
+
+
+def candidate_mass(scores: dict[str, float]) -> float:
+    """Log of the total probability the model puts on the candidate answers (a validity check)."""
+    return float(torch.logsumexp(torch.tensor(list(scores.values()), dtype=torch.float64), 0))
 
 
 def predict(scores: dict[str, float]) -> str:

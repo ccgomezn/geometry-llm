@@ -35,15 +35,18 @@ def test_full_rank_replaces_and_masked_keeps_base():
 
 
 def test_full_rank_equals_patch(m, pairs):
+    from geomap.das import question_scores, _groups
     base, src, leaf, qs = pairs[0]
     full = SubspaceIntervention(m.d_model, m.d_model)
     rows = pair_rows(m, [pairs[0]], layer=1, site="list")
-    lp = row_logprobs(m, rows, full, layer=1, grad=False)
+    lp = row_logprobs(m, rows, full, layer=1, grad=False).cpu()
     ref = run_pair(m, base, src, leaf, qs, sites=["list"], layers=[1])
     ref = ref[ref.site == "list"].set_index("qid")
-    for r, v in zip(rows, lp.tolist()):
-        if r["cand"] == r["src_ans"]:
-            assert abs(v - ref.loc[r["qid"], "lp_src_ans"]) < 1e-3
+    for g in _groups(rows):
+        cands, cl = question_scores(rows, lp[g], g)
+        qid = rows[g[0]]["qid"]
+        sa = rows[g[0]]["src_ans"]
+        assert abs(float(cl[cands.index(sa)]) - ref.loc[qid, "lp_src_ans"]) < 1e-3
 
 
 def test_training_reduces_loss_and_eval_shape(m, pairs):
@@ -54,11 +57,18 @@ def test_training_reduces_loss_and_eval_shape(m, pairs):
     assert "ALL" in df.qtype.tolist()
 
 
-def test_eval_headline_counts_only_diagnostic(m, pairs):
+def test_eval_headline_counts_only_model_diagnostic(m, pairs):
+    from geomap.prompts import build_prompt
+    from geomap.scoring import predict, score
     iv = SubspaceIntervention(m.d_model, 2)
-    iv.mask.zero_()  # no intervention at all: diagnostic accuracy must not be inflated by controls
+    iv.mask.zero_()  # no intervention: the headline must not be inflated by questions whose answer stays put
     df = eval_das(m, iv, pairs, layer=1, site="list", n_boot=20).set_index("qtype")
-    assert {"acc_all", "control_stability"} <= set(df.columns)
-    assert df.loc["ALL", "n"] == sum(1 for b, s, l, qs in pairs for q in qs
-                                     if __import__("geomap.questions", fromlist=["answer_for"]).answer_for(q, b.coords)
-                                     != __import__("geomap.questions", fromlist=["answer_for"]).answer_for(q, s.coords))
+    assert {"acc_geom", "control_stability"} <= set(df.columns)
+    n_diag = 0
+    for b, s, l, qs in pairs:
+        cb = score(m, [(build_prompt(b, q, m.tok, m.family), q) for q in qs])
+        cs = score(m, [(build_prompt(s, q, m.tok, m.family), q) for q in qs])
+        n_diag += sum(predict(x) != predict(y) for x, y in zip(cb, cs))
+    assert df.loc["ALL", "n"] == n_diag
+    if n_diag:
+        assert df.loc["ALL", "acc"] == 0.0  # masked intervention never reproduces the source answer

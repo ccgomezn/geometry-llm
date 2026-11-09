@@ -15,7 +15,7 @@ from geomap.models import LoadedModel
 from geomap.patching import Site, prefix_acts, site_positions
 from geomap.prompts import build_prompt
 from geomap.questions import answer_for
-from geomap.scoring import candidate_ids
+from geomap.scoring import candidate_sequences, predict, score
 
 
 class SubspaceIntervention(nn.Module):
@@ -43,20 +43,38 @@ def _module(m: LoadedModel, layer: int):
 
 
 def pair_rows(m: LoadedModel, pairs, layer: int, site: Site) -> list[dict]:
-    """One row per (pair, question, candidate), carrying the source activations to swap in."""
+    """One row per (pair, question, candidate token sequence), carrying the source activations to swap in.
+
+    Each row also records the model's own answers on the clean base and clean source prompts: the target of an
+    interchange intervention is what the model says when the object really is elsewhere (ceiling = 1)."""
     rows = []
     for p, (base, src, leaf, qs) in enumerate(pairs):
         bpre = build_prompt(base, None, m.tok, m.family)
         pos = site_positions(bpre, site, leaf)
         src_h = prefix_acts(m, build_prompt(src, None, m.tok, m.family), [layer])[layer][pos].float()
-        for qi, q in enumerate(qs):
-            spec = build_prompt(base, q, m.tok, m.family)
+        bspecs = [build_prompt(base, q, m.tok, m.family) for q in qs]
+        clean = score(m, [(sp, q) for sp, q in zip(bspecs, qs)] +
+                      [(build_prompt(src, q, m.tok, m.family), q) for q in qs])
+        for qi, (q, spec) in enumerate(zip(qs, bspecs)):
             sa, ba = answer_for(q, src.coords), answer_for(q, base.coords)
-            for c in q.candidates:
-                cid = candidate_ids(m.tok, c)
-                rows.append(dict(pair=p, qid=qi, qtype=q.qtype.value, cand=c, src_ans=sa, base_ans=ba,
-                                 ids=spec.input_ids + cid, n=len(spec.input_ids), pos=pos, src_h=src_h))
+            mb, ms = predict(clean[qi]), predict(clean[len(qs) + qi])
+            for c, seqs in candidate_sequences(m.tok, m.family, q.candidates).items():
+                for t in seqs:
+                    rows.append(dict(pair=p, qid=qi, qtype=q.qtype.value, cand=c, src_ans=sa, base_ans=ba,
+                                     model_base=mb, model_src=ms, ids=spec.input_ids + t, n=len(spec.input_ids),
+                                     pos=pos, src_h=src_h))
     return rows
+
+
+def question_scores(rows: list[dict], lp_q: torch.Tensor, idx: list[int]) -> tuple[list[str], torch.Tensor]:
+    """Candidate log-probabilities for one question (log-sum-exp over each candidate's sequences).
+
+    `idx` are the question's row indices into `rows`; `lp_q[k]` is the log-probability of row idx[k]."""
+    assert len(lp_q) == len(idx)
+    cands = list(dict.fromkeys(rows[i]["cand"] for i in idx))
+    vals = [torch.logsumexp(torch.stack([lp_q[k] for k, i in enumerate(idx) if rows[i]["cand"] == c]), 0)
+            for c in cands]
+    return cands, torch.stack(vals)
 
 
 def _forward(m: LoadedModel, batch: list[dict], iv: nn.Module | None, layer: int) -> torch.Tensor:
@@ -115,7 +133,7 @@ def _groups(rows):
 
 def train_das(m: LoadedModel, train_pairs, layer: int, site: Site = "list", k: int = 2, epochs: int = 5,
               lr: float = 1e-3, batch_size: int = 8, seed: int = 0) -> SubspaceIntervention:
-    """Cross-entropy over each question's candidates toward the source-map answer; the model is frozen."""
+    """Cross-entropy over each question's candidates toward the model's own clean-source answer; frozen model."""
     torch.manual_seed(seed)
     m.hf.requires_grad_(False)
     dev = next(m.hf.parameters()).device
@@ -133,9 +151,9 @@ def train_das(m: LoadedModel, train_pairs, layer: int, site: Site = "list", k: i
             lp = row_logprobs(m, [rows[i] for i in idx], iv, layer, grad=True, batch_size=len(idx))
             loss, off = 0.0, 0
             for g in gb:
-                cand_lp = lp[off:off + len(g)]
-                target = next(t for t, i in enumerate(g) if rows[i]["cand"] == rows[i]["src_ans"])
-                loss = loss + nn.functional.cross_entropy(cand_lp[None], torch.tensor([target], device=lp.device))
+                cands, cl = question_scores(rows, lp[off:off + len(g)], g)
+                target = cands.index(rows[g[0]]["model_src"])
+                loss = loss + nn.functional.cross_entropy(cl[None], torch.tensor([target], device=cl.device))
                 off += len(g)
             loss = loss / len(gb)
             opt.zero_grad()
@@ -148,25 +166,29 @@ def train_das(m: LoadedModel, train_pairs, layer: int, site: Site = "list", k: i
 
 def eval_das(m: LoadedModel, iv: SubspaceIntervention, test_pairs, layer: int, site: Site,
              n_boot: int = 1000) -> pd.DataFrame:
-    """Interchange accuracy on diagnostic questions (the source map changes the answer); also reports
-    accuracy over all questions and stability on control questions."""
+    """Interchange accuracy: on questions where the model's clean base and clean source answers differ, the share
+    whose answer after swapping the subspace equals the clean-source answer (ceiling 1). Also reports the
+    geometric version (source-map answers on geometrically diagnostic questions) and control stability."""
     rows = pair_rows(m, test_pairs, layer, site)
-    lp = row_logprobs(m, rows, iv, layer).cpu().numpy()
+    lp = row_logprobs(m, rows, iv, layer).cpu()
     recs = []
     for g in _groups(rows):
-        best = max(g, key=lambda i: lp[i])
+        cands, cl = question_scores(rows, lp[g], g)
+        pred = cands[int(cl.argmax())]
         r = rows[g[0]]
-        recs.append(dict(pair=r["pair"], qtype=r["qtype"], correct=float(rows[best]["cand"] == r["src_ans"]),
-                         diagnostic=r["src_ans"] != r["base_ans"]))
+        recs.append(dict(pair=r["pair"], qtype=r["qtype"], correct=float(pred == r["model_src"]),
+                         diagnostic=r["model_src"] != r["model_base"],
+                         correct_geom=float(pred == r["src_ans"]), diagnostic_geom=r["src_ans"] != r["base_ans"]))
     df = pd.DataFrame(recs)
     out = []
     for qt, d in list(df.groupby("qtype")) + [("ALL", df)]:
-        dd = d[d.diagnostic]  # headline: only questions whose answer should change
+        dd = d[d.diagnostic]
         if len(dd):
             est, lo, hi = bootstrap_ci(dd.correct, groups=dd.pair, n_boot=n_boot)
         else:
             est = lo = hi = np.nan
-        cc = d[~d.diagnostic]
+        cc, dg = d[~d.diagnostic], d[d.diagnostic_geom]
         out.append(dict(qtype=qt, acc=est, acc_lo=lo, acc_hi=hi, n=len(dd),
-                        acc_all=d.correct.mean(), control_stability=cc.correct.mean() if len(cc) else np.nan))
+                        acc_geom=dg.correct_geom.mean() if len(dg) else np.nan,
+                        control_stability=cc.correct.mean() if len(cc) else np.nan))
     return pd.DataFrame(out)
