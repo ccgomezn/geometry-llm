@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import re
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -34,6 +35,7 @@ class PromptSpec:
     eol_pos: int
     relation_spans: dict[str, tuple[int, int]]  # subject name -> [start, end) token range
     prefix_len: int
+    question_pos: dict[str, int] = field(default_factory=dict)  # question argument -> its token in the question
 
 
 def single_token_names(tok, pool: list[str]) -> list[str]:
@@ -76,7 +78,10 @@ def build_prompt(scene: Scene, question: Question | None, tok, family: str, thin
     else:  # behavioural ablation: the end of the description stands in for the end of the list
         eol_char = len(content) - 1
     qtext = question.text if question is not None else f"Which object is farthest from {scene.names[0]}?"
-    content += "\n\n" + qtext + ANSWER_SUFFIX
+    content += "\n\n"
+    q_chars = ({a: len(content) + re.search(rf"\b{re.escape(a)}\b", qtext).start() for a in question.args}
+               if question is not None else {})
+    content += qtext + ANSWER_SUFFIX
 
     text = render_chat(tok, family, content, thinking)
     c0 = text.index(content)
@@ -95,7 +100,8 @@ def build_prompt(scene: Scene, question: Question | None, tok, family: str, thin
     spans = {n: (tok_at(a), tok_at(b - 1) + 1) for n, (a, b) in rel_spans_chars.items()}
     prefix_len = eol_pos + 1
     return PromptSpec(input_ids=list(ids) if question is not None else list(ids[:prefix_len]),
-                      list_pos=list_pos, eol_pos=eol_pos, relation_spans=spans, prefix_len=prefix_len)
+                      list_pos=list_pos, eol_pos=eol_pos, relation_spans=spans, prefix_len=prefix_len,
+                      question_pos={a: tok_at(c) for a, c in q_chars.items()})
 
 
 def aligned(base: PromptSpec, src: PromptSpec, leaf: str) -> bool:

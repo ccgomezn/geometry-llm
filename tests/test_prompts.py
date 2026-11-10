@@ -114,3 +114,17 @@ def test_prompt_without_list(tok, names):
     text = tok.decode(spec.input_ids)
     assert "The objects are" not in text and q.text in text
     assert spec.list_pos == {}
+
+
+def test_question_pos_decodes_to_question_arguments(tok, names):
+    s = _scene(5, names)
+    for q in battery(s, np.random.default_rng(0)):
+        spec = build_prompt(s, q, tok, "qwen3")
+        assert set(spec.question_pos) == set(q.args)
+        for n, p in spec.question_pos.items():
+            assert p >= spec.prefix_len  # inside the question, not the description or list
+            assert tok.decode([spec.input_ids[p]]).strip() == n
+
+
+def test_no_question_pos_without_question(tok, names):
+    assert build_prompt(_scene(5, names), None, tok, "qwen3").question_pos == {}

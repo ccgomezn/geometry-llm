@@ -169,9 +169,12 @@ def make_pairs(m, n, seed, max_diag=6, max_ctrl=4, n_objects=(4, 5), exclude_qty
     return pairs
 
 
-def question_positions(spec: PromptSpec, site: str) -> list[int]:
-    """Positions after the shared description: the question and the assistant header ("question"), or only the
-    final position, where the answer is read out ("question_last")."""
+def question_positions(spec: PromptSpec, site: str, leaf: str | None = None) -> list[int]:
+    """Positions after the shared description: the question and the assistant header ("question"), only the
+    final position, where the answer is read out ("question_last"), or the moved object's own name in the question
+    ("mention"; empty when the question does not name it)."""
+    if site == "mention":
+        return [spec.question_pos[leaf]] if leaf in spec.question_pos else []
     if site == "question":
         return list(range(spec.prefix_len, len(spec.input_ids)))
     if site == "question_last":
@@ -203,7 +206,9 @@ def run_pair_question(m: LoadedModel, base: Scene, src: Scene, leaf: str, qs: Se
         items.append((bspec, q)); meta.append(None); info.append(("none", -1, qi))
         items.append((sspec, q)); meta.append(None); info.append(("source", -1, qi))
         for site in sites:
-            pos = question_positions(bspec, site)
+            pos = question_positions(bspec, site, leaf)
+            if not pos:
+                continue
             for l in layers:
                 items.append((bspec, q))
                 meta.append((l, pos, acts[l][pos]))

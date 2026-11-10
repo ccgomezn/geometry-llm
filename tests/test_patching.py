@@ -136,3 +136,20 @@ def test_question_positions(m, pair):
     spec = build_prompt(base, qs[0], m.tok, m.family)
     assert question_positions(spec, "question") == list(range(spec.prefix_len, len(spec.input_ids)))
     assert question_positions(spec, "question_last") == [len(spec.input_ids) - 1]
+
+
+def test_mention_site_is_the_leafs_token_in_the_question(m, pair):
+    from geomap.patching import question_positions
+    base, _, leaf, qs = pair
+    for q in qs:
+        spec = build_prompt(base, q, m.tok, m.family)
+        pos = question_positions(spec, "mention", leaf)
+        assert pos == ([spec.question_pos[leaf]] if leaf in q.args else [])
+
+
+def test_mention_rows_only_for_questions_naming_the_leaf(m, pair):
+    from geomap.patching import run_pair_question
+    base, src, leaf, qs = pair
+    d = run_pair_question(m, base, src, leaf, qs, layers=[1], sites=("mention",))
+    named = {i for i, q in enumerate(qs) if leaf in q.args}
+    assert set(d[d.site == "mention"].qid) == named
