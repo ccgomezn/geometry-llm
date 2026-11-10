@@ -43,11 +43,25 @@ We build that test. We generate never-before-seen layouts described only in text
 
 ## 4. Behaviour: which models solve the task without writing?
 
-{{P1_TEXT}}
+We screened eight open models (Qwen3 1.7B–14B, Llama 3.2 3B, Gemma 3 4B–27B) on 150–500 fresh scenes each, answering immediately with no written reasoning (Fig. 1). No model reached the preregistered 0.75 on 4-object scenes. On the 3-object fallback, the smallest model to pass was **Gemma 3 12B** (0.76 [0.74, 0.77]; 0.68 on 4 objects), which we analyse below. One question type, "is Y closer to X than Z?", was at chance for every model and was excluded as preregistered.
+
+Three observations frame the mechanistic results:
+
+- **Silent solving is hard; written solving is not.** With thinking enabled, Qwen3-14B answers 0.98 of a 60-question 4-object sample correctly. Without it, accuracy on the full 4-object set is 0.56. The models can work through layouts in words; whether they can do so *internally* is the open question.
+- **Error signatures differ by family.** A logistic model of errors separates two drivers. One is chain length: how many sentences must be combined. The other is near-ties: how close the competing answers are geometrically, analogous to distance effects in human mental scanning. Qwen3-4B's errors are driven almost entirely by chain length (−0.23 vs 0.05). Gemma 3 4B's are driven by near-ties (0.22 vs −0.08). Gemma 3 12B shows both (−0.30, 0.31).
+- **The readout line is not a crutch.** Removing the object list from the prompt does not change accuracy (Gemma 3 12B: 0.66 with, 0.66 without). We can therefore use it as a measurement point without changing the task.
+
+Qwen models put almost no probability on bare one-word answers (median < 0.02 on the allowed answers, versus ≈ 1.0 for Gemma and Llama). Their forced-choice accuracies are therefore lower bounds.
 
 ## 5. Is there a decodable map? (probes)
 
-{{P2_TEXT}}
+For 3,000 fresh 3-object scenes, we fit a ridge probe at every layer. It maps the residual stream at each object's name in the object list to that object's scene-centred (x, y). Scenes are split 80/20 into training and test sets, and the penalty is chosen by scene-grouped cross-validation (Fig. 2a).
+
+- **Nothing in layers 0–11, then a map.** R² is ≈ 0 up to layer 11, jumps at layers 12–13, and peaks at **layer 21 (R² = 0.74 [0.72, 0.75])** before declining slowly (0.54 at layer 48). Shuffled labels, layer 0 and a randomly initialised copy of the model all give 0.00.
+- **Implied positions are decoded as well as stated ones.** Objects two steps from the anchor, whose position requires combining two sentences, are decoded at 0.74, compared with 0.76 for objects placed by one sentence. A baseline that reads only the object's own sentence reaches 0.22 on these objects. The model has *composed* the relations into a position; it has not merely copied a sentence.
+- **The map is per object, not one picture.** A probe asked to read every object's coordinates from a single position at the end of the list fails (R² ≤ 0.03). Distances between activations correlate only weakly with true distances (Spearman 0.19). The coordinates are written onto each object's own representation as a linear code, not laid out as one image.
+
+All preregistered P2 criteria for a map were met.
 
 ## 6. Is the map used? (patching, DAS, steering)
 
