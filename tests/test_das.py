@@ -98,3 +98,18 @@ def test_training_forward_holds_one_question_at_a_time(m, pairs):
     finally:
         h.remove()
     assert max(sizes) <= biggest
+
+
+def test_mention_site_full_rank_equals_one_token_patch(m, pairs):
+    from geomap.das import question_scores, _groups
+    from geomap.patching import run_pair_question
+    base, src, leaf, qs = pairs[0]
+    rows = pair_rows(m, [pairs[0]], layer=2, site="mention")
+    assert rows and {r["qid"] for r in rows} == {i for i, q in enumerate(qs) if leaf in q.args}
+    lp = row_logprobs(m, rows, SubspaceIntervention(m.d_model, m.d_model), layer=2).cpu()
+    ref = run_pair_question(m, base, src, leaf, qs, layers=[2], sites=("mention",))
+    ref = ref[ref.site == "mention"].set_index("qid")
+    for g in _groups(rows):
+        cands, cl = question_scores(rows, lp[g], g)
+        r = rows[g[0]]
+        assert abs(float(cl[cands.index(r["src_ans"])]) - ref.loc[r["qid"], "lp_src_ans"]) < 1e-3

@@ -12,7 +12,7 @@ from torch import nn
 
 from geomap.analysis import bootstrap_ci
 from geomap.models import LoadedModel
-from geomap.patching import Site, prefix_acts, site_positions
+from geomap.patching import Site, full_acts, prefix_acts, site_positions
 from geomap.prompts import build_prompt
 from geomap.questions import answer_for
 from geomap.scoring import candidate_sequences, predict, score
@@ -49,18 +49,28 @@ def pair_rows(m: LoadedModel, pairs, layer: int, site: Site) -> list[dict]:
     interchange intervention is what the model says when the object really is elsewhere (ceiling = 1)."""
     rows = []
     for p, (base, src, leaf, qs) in enumerate(pairs):
-        bpre = build_prompt(base, None, m.tok, m.family)
-        pos = site_positions(bpre, site, leaf)
-        src_h = prefix_acts(m, build_prompt(src, None, m.tok, m.family), [layer])[layer][pos].float()
+        # "mention": the moved object's name in the question; source states differ per question, and only
+        # questions that name it get rows (qid stays the index into the pair's full question list)
+        qids = [i for i, q in enumerate(qs) if site != "mention" or leaf in q.args]
+        if not qids:
+            continue
+        qids_all, qs = qids, [qs[i] for i in qids]
+        if site != "mention":
+            bpre = build_prompt(base, None, m.tok, m.family)
+            pos = site_positions(bpre, site, leaf)
+            src_h = prefix_acts(m, build_prompt(src, None, m.tok, m.family), [layer])[layer][pos].float()
         bspecs = [build_prompt(base, q, m.tok, m.family) for q in qs]
         clean = score(m, [(sp, q) for sp, q in zip(bspecs, qs)] +
                       [(build_prompt(src, q, m.tok, m.family), q) for q in qs])
         for qi, (q, spec) in enumerate(zip(qs, bspecs)):
             sa, ba = answer_for(q, src.coords), answer_for(q, base.coords)
             mb, ms = predict(clean[qi]), predict(clean[len(qs) + qi])
+            if site == "mention":
+                pos = [spec.question_pos[leaf]]
+                src_h = full_acts(m, build_prompt(src, q, m.tok, m.family), [layer])[layer][pos].float()
             for c, seqs in candidate_sequences(m.tok, m.family, q.candidates).items():
                 for t in seqs:
-                    rows.append(dict(pair=p, qid=qi, qtype=q.qtype.value, cand=c, src_ans=sa, base_ans=ba,
+                    rows.append(dict(pair=p, qid=qids_all[qi], qtype=q.qtype.value, cand=c, src_ans=sa, base_ans=ba,
                                      model_base=mb, model_src=ms, ids=spec.input_ids + t, n=len(spec.input_ids),
                                      pos=pos, src_h=src_h))
     return rows
