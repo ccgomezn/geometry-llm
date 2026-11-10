@@ -57,6 +57,16 @@ Almost never. At the best layer, 7% of the answers that should change did; at mo
 
 Partly. It builds the picture: positions it was never told are sitting in its activations (Finding 1). But when it answers, it doesn't consult that picture. It reaches for something more like a filing card for each sentence: a compact, editable code for what each sentence stated (Findings 2 and 3), recombined on demand (Finding 4). That's a sharper answer than I expected, and it gives the next experiments a target.
 
+## The question this leaves
+
+Which raises the obvious question: **if the model answers from what it was told, why build the map at all?** I see three possibilities.
+
+- **It's a backup.** In my chain test, the original sentences were still there, and the model could always work Cy out again from them. The map might be one of several copies that simply loses the vote when they disagree.
+- **It's a by-product.** Models learn from mountains of text where tracking where things are helps predict the next word. The map may be a trace of that: real, readable, but nothing here depends on it.
+- **It's for other jobs.** I asked five kinds of questions. The map may serve ones I didn't ask: describing the scene, continuing the story, harder geometry.
+
+The next experiment is designed to tell these apart: erase the map wherever the model stores the positions it worked out, and see whether its answers get worse. If they do, the map is doing real work. If nothing changes, it's a by-product.
+
 <!-- 27B: fill in after the replication -->
 
 ## What's next
