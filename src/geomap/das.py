@@ -102,7 +102,7 @@ def _forward(m: LoadedModel, batch: list[dict], iv: nn.Module | None, layer: int
     handle = _module(m, layer).register_forward_hook(hook) if iv is not None else None
     try:
         logits = m.hf(input_ids=ids.to(dev), attention_mask=am.to(dev),
-                      logits_to_keep=torch.tensor(need, device=dev)).logits.float()
+                      logits_to_keep=torch.tensor(need)).logits.float()  # CPU index: valid whatever GPU holds the last layer
     finally:
         if handle is not None:
             handle.remove()

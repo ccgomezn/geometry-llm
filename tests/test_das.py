@@ -72,3 +72,20 @@ def test_eval_headline_counts_only_model_diagnostic(m, pairs):
     assert df.loc["ALL", "n"] == n_diag
     if n_diag:
         assert df.loc["ALL", "acc"] == 0.0  # masked intervention never reproduces the source answer
+
+
+def test_logits_to_keep_index_is_on_cpu(m, pairs, monkeypatch):
+    # with device_map="auto" the final hidden states can sit on a different GPU than the first parameter;
+    # a CPU index tensor is valid for any device, a cuda:0 index is not (crashed P4 on 4 GPUs).
+    seen = {}
+    real = m.hf.forward
+
+    def spy(*args, **kw):
+        if "logits_to_keep" in kw:
+            seen["dev"] = kw["logits_to_keep"].device
+        return real(*args, **kw)
+
+    rows = pair_rows(m, [pairs[0]], layer=1, site="list")
+    monkeypatch.setattr(m.hf, "forward", spy)
+    row_logprobs(m, rows[:2], SubspaceIntervention(m.d_model, 2), layer=1)
+    assert seen["dev"].type == "cpu"
