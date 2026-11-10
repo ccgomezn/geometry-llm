@@ -167,6 +167,9 @@ def train_das(m: LoadedModel, train_pairs, layer: int, site: Site = "list", k: i
                 loss_sum += float(loss)
             opt.step()
             losses.append(loss_sum)
+            if len(losses) % 25 == 0:
+                print(f"[das] epoch {len(iv.history) + 1}/{epochs} step {len(losses)}/{-(-len(groups) // batch_size)} "
+                      f"loss {np.mean(losses[-25:]):.3f}", flush=True)
         iv.history.append(float(np.mean(losses)))
     return iv
 
