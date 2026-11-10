@@ -41,6 +41,9 @@ def main():
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     layer = a.layer if a.layer is not None else best_layer(a.model)
+    # the preregistered run (list site, layer from the P3 sweep) keeps the default names; anything else is exploratory
+    expl = a.site != "list" or a.layer is not None
+    tag = f"_{a.site}_L{layer}" if expl else ""
     m = load(a.model)
     kw = dict(n_objects=tuple(a.n_objects), exclude_qtypes=tuple(a.exclude))
     train, test = make_pairs(m, a.n_train, seed=5, **kw), make_pairs(m, a.n_test, seed=6, **kw)
@@ -55,7 +58,7 @@ def main():
         results[f"DAS k={k}"] = eval_das(m, iv, test, layer, a.site)
         print(f"k={k} loss history {iv.history}", flush=True)
     full = pd.concat([d.assign(method=k) for k, d in results.items()])
-    full.to_csv(OUT / f"{a.model}_das.csv", index=False)
+    full.to_csv(OUT / f"{a.model}_das{tag}.csv", index=False)
 
     fig, ax = plt.subplots(figsize=(8, 3.5))
     meths = list(results)
@@ -72,7 +75,7 @@ def main():
     ax.legend(fontsize=8)
     ax.set_title(f"P4 DAS at layer {layer}, {a.site} position ({a.model})")
     fig.tight_layout()
-    fig.savefig(FIG / "p4_das.png", dpi=150)
+    fig.savefig(FIG / f"p4_das{tag}.png", dpi=150)
     plt.close(fig)
 
     lines = [f"Model **{a.model}**, layer {layer}, site {a.site}; {a.n_train} training pairs, {a.n_test} test pairs. "
@@ -91,7 +94,7 @@ def main():
         low = (f"lowest: {per.acc.min():.2f} on {per.loc[per.acc.idxmin(), 'qtype']}" if per.acc.notna().any()
                else "no question where the model's answer changes")
         lines += ["", f"Preregistered criterion (k = 2, ≥ 0.7 on every question type): **{'met' if ok else 'not met'}** ({low})."]
-    append_entry(f"P4 DAS ({a.model})", "\n".join(lines), [FIG / "p4_das.png"])
+    append_entry(f"P4 DAS ({a.model})" + (f" — exploratory: {a.site} site, layer {layer}" if expl else ""), "\n".join(lines), [FIG / f"p4_das{tag}.png"])
     print("\n".join(lines))
 
 
