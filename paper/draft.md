@@ -72,7 +72,9 @@ By the preregistered criteria, the causal test for a map fails, and the test for
 
 ### 3.4 Subspace swaps and steering
 
-[P4 BLOCK]
+[DAS BLOCK]
+
+**Steering the decoded coordinates does nothing.** We moved one object's list-position representation along the probe's own (x, y) directions at layer 21, in half-unit steps over ±5 units, including positions no sentence states. In 50 scenes there were 268 sweeps where geometry predicts that some answer must flip. The model flipped in 2% of them, and the predicted and observed flip points are uncorrelated (r = 0.03). All steered activations stayed within the 1st–99th percentile of natural activation norms, so the null is not an off-distribution artefact.
 
 ## 4. Discussion
 

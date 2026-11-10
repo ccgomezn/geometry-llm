@@ -450,3 +450,15 @@ Against the preregistered P2 criteria (as clarified):
 ![p2_r2_by_layer](figures/p2_r2_by_layer.png)
 
 ![p2_r2_by_hop](figures/p2_r2_by_hop.png)
+
+## 2026-11-10 03:45 · P4 slider (gemma3-12b)
+Model **gemma3-12b**, layer 21, using probe directions; 50 scenes, x and y sweeps of ±5.0 units in 0.5-unit steps (including positions no sentence states).
+
+- Agreement with geometry along the sweeps: 0.64 [0.60, 0.68]
+- Sweeps where geometry predicts a flip: 268; the model also flips in 2% of them
+- Predicted vs observed flip position: r = 0.03; median offset -2.50 units
+- Steered activations within the natural norm range (1st–99th percentile): 100%
+
+![p4_slider_demo](figures/p4_slider_demo.png)
+
+![p4_slider_offsets](figures/p4_slider_offsets.png)
