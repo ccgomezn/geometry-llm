@@ -88,7 +88,7 @@ By the preregistered criteria, the causal test for a map fails, and the test for
 
 ## 5. Limitations
 
-One model (Gemma 3 12B), 3-object scenes (no model passed on 4), and five question types. Leaf-only moves; readout sites limited to the description. Single-token names on an integer grid; positions are expressed with a small set of sentence templates. Three preregistration clarifications were added. Two came after the behavioural data existed, and all three came before any probe or patching result. The third followed an independent code review that changed the scoring and the patching metric. All are dated in `docs/preregistration.md`. The thinking-mode comparison uses a different scoring method (free generation) than the silent condition.
+One model (Gemma 3 12B), 3-object scenes (no model passed on 4), and five question types. Leaf-only moves; readout sites limited to the description. Single-token names on an integer grid; positions are expressed with a small set of sentence templates. Three preregistration clarifications were added. Two came after the behavioural data existed, and all three came before any probe or patching result. The third followed an independent code review that changed the scoring and the patching metric. The rescoring also changed which model the unchanged selection rule picked, from Gemma 3 27B to the smaller Gemma 3 12B. All are dated in `docs/preregistration.md`. The thinking-mode comparison uses a different scoring method (free generation) than the silent condition.
 
 ## References
 

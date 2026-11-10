@@ -60,3 +60,7 @@ An independent review found defects that would bias the numbers or make criteria
 - **P4.**
   - DAS is trained and evaluated against the model's own clean-source answers. Criterion (4): ≥ 0.7 on every included question type, on questions where the model's clean answers differ.
   - The slider grid is offset by half a step, so it never lands on exact geometric ties, and flips are matched first-to-first.
+
+## Outcome note (2026-11-10, recorded after the rescored P1; no rule changed)
+
+Applying the unchanged rule to the rescored P1 selected **Gemma 3 12B on 3-object scenes** (0.76 [0.74, 0.77]; it is smaller than Gemma 3 27B, which also passes at 0.77). This supersedes the "Chosen model" line of the second clarification, which was based on the old scoring. Excluded at chance: `closer_than` (0.51 [0.48, 0.54]).
