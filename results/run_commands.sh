@@ -16,3 +16,7 @@ CUDA_VISIBLE_DEVICES=1,2,3 /home/cris_anemona_ai/.local/bin/uv run python script
 /home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 600 --n-test 400 --epochs 3
 /home/cris_anemona_ai/.local/bin/uv run python scripts/p4_slider.py --model gemma3-12b --n-objects 3 --exclude closer_than
 /home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 600 --n-test 400 --epochs 3
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 600 --n-test 400 --epochs 3 --site relation --layer 14
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 600 --n-test 400 --epochs 3
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 600 --n-test 400 --epochs 3 --site relation --layer 14
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p5_summary.py --model gemma3-12b

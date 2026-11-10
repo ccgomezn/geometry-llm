@@ -63,7 +63,7 @@ Patching sweeps every second layer on 100 pairs (Fig. 2b). The positive control,
 - **The relation sentence carries everything.** Copying only the moved object's sentence moves every answer consistently: joint agreement is ≥ 0.89 through layer 14 and indistinguishable from copying the whole description at every layer.
 - **Then the information leaves the description.** Between layers 16 and 32, both the sentence patch and the whole-description patch lose their effect (0.67 at layer 16, 0.25 at 20, 0.01 by 32). By then the question tokens have already read what they need.
 
-[P3 CONFIRM SENTENCE]
+A preregistered confirmation run on 390 new pairs, at the two best sweep layers per site, gives the same picture. Joint agreement is **0.00 [0.00, 0.00]** at the list position (layers 18 and 20) and at the end of the list. It is 0.94 [0.91, 0.96] at the relation sentence (layer 6), falling to 0.18 by layer 20. On the 44 pairs the model answers perfectly both before and after the move, the relation sentence reaches 1.00 at layer 6, and the list position stays at 0.00.
 
 By the preregistered criteria, the causal test for a map fails, and the test for relational use is met: < 0.2 at the readout positions, with the relation sentence carrying more.
 

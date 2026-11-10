@@ -462,3 +462,87 @@ Model **gemma3-12b**, layer 21, using probe directions; 50 scenes, x and y sweep
 ![p4_slider_demo](figures/p4_slider_demo.png)
 
 ![p4_slider_offsets](figures/p4_slider_offsets.png)
+
+## 2026-11-10 05:09 · P3 patching (gemma3-12b)
+Model **gemma3-12b**. Each pair differs in one sentence that moves one leaf object; the source's activations are copied into the base run at one site and layer, then every question is asked.
+
+**Joint agreement** = share of pairs where, after patching, *every* answer equals what the model says when the object really is elsewhere (pairs where at least one of those answers differs from the base run). Geometric joint consistency (all answers match the true layout) is shown for reference.
+
+- Positive control (copy the whole prefix, earliest layer): 0.95 (should be 1.00)
+- Best layers in the sweep: list → [18, 20], relation → [2, 6], eol → [2, 6]
+
+Confirmation run:
+
+| site | layer | joint agreement [95% CI] | per-question agreement | geometric joint | pairs |
+|---|---|---|---|---|---|
+| all | 2 | 0.95 [0.93, 0.97] | 0.99 | 0.28 | 390 |
+| all | 6 | 0.95 [0.93, 0.97] | 0.99 | 0.28 | 390 |
+| all | 18 | 0.50 [0.45, 0.55] | 0.76 | 0.22 | 390 |
+| all | 20 | 0.23 [0.19, 0.27] | 0.55 | 0.14 | 390 |
+| eol | 2 | 0.00 [0.00, 0.00] | 0.00 | 0.01 | 390 |
+| eol | 6 | 0.00 [0.00, 0.00] | 0.00 | 0.01 | 390 |
+| eol | 18 | 0.00 [0.00, 0.00] | 0.00 | 0.01 | 390 |
+| eol | 20 | 0.00 [0.00, 0.00] | 0.00 | 0.01 | 390 |
+| list | 2 | 0.00 [0.00, 0.00] | 0.00 | 0.01 | 390 |
+| list | 6 | 0.00 [0.00, 0.00] | 0.00 | 0.01 | 390 |
+| list | 18 | 0.00 [0.00, 0.00] | 0.01 | 0.01 | 390 |
+| list | 20 | 0.00 [0.00, 0.00] | 0.01 | 0.01 | 390 |
+| relation | 2 | 0.94 [0.92, 0.96] | 0.99 | 0.28 | 390 |
+| relation | 6 | 0.94 [0.91, 0.96] | 0.99 | 0.28 | 390 |
+| relation | 18 | 0.36 [0.32, 0.41] | 0.67 | 0.19 | 390 |
+| relation | 20 | 0.18 [0.15, 0.22] | 0.50 | 0.13 | 390 |
+
+Pairs the model answers fully correctly when unpatched (44 pairs):
+
+| site | layer | joint agreement [95% CI] | per-question agreement | geometric joint | pairs |
+|---|---|---|---|---|---|
+| all | 2 | 0.98 [0.93, 1.00] | 1.00 | 0.98 | 44 |
+| all | 6 | 0.98 [0.93, 1.00] | 0.99 | 0.98 | 44 |
+| all | 18 | 0.64 [0.48, 0.77] | 0.76 | 0.64 | 44 |
+| all | 20 | 0.34 [0.20, 0.48] | 0.54 | 0.34 | 44 |
+| eol | 2 | 0.00 [0.00, 0.00] | 0.00 | 0.00 | 44 |
+| eol | 6 | 0.00 [0.00, 0.00] | 0.00 | 0.00 | 44 |
+| eol | 18 | 0.00 [0.00, 0.00] | 0.00 | 0.00 | 44 |
+| eol | 20 | 0.00 [0.00, 0.00] | 0.00 | 0.00 | 44 |
+| list | 2 | 0.00 [0.00, 0.00] | 0.00 | 0.00 | 44 |
+| list | 6 | 0.00 [0.00, 0.00] | 0.00 | 0.00 | 44 |
+| list | 18 | 0.00 [0.00, 0.00] | 0.00 | 0.00 | 44 |
+| list | 20 | 0.00 [0.00, 0.00] | 0.01 | 0.00 | 44 |
+| relation | 2 | 0.98 [0.93, 1.00] | 0.99 | 0.98 | 44 |
+| relation | 6 | 1.00 [1.00, 1.00] | 1.00 | 1.00 | 44 |
+| relation | 18 | 0.57 [0.41, 0.70] | 0.70 | 0.57 | 44 |
+| relation | 20 | 0.34 [0.20, 0.48] | 0.53 | 0.34 | 44 |
+
+Against the preregistered P3 criteria (as clarified):
+- H-map: joint agreement ≥ 0.6 at the object's list position or the end of list → best 0.00 (layer 2) → not met
+- H-rel: < 0.2 at the readout positions, and at that layer the relation sentence carries more → readout 0.00, relation sentence at layer 2: 0.94 → met
+
+![p3_sweep](figures/p3_sweep.png)
+
+![p3_flip_by_qtype](figures/p3_flip_by_qtype.png)
+
+## 2026-11-10 05:10 · E1 summary
+Model **gemma3-12b**. Verdict against `docs/preregistration.md`: **Mixed**: see the per-criterion breakdown.
+
+| criterion | met |
+|---|---|
+| map_r2 | yes |
+| map_hops | yes |
+| rel_r2 | no |
+| map_jc | no |
+| rel_jc | yes |
+
+Not yet evaluated: map_das
+
+- P2: best layer 21, R² 0.74; 1-step 0.76 vs 2-step 0.74; stated-relation baseline on 2-step objects 0.22
+- P3: joint agreement at readout positions 0.00 (layer 2); relation sentence at that layer 0.94
+
+Prior work to engage in the write-up: Tehenan et al. 2025 (linear spatial models, single-answer steering) and An et al. 2026 (weak, fragmented coordinate probes in 7–8B models).
+
+![fig1_behavior](figures/fig1_behavior.png)
+
+![fig2_probes](figures/fig2_probes.png)
+
+![fig3_consistency](figures/fig3_consistency.png)
+
+![fig4_slider](figures/fig4_slider.png)
