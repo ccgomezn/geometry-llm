@@ -125,3 +125,21 @@ def test_probe_does_not_interpolate_noise_with_scene_groups():
     X, Y, meta = centered_xy(lst[:, 0].numpy(), scenes, np.arange(64))
     p = fit_probe(X, Y, groups=meta["scene"].values)
     assert p.alpha_ > ALPHA_GRID[0] * p.scale_
+
+
+def test_distance_rows_chain():
+    from geomap.probes import distance_rows
+    from geomap.scenes import Relation, Scene
+    rels = (Relation("M", "R", 0, 2, 0), Relation("C", "M", 3, 0, 1))
+    s = Scene(names=("C", "R", "M"), coords={"R": (0, 0), "M": (0, 2), "C": (3, 2)}, relations=rels,
+              parent={"R": None, "M": "R", "C": "M"}, hop={"R": 0, "M": 1, "C": 2}, seed=0)
+    meta, add = distance_rows([s], [0])
+    assert list(meta.name) == ["C", "M"] and list(meta.slot) == [0, 2]  # root excluded, list order kept
+    assert np.allclose(meta.dist, [np.hypot(3, 2), 2.0])
+    # additive baseline: one-hot of own (dx, dy) and of the parent's (dx, dy), values -5..5 -> 4 * 11 columns
+    assert add.shape == (2, 44)
+    c = add[0]  # C: own (3, 0), parent M's (0, 2)
+    assert c[0 * 11 + 3 + 5] == 1 and c[1 * 11 + 0 + 5] == 1 and c[2 * 11 + 0 + 5] == 1 and c[3 * 11 + 2 + 5] == 1
+    assert c.sum() == 4
+    m_ = add[1]  # M: own (0, 2), parent is the root: all-zero parent block
+    assert m_[22:].sum() == 0 and m_.sum() == 2

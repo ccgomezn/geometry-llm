@@ -210,3 +210,27 @@ def rsa_by_layer(cache: dict, scenes, n_boot: int = 200, min_objects: int = 3) -
 def probe_directions(probe) -> np.ndarray:
     """[d, 2] activation directions that move the probe's read-out by one unit in x and in y."""
     return np.linalg.pinv(probe.coef_)
+
+
+def distance_rows(scenes, idx) -> tuple[pd.DataFrame, np.ndarray]:
+    """Rows for every non-root object (object-list order): its distance to the root, plus the best *additive*
+    baseline features: one-hot codes of its own stated (dx, dy) and of its parent's (all-zero when the parent is
+    the root), values -5..5. Coordinates are sums of offsets, so they are additive; distance is not. A probe that
+    beats this baseline on two-step objects reads an interaction of the two offsets: a composed position."""
+    meta, add = [], []
+    for i in idx:
+        s = scenes[i]
+        rel = {r.subj: r for r in s.relations}
+        rx, ry = s.coords[s.root]
+        for k, name in enumerate(s.names):
+            if name == s.root:
+                continue
+            x, y = s.coords[name]
+            f = np.zeros(44)
+            own, par = rel[name], rel.get(s.parent[name])
+            f[0 * 11 + own.dx + 5] = f[1 * 11 + own.dy + 5] = 1
+            if par is not None:
+                f[2 * 11 + par.dx + 5] = f[3 * 11 + par.dy + 5] = 1
+            add.append(f)
+            meta.append((i, k, name, s.hop[name], float(np.hypot(x - rx, y - ry))))
+    return pd.DataFrame(meta, columns=["scene", "slot", "name", "hop", "dist"]), np.asarray(add, dtype=np.float32)
