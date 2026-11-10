@@ -20,3 +20,10 @@ CUDA_VISIBLE_DEVICES=1,2,3 /home/cris_anemona_ai/.local/bin/uv run python script
 /home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 600 --n-test 400 --epochs 3
 /home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 600 --n-test 400 --epochs 3 --site relation --layer 14
 /home/cris_anemona_ai/.local/bin/uv run python scripts/p5_summary.py --model gemma3-12b
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 600 --n-test 400 --epochs 3
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 300 --n-test 300 --epochs 2
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p3_necessity.py --model gemma3-12b --n-objects 3 --exclude closer_than
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p2_sentence_probe.py --model gemma3-12b
+/home/cris_anemona_ai/.local/bin/uv run python scripts/e2_composition.py --model gemma3-12b --exclude closer_than
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-12b --n-objects 3 --exclude closer_than --n-train 300 --n-test 300 --epochs 2
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p3_sites.py --model gemma3-12b --n-objects 3 --exclude closer_than

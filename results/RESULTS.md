@@ -546,3 +546,117 @@ Prior work to engage in the write-up: Tehenan et al. 2025 (linear spatial models
 ![fig3_consistency](figures/fig3_consistency.png)
 
 ![fig4_slider](figures/fig4_slider.png)
+
+## 2026-11-10 07:56 · P3 necessity (gemma3-12b) — exploratory
+Model **gemma3-12b**, 100 pairs (the P3 sweep's pairs). Exploratory, not preregistered: added after P3 showed that patching the readout positions alone changes no answer (insufficiency). Here the source description is copied everywhere *except* the objects' list positions and the end of the list.
+
+| layer | whole description | all but readout positions | difference |
+|---|---|---|---|
+| 6 | 0.97 [0.93, 1.00] | 0.98 [0.95, 1.00] | +0.01 |
+| 14 | 0.92 [0.86, 0.97] | 0.89 [0.82, 0.94] | -0.03 |
+| 18 | 0.45 [0.35, 0.56] | 0.42 [0.32, 0.53] | -0.03 |
+| 21 | 0.25 [0.16, 0.34] | 0.20 [0.12, 0.28] | -0.05 |
+| 24 | 0.15 [0.08, 0.23] | 0.16 [0.09, 0.24] | +0.01 |
+
+Effect sizes in the P3 sweep (mean |change in log-probability of the base answer|, nats):
+
+| layer | all | eol | list | relation |
+|---|---|---|---|---|
+| 6 | 7.51 | 0.05 | 0.05 | 7.50 |
+| 10 | 7.45 | 0.05 | 0.05 | 7.41 |
+| 14 | 7.42 | 0.05 | 0.04 | 7.32 |
+| 18 | 5.45 | 0.05 | 0.13 | 4.89 |
+| 20 | 4.10 | 0.05 | 0.10 | 3.90 |
+| 24 | 2.99 | 0.04 | 0.10 | 2.88 |
+| 30 | 1.71 | 0.04 | 0.06 | 1.63 |
+
+## 2026-11-10 08:04 · P2b sentence-end probe (gemma3-12b) — exploratory
+Model **gemma3-12b**, same 3,000 scenes and split as P2. Exploratory: added after P3 showed that patching the object's sentence moves the answers while patching its list mention does not.
+
+- Sentence end: best layer 24, R² 0.44 [0.42, 0.46]; one-step objects 0.42, two-step objects 0.76 (stated-sentence baseline 0.22); shuffled -0.00
+- List mention (P2): best layer 21, R² 0.74; two-step 0.74
+
+| layer | sentence end | sentence end, two-step | list mention | list, two-step |
+|---|---|---|---|---|
+| 4 | 0.26 | 0.43 | -0.00 | 0.00 |
+| 8 | 0.26 | 0.43 | -0.00 | 0.01 |
+| 10 | 0.27 | 0.44 | -0.00 | 0.01 |
+| 12 | 0.28 | 0.48 | 0.10 | 0.09 |
+| 14 | 0.34 | 0.61 | 0.29 | 0.36 |
+| 16 | 0.38 | 0.68 | 0.42 | 0.46 |
+| 18 | 0.39 | 0.69 | 0.62 | 0.58 |
+| 21 | 0.43 | 0.76 | 0.74 | 0.74 |
+| 24 | 0.44 | 0.76 | 0.70 | 0.71 |
+| 30 | 0.40 | 0.70 | 0.64 | 0.63 |
+| 40 | 0.33 | 0.56 | 0.57 | 0.55 |
+| 48 | 0.29 | 0.48 | 0.54 | 0.50 |
+
+![p2_sentence_vs_list](figures/p2_sentence_vs_list.png)
+
+## 2026-11-10 08:49 · E2 composition timing (gemma3-12b)
+Model **gemma3-12b**, 150 chain pairs (R → M → C, M's sentence first). M's sentence is copied from a scene where M (and therefore C) sits elsewhere. *follow* = answer equals the model's answer on that scene; *stay* = answer equals the model's answer on a scene where M moved but C kept its old position.
+
+| layer | M follows | C follows | C stays | M-questions | C-questions |
+|---|---|---|---|---|---|
+| 0 | 1.00 [1.00, 1.00] | 1.00 [1.00, 1.00] | 0.00 [0.00, 0.00] | 293 | 348 |
+| 4 | 1.00 [1.00, 1.00] | 0.99 [0.97, 1.00] | 0.01 [0.00, 0.02] | 293 | 348 |
+| 8 | 0.98 [0.95, 0.99] | 0.98 [0.97, 0.99] | 0.02 [0.01, 0.03] | 293 | 348 |
+| 10 | 0.99 [0.97, 1.00] | 0.98 [0.96, 0.99] | 0.02 [0.01, 0.04] | 293 | 348 |
+| 12 | 0.97 [0.94, 0.99] | 0.95 [0.92, 0.97] | 0.04 [0.02, 0.06] | 293 | 348 |
+| 14 | 0.96 [0.94, 0.98] | 0.95 [0.92, 0.97] | 0.05 [0.02, 0.07] | 293 | 348 |
+| 16 | 0.92 [0.89, 0.96] | 0.85 [0.81, 0.89] | 0.09 [0.06, 0.12] | 293 | 348 |
+| 18 | 0.79 [0.74, 0.84] | 0.77 [0.72, 0.82] | 0.15 [0.11, 0.19] | 293 | 348 |
+| 20 | 0.66 [0.61, 0.72] | 0.72 [0.67, 0.77] | 0.20 [0.15, 0.26] | 293 | 348 |
+| 24 | 0.58 [0.53, 0.64] | 0.69 [0.63, 0.75] | 0.22 [0.16, 0.27] | 293 | 348 |
+| 28 | 0.51 [0.46, 0.57] | 0.68 [0.62, 0.73] | 0.24 [0.19, 0.29] | 293 | 348 |
+| 32 | 0.08 [0.05, 0.11] | 0.61 [0.55, 0.66] | 0.25 [0.20, 0.31] | 293 | 348 |
+
+Preregistered verdict: **lazy**
+
+![e2_composition](figures/e2_composition.png)
+
+## 2026-11-10 08:53 · P2d distance probe (gemma3-12b) — exploratory
+Model **gemma3-12b**, same 3,000 scenes and split as P2, readout at the list mention. Exploratory. Target: each non-root object's distance to the root. Distance is not a sum of the stated offsets, so the best *additive* baseline (one-hot codes of the object's own and its parent's offsets) cannot fully fit it for two-step objects. Activations that beat it carry an interaction of the two offsets.
+
+- Best layer for two-step objects: 21, R² 0.62 [0.56, 0.67]
+- Best additive baseline: two-step -0.05, one-step 0.91
+- Reference from the true position (x, y, x², y², xy): two-step 0.95
+
+| layer | two-step | one-step |
+|---|---|---|
+| 0 | -0.12 | -0.04 |
+| 8 | -0.02 | 0.24 |
+| 12 | 0.13 | 0.40 |
+| 14 | 0.16 | 0.46 |
+| 16 | 0.33 | 0.55 |
+| 18 | 0.45 | 0.74 |
+| 21 | 0.62 | 0.80 |
+| 24 | 0.60 | 0.78 |
+| 30 | 0.52 | 0.73 |
+| 40 | 0.39 | 0.66 |
+| 48 | 0.42 | 0.67 |
+
+![p2_distance](figures/p2_distance.png)
+
+## 2026-11-10 08:58 · E2 strict question set (gemma3-12b) — deviation
+Model **gemma3-12b**. Deviation from the E2 preregistration (dated there): C-questions restricted to those whose model answers differ across base, source and hybrid. Under the preregistered definition, a C-question whose answer the move leaves unchanged counts as "follow" even when the patch does nothing.
+
+| layer | M follows | C follows | C stays | C-questions |
+|---|---|---|---|---|
+| 0 | 1.00 | 1.00 [1.00, 1.00] | 0.00 [0.00, 0.00] | 53 |
+| 8 | 0.98 | 0.98 [0.93, 1.00] | 0.00 [0.00, 0.00] | 53 |
+| 12 | 0.97 | 0.92 [0.84, 0.98] | 0.02 [0.00, 0.06] | 53 |
+| 14 | 0.96 | 0.92 [0.85, 0.98] | 0.02 [0.00, 0.06] | 53 |
+| 16 | 0.92 | 0.70 [0.60, 0.81] | 0.04 [0.00, 0.10] | 53 |
+| 18 | 0.79 | 0.55 [0.44, 0.67] | 0.09 [0.02, 0.18] | 53 |
+| 20 | 0.66 | 0.51 [0.40, 0.62] | 0.11 [0.03, 0.20] | 53 |
+| 22 | 0.62 | 0.43 [0.33, 0.56] | 0.15 [0.07, 0.26] | 53 |
+| 24 | 0.58 | 0.34 [0.22, 0.46] | 0.17 [0.08, 0.28] | 53 |
+| 26 | 0.59 | 0.34 [0.23, 0.47] | 0.19 [0.09, 0.29] | 53 |
+| 28 | 0.51 | 0.28 [0.18, 0.39] | 0.23 [0.13, 0.35] | 53 |
+| 30 | 0.48 | 0.32 [0.21, 0.43] | 0.13 [0.04, 0.24] | 53 |
+| 32 | 0.08 | 0.04 [0.00, 0.12] | 0.04 [0.00, 0.10] | 53 |
+
+Decision rule applied to the strict set: **mixed**
+
+![e2_strict](figures/e2_strict.png)

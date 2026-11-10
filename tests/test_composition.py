@@ -102,3 +102,19 @@ def test_verdict_rules():
     assert verdict(eager)[0] == "eager" and verdict(eager)[1] == 10
     assert verdict(lazy)[0] == "lazy"
     assert verdict(mixed)[0] == "mixed"
+
+
+def test_summarize_strict_drops_c_questions_unchanged_by_the_move():
+    df = _synthetic()
+    # add a C-question whose base answer equals the source answer (C moved with M, relation to M unchanged)
+    extra = []
+    for pair in range(10):
+        for site, ans in (("none", "q"), ("source", "q"), ("hybrid", "w")):
+            extra.append(dict(pair=pair, site=site, layer=-1, qid=2, model_ans=ans))
+        extra += [dict(pair=pair, site="patched", layer=0, qid=2, model_ans="q"),
+                  dict(pair=pair, site="patched", layer=20, qid=2, model_ans="q")]
+    df = pd.concat([df, pd.DataFrame(extra)], ignore_index=True)
+    loose = summarize(df, n_boot=20).set_index("layer")
+    strict = summarize(df, n_boot=20, strict=True).set_index("layer")
+    assert loose.loc[20, "n_C"] == 20 and loose.loc[20, "follow_C"] == 0.5  # the unchanged question "follows"
+    assert strict.loc[20, "n_C"] == 10 and strict.loc[20, "follow_C"] == 0 and strict.loc[20, "stay_C"] == 1

@@ -88,12 +88,15 @@ def run_chain_pair(m: LoadedModel, cp: ChainPair, layers, batch_size: int = 16) 
     return pd.concat([df, hy], ignore_index=True)
 
 
-def summarize(df: pd.DataFrame, n_boot: int = 1000, seed: int = 0) -> pd.DataFrame:
-    """Per layer: follow_M (M-questions), follow_C and stay_C (C-questions), with pair-bootstrap 95% CIs."""
+def summarize(df: pd.DataFrame, n_boot: int = 1000, seed: int = 0, strict: bool = False) -> pd.DataFrame:
+    """Per layer: follow_M (M-questions), follow_C and stay_C (C-questions), with pair-bootstrap 95% CIs.
+
+    strict: C-questions must give three different answers on base, source and hybrid. Otherwise a C-question
+    whose answer the move leaves unchanged (base == source) counts as "follow" even when the patch does nothing."""
     clean = {s: df[df.site == s].set_index(["pair", "qid"]).model_ans for s in ("none", "source", "hybrid")}
     b, s, h = clean["none"], clean["source"], clean["hybrid"].reindex(clean["none"].index)
     is_m = (b != s) & (s == h)
-    is_c = s != h
+    is_c = (s != h) & (b != s) & (b != h) if strict else s != h
     rng = np.random.default_rng(seed)
     rows = []
     for layer, g in df[df.site == "patched"].groupby("layer"):

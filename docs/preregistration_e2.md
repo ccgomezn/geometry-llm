@@ -36,3 +36,10 @@ Rates are per question, with 95% CIs from a pair-level bootstrap (1,000 resample
 ## Exploratory (labelled as such)
 
 The same analysis in scenes where C's sentence comes *before* M's. There, C's sentence cannot see M's, so any composition must happen later.
+
+## Deviation (2026-11-10, after the E2 data)
+
+The preregistered C-question definition (the model's source and hybrid answers differ) includes questions whose answer the move leaves unchanged (base = source). An example is "direction of C from M": C moves with M. When the patch has no effect, those questions count as "follow". That inflates follow_C, mostly at layers where the patch is weak. Both analyses are reported:
+
+- the preregistered definition, which gives the preregistered verdict;
+- a strict definition (base, source and hybrid answers all differ), as a labelled deviation (`scripts/e2_strict.py`).
