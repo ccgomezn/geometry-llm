@@ -13,6 +13,7 @@ import pandas as pd
 from geomap.report import ROOT
 
 R = ROOT / "results"
+UNREAD, READ = "#b4761d", "#2b57c9"  # list position (decodable, unused) / relation sentence (used)
 
 
 def main():
@@ -24,10 +25,10 @@ def main():
 
     ax = axs[0]
     real = pd.read_csv(R / "p2" / f"{M}_real.csv")
-    ax.fill_between(real.layer, real.r2_lo, real.r2_hi, alpha=0.25, color="C0")
-    ax.plot(real.layer, real.r2, color="C0", label="probe (all objects)")
+    ax.fill_between(real.layer, real.r2_lo, real.r2_hi, alpha=0.25, color=UNREAD)
+    ax.plot(real.layer, real.r2, color=UNREAD, label="probe at list position (all objects)")
     if "r2_hop2p" in real:
-        ax.plot(real.layer, real.r2_hop2p, color="C0", ls="--", lw=1, label="probe, objects 2+ steps away")
+        ax.plot(real.layer, real.r2_hop2p, color=UNREAD, ls="--", lw=1, label="same, objects two steps away")
     for f, lab, c in [("shuffled", "shuffled labels", "gray"), ("rand", "random-init model", "k")]:
         p = R / "p2" / f"{M}_{f}.csv"
         if p.exists():
@@ -47,8 +48,8 @@ def main():
     p3 = R / "p3" / f"{M}_sweep_consistency.csv"
     if p3.exists():
         c = pd.read_csv(p3)
-        for s, lab, col in [("list", "object's list position", "C0"), ("relation", "its relation sentence", "C1"),
-                            ("eol", "end of object list", "C2"), ("all", "whole prefix (control)", "gray")]:
+        for s, lab, col in [("list", "object's list position", UNREAD), ("relation", "its relation sentence", READ),
+                            ("eol", "end of object list", "#7a8b91"), ("all", "whole description (control)", "#b8c2c6")]:
             d = c[c.site == s].sort_values("layer")
             ax.plot(d.layer, d.joint_iia, marker="o", ms=3, color=col, label=lab)
             if "jiia_lo" in d:
