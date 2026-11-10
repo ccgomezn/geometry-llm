@@ -76,11 +76,19 @@ By the preregistered criteria, the causal test for a map fails, and the test for
 
 ## 4. Discussion
 
-[DISCUSSION]
+**What the model does.** Gemma 3 12B does compose relations into positions: from layer 12, the mention of each object in the list carries its implied (x, y), including positions reachable only by chaining sentences. It does not answer from that code. Answers depend on information that stays at the moved object's own sentence until about layer 14 and is then carried into the question between layers 16 and 32. The coordinates are computed, then ignored. Where a person would consult the picture, this model consults the sentences.
+
+**What this implies.**
+
+1. *Decodability is weak evidence of use, even at its best.* Our probe beats every control, including a baseline that rules out sentence copying, and still sits off the causal path. Probing results for "world models" and "spatial maps", ours included, should be read as upper bounds on what a model *could* use, unless they are paired with an intervention at the decoded site (cf. Hewitt & Liang, 2019; Vafa et al., 2024; An et al., 2026).
+2. *"Imagining" is a causal claim.* The imagery debate asked whether depictive representations do work in reasoning, not whether they exist (Kosslyn et al., 1978; Pylyshyn, 2002). The same distinction applies to models. In this model, a depictive-looking code exists and does no work at the place it is written.
+3. *Writing may be the model's sketchpad.* The gap between silent and written accuracy (0.56 vs 0.98 for Qwen3-14B) fits a picture in which models lack a persistent internal workspace for layouts, and text serves as one. Whether the coordinates become useful when the model writes them out is a natural next test.
+
+**What remains open.** We did not intervene at the question tokens, where the answer is assembled. A map built *on demand* there is not ruled out. We also moved only leaf objects. For a leaf, moving its sentence and moving its position are the same edit, so P3 locates the information but does not identify its format. Moving an object that others hang from, and checking that its dependants move with it, would separate the two.
 
 ## 5. Limitations
 
-[LIMITATIONS]
+One model (Gemma 3 12B), 3-object scenes (no model passed on 4), and five question types. Leaf-only moves; readout sites limited to the description. Single-token names on an integer grid; positions are expressed with a small set of sentence templates. Three preregistration clarifications were added. Two came after the behavioural data existed, and all three came before any probe or patching result. The third followed an independent code review that changed the scoring and the patching metric. All are dated in `docs/preregistration.md`. The thinking-mode comparison uses a different scoring method (free generation) than the silent condition.
 
 ## References
 
