@@ -326,3 +326,107 @@ Dated entries are appended after each phase. Every number carries a 95% bootstra
 - Object-list line: with 0.67, without 0.64, difference 0.03 [0.02, 0.05]
 
 ![p1_accuracy](figures/p1_accuracy.png)
+
+## 2026-11-09 23:13 · P1 behaviour screen
+**No model passed the gate**, so the fallback applies: qwen3-8b locally, then 14B on a rented GPU, then 3-object scenes.
+
+### gemma3-12b
+- 4-object accuracy: 0.68 [0.66, 0.69]; accuracy above chance on 2+ hop questions: 0.23 [0.22, 0.24] → gate **fail**
+
+| question | chance | 3 objects | 4 objects | 5 objects |
+|---|---|---|---|---|
+| closer_than | 0.50 | 0.51 [0.48, 0.54] | 0.49 [0.46, 0.52] | 0.48 [0.45, 0.51] |
+| closest | 0.36 | 0.79 [0.76, 0.82] | 0.65 [0.62, 0.69] | 0.55 [0.51, 0.58] |
+| direction | 0.12 | 0.77 [0.74, 0.79] | 0.62 [0.59, 0.66] | 0.50 [0.47, 0.53] |
+| farthest | 0.36 | 0.75 [0.72, 0.78] | 0.60 [0.57, 0.64] | 0.45 [0.41, 0.49] |
+| more_east | 0.50 | 0.86 [0.83, 0.88] | 0.85 [0.83, 0.87] | 0.78 [0.76, 0.81] |
+| more_north | 0.50 | 0.87 [0.85, 0.89] | 0.83 [0.81, 0.86] | 0.81 [0.78, 0.83] |
+
+- By deepest object involved: hop 1: 0.78 [0.76, 0.79]; hop 2: 0.64 [0.63, 0.65]; hop 3: 0.59 [0.57, 0.61]; hop 4: 0.57 [0.53, 0.61]
+- Error signature (standardised logistic coefficients): hop -0.30 [-0.33, -0.26], log margin 0.31 [0.27, 0.33]
+- Validity: median probability on the allowed answers 1.00 (5th percentile 0.95)
+- Near-tie set (margin 0.25–1 unit / 2.5–10°): 0.45 [0.42, 0.48]
+- Object-list line: with 0.66, without 0.66, difference 0.01 [-0.01, 0.03]
+
+![p1_accuracy](figures/p1_accuracy.png)
+
+## 2026-11-09 23:27 · P1 behaviour screen
+**No model passed the gate**, so the fallback applies: qwen3-8b locally, then 14B on a rented GPU, then 3-object scenes.
+
+### qwen3-14b
+- 4-object accuracy: 0.56 [0.55, 0.57]; accuracy above chance on 2+ hop questions: 0.15 [0.14, 0.16] → gate **fail**
+
+| question | chance | 3 objects | 4 objects | 5 objects |
+|---|---|---|---|---|
+| closer_than | 0.50 | 0.55 [0.52, 0.58] | 0.53 [0.50, 0.56] | 0.51 [0.48, 0.55] |
+| closest | 0.36 | 0.63 [0.59, 0.66] | 0.39 [0.35, 0.42] | 0.28 [0.25, 0.30] |
+| direction | 0.12 | 0.55 [0.52, 0.58] | 0.38 [0.34, 0.41] | 0.25 [0.22, 0.28] |
+| farthest | 0.36 | 0.73 [0.70, 0.76] | 0.53 [0.49, 0.56] | 0.29 [0.25, 0.33] |
+| more_east | 0.50 | 0.82 [0.79, 0.85] | 0.74 [0.71, 0.77] | 0.71 [0.68, 0.74] |
+| more_north | 0.50 | 0.87 [0.85, 0.90] | 0.80 [0.77, 0.82] | 0.77 [0.75, 0.80] |
+
+- By deepest object involved: hop 1: 0.63 [0.62, 0.65]; hop 2: 0.57 [0.56, 0.58]; hop 3: 0.49 [0.47, 0.50]; hop 4: 0.45 [0.41, 0.48]
+- Error signature (standardised logistic coefficients): hop -0.27 [-0.31, -0.24], log margin 0.25 [0.21, 0.28]
+- Validity: median probability on the allowed answers 0.02 (5th percentile 0.00)
+- Near-tie set (margin 0.25–1 unit / 2.5–10°): 0.41 [0.38, 0.44]
+- Object-list line: with 0.55, without 0.53, difference 0.02 [-0.01, 0.04]
+
+![p1_accuracy](figures/p1_accuracy.png)
+
+## 2026-11-09 23:34 · P1 behaviour screen
+**No model passed the gate**, so the fallback applies: qwen3-8b locally, then 14B on a rented GPU, then 3-object scenes.
+
+### qwen3-8b
+- 4-object accuracy: 0.45 [0.43, 0.47]; accuracy above chance on 2+ hop questions: 0.04 [0.02, 0.05] → gate **fail**
+
+| question | chance | 3 objects | 4 objects | 5 objects |
+|---|---|---|---|---|
+| closer_than | 0.50 | 0.49 [0.45, 0.54] | 0.53 [0.47, 0.58] | 0.52 [0.47, 0.57] |
+| closest | 0.36 | 0.54 [0.48, 0.60] | 0.40 [0.34, 0.47] | 0.27 [0.22, 0.33] |
+| direction | 0.12 | 0.31 [0.26, 0.36] | 0.25 [0.21, 0.30] | 0.21 [0.17, 0.26] |
+| farthest | 0.36 | 0.45 [0.39, 0.52] | 0.34 [0.28, 0.41] | 0.23 [0.18, 0.29] |
+| more_east | 0.50 | 0.69 [0.63, 0.75] | 0.55 [0.49, 0.60] | 0.51 [0.44, 0.57] |
+| more_north | 0.50 | 0.76 [0.69, 0.81] | 0.61 [0.55, 0.67] | 0.56 [0.50, 0.62] |
+
+- By deepest object involved: hop 1: 0.50 [0.48, 0.53]; hop 2: 0.44 [0.42, 0.46]; hop 3: 0.41 [0.38, 0.44]; hop 4: 0.43 [0.37, 0.50]
+- Error signature (standardised logistic coefficients): hop -0.17 [-0.22, -0.11], log margin 0.12 [0.06, 0.17]
+- Validity: median probability on the allowed answers 0.00 (5th percentile 0.00)
+
+![p1_accuracy](figures/p1_accuracy.png)
+
+## 2026-11-10 00:32 · P1 behaviour screen
+**No model passed the gate**, so the fallback applies: qwen3-8b locally, then 14B on a rented GPU, then 3-object scenes.
+
+### gemma3-27b
+- 4-object accuracy: 0.70 [0.68, 0.71]; accuracy above chance on 2+ hop questions: 0.28 [0.27, 0.29] → gate **fail**
+
+| question | chance | 3 objects | 4 objects | 5 objects |
+|---|---|---|---|---|
+| closer_than | 0.50 | 0.53 [0.50, 0.56] | 0.53 [0.50, 0.56] | 0.54 [0.51, 0.57] |
+| closest | 0.36 | 0.76 [0.73, 0.79] | 0.62 [0.59, 0.66] | 0.55 [0.52, 0.58] |
+| direction | 0.12 | 0.86 [0.83, 0.88] | 0.70 [0.67, 0.73] | 0.59 [0.56, 0.62] |
+| farthest | 0.36 | 0.77 [0.74, 0.80] | 0.68 [0.64, 0.71] | 0.59 [0.55, 0.62] |
+| more_east | 0.50 | 0.87 [0.84, 0.89] | 0.84 [0.81, 0.86] | 0.79 [0.76, 0.81] |
+| more_north | 0.50 | 0.86 [0.83, 0.89] | 0.82 [0.80, 0.85] | 0.79 [0.76, 0.82] |
+
+- By deepest object involved: hop 1: 0.76 [0.75, 0.78]; hop 2: 0.69 [0.68, 0.70]; hop 3: 0.64 [0.62, 0.66]; hop 4: 0.62 [0.58, 0.67]
+- Error signature (standardised logistic coefficients): hop -0.18 [-0.22, -0.15], log margin 0.28 [0.24, 0.31]
+- Validity: median probability on the allowed answers 1.00 (5th percentile 0.05)
+- Near-tie set (margin 0.25–1 unit / 2.5–10°): 0.51 [0.48, 0.54]
+- Object-list line: with 0.68, without 0.64, difference 0.05 [0.03, 0.07]
+
+![p1_accuracy](figures/p1_accuracy.png)
+
+## 2026-11-10 00:32 · P1 rescored: model choice
+**Chosen: gemma3-12b** on 3-object scenes; excluded question types (at chance): closer_than.
+
+| model | 4-object accuracy | 3-object accuracy | 4-object gate |
+|---|---|---|---|
+| qwen3-1.7b | 0.42 | 0.47 | fail |
+| llama3.2-3b | 0.56 | 0.61 | fail |
+| qwen3-4b | 0.43 | 0.55 | fail |
+| gemma3-4b | 0.53 | 0.60 | fail |
+| qwen3-8b | 0.45 | 0.53 | fail |
+| gemma3-12b | 0.68 | 0.76 | fail |
+| qwen3-14b | 0.56 | 0.69 | fail |
+| gemma3-27b | 0.70 | 0.77 | fail |
