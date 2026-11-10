@@ -660,3 +660,181 @@ Model **gemma3-12b**. Deviation from the E2 preregistration (dated there): C-que
 Decision rule applied to the strict set: **mixed**
 
 ![e2_strict](figures/e2_strict.png)
+
+## 2026-11-10 10:18 · P3c which tokens carry the position (gemma3-12b) — exploratory
+Model **gemma3-12b**, 100 pairs (the P3 sweep's pairs). Exploratory. Joint agreement (all answers equal the model's answers on the moved scene) after copying one part of the moved object's sentence.
+
+| layer | whole sentence | last token of the sentence only | rest of the sentence |
+|---|---|---|---|
+| 0 | 1.00 | 0.01 | 1.00 |
+| 2 | 0.99 | 0.00 | 0.97 |
+| 4 | 0.95 | 0.00 | 0.96 |
+| 6 | 0.97 | 0.00 | 0.97 |
+| 8 | 0.96 | 0.01 | 0.95 |
+| 10 | 0.94 | 0.01 | 0.96 |
+| 12 | 0.93 | 0.01 | 0.90 |
+| 14 | 0.89 | 0.01 | 0.85 |
+| 16 | 0.67 | 0.01 | 0.65 |
+| 18 | 0.40 | 0.01 | 0.36 |
+| 20 | 0.25 | 0.01 | 0.20 |
+| 22 | 0.14 | 0.01 | 0.16 |
+| 24 | 0.16 | 0.01 | 0.12 |
+| 26 | 0.16 | 0.01 | 0.13 |
+| 28 | 0.08 | 0.01 | 0.08 |
+| 30 | 0.04 | 0.01 | 0.04 |
+| 32 | 0.01 | 0.01 | 0.01 |
+
+![p3_sites](figures/p3_sites.png)
+
+## 2026-11-10 10:32 · P3q hand-off to the question (gemma3-12b) — exploratory
+Model **gemma3-12b**, 100 pairs (the P3 sweep's pairs). Exploratory. Joint agreement after copying the question tokens (or only the final position) from the run where the object sits elsewhere. The question text is identical, so the copied states differ only through what they read from the description.
+
+| layer | sentence (sweep) | question tokens | final position |
+|---|---|---|---|
+| 0 | 1.00 | 0.00 | 0.01 |
+| 2 | 0.99 | 0.00 | 0.01 |
+| 4 | 0.95 | 0.00 | 0.01 |
+| 6 | 0.97 | 0.00 | 0.01 |
+| 8 | 0.96 | 0.00 | 0.01 |
+| 10 | 0.94 | 0.00 | 0.01 |
+| 12 | 0.92 | 0.01 | 0.01 |
+| 14 | 0.89 | 0.01 | 0.01 |
+| 16 | 0.67 | 0.01 | 0.01 |
+| 18 | 0.40 | 0.02 | 0.01 |
+| 20 | 0.25 | 0.04 | 0.01 |
+| 22 | 0.14 | 0.06 | 0.01 |
+| 24 | 0.16 | 0.13 | 0.01 |
+| 26 | 0.16 | 0.12 | 0.01 |
+| 28 | 0.08 | 0.20 | 0.01 |
+| 30 | 0.04 | 0.24 | 0.05 |
+| 32 | 0.01 | 0.78 | 0.06 |
+| 34 | 0.01 | 0.76 | 0.07 |
+| 36 | 0.01 | 0.81 | 0.08 |
+| 38 | 0.01 | 0.80 | 0.08 |
+| 40 | 0.01 | 0.76 | 0.08 |
+| 42 | 0.01 | 0.75 | 0.12 |
+| 44 | 0.01 | 0.73 | 0.35 |
+| 46 | 0.01 | 0.66 | 0.56 |
+| 48 | 0.01 | 0.64 | 0.64 |
+
+![p3_handoff](figures/p3_handoff.png)
+
+## 2026-11-10 10:34 · P2m question-mention probe (gemma3-12b) — exploratory
+Model **gemma3-12b**, same 3,000 scenes and split as P2. Exploratory. Readout: the object's name in "Which object is farthest from X?" (one prompt per object).
+
+- (x, y): best layer for two-step objects 21, R² 0.74 (all objects 0.73 [0.72, 0.75]); list mention best 0.74; shuffled -0.00
+- Distance to root, two-step: best layer 22, R² 0.63; list mention best 0.62; best additive baseline -0.05
+
+| layer | (x, y) two-step | (x, y) all | distance two-step |
+|---|---|---|---|
+| 0 | 0.00 | -0.00 | -0.12 |
+| 8 | 0.02 | 0.02 | 0.03 |
+| 12 | 0.15 | 0.19 | 0.20 |
+| 14 | 0.41 | 0.35 | 0.30 |
+| 16 | 0.47 | 0.43 | 0.43 |
+| 18 | 0.57 | 0.60 | 0.52 |
+| 21 | 0.74 | 0.73 | 0.61 |
+| 24 | 0.72 | 0.72 | 0.63 |
+| 28 | 0.71 | 0.71 | 0.60 |
+| 32 | 0.67 | 0.68 | 0.57 |
+| 40 | 0.59 | 0.61 | 0.51 |
+| 48 | 0.56 | 0.59 | 0.49 |
+
+![p2_mention](figures/p2_mention.png)
+
+## 2026-11-10 10:57 · P3m one-token patch at the question's mention (gemma3-12b) — exploratory
+Model **gemma3-12b**, 100 of the P3 sweep's pairs (questions that name the moved object). Exploratory. Joint agreement after copying only the moved object's name token in the question from the run where it sits elsewhere.
+
+| layer | joint agreement [95% CI] |
+|---|---|
+| 0 | 0.00 [0.00, 0.00] |
+| 2 | 0.00 [0.00, 0.00] |
+| 4 | 0.00 [0.00, 0.00] |
+| 6 | 0.00 [0.00, 0.00] |
+| 8 | 0.00 [0.00, 0.00] |
+| 10 | 0.00 [0.00, 0.00] |
+| 12 | 0.00 [0.00, 0.00] |
+| 14 | 0.00 [0.00, 0.00] |
+| 16 | 0.00 [0.00, 0.00] |
+| 18 | 0.00 [0.00, 0.00] |
+| 20 | 0.00 [0.00, 0.00] |
+| 22 | 0.00 [0.00, 0.00] |
+| 24 | 0.00 [0.00, 0.00] |
+| 26 | 0.00 [0.00, 0.00] |
+| 28 | 0.00 [0.00, 0.00] |
+| 30 | 0.00 [0.00, 0.00] |
+| 32 | 0.00 [0.00, 0.00] |
+| 34 | 0.00 [0.00, 0.00] |
+| 36 | 0.00 [0.00, 0.00] |
+| 38 | 0.00 [0.00, 0.00] |
+| 40 | 0.00 [0.00, 0.00] |
+| 42 | 0.00 [0.00, 0.00] |
+| 44 | 0.00 [0.00, 0.00] |
+| 46 | 0.00 [0.00, 0.00] |
+| 48 | 0.00 [0.00, 0.00] |
+
+![p3_mention](figures/p3_mention.png)
+
+## 2026-11-10 12:37 · P4 DAS (gemma3-12b) — exploratory: relation site, layer 14
+Model **gemma3-12b**, layer 14, site relation; 300 training pairs, 300 test pairs. Interchange accuracy = on questions where the model answers differently when the object is really elsewhere, the share whose answer after swapping only the learned subspace equals that answer (ceiling 1). Geometric accuracy (answers equal the moved layout) in the last column.
+
+| method | closest | direction | farthest | more_east | more_north | ALL | |
+|---|---|---|---|---|---|---|---|
+| random k=2 | 0.00 [0.00, 0.00] | 0.00 [0.00, 0.00] | 0.03 [0.00, 0.09] | 0.00 [0.00, 0.00] | 0.00 [0.00, 0.01] | 0.00 [0.00, 0.00] | geometric 0.10 |
+| DAS k=2 | 0.54 [0.37, 0.70] | 0.73 [0.69, 0.77] | 0.53 [0.37, 0.70] | 0.93 [0.90, 0.96] | 0.92 [0.88, 0.95] | 0.81 [0.78, 0.83] | geometric 0.72 |
+
+Preregistered criterion (k = 2, ≥ 0.7 on every question type): **not met** (lowest: 0.53 on farthest).
+
+![p4_das_relation_L14](figures/p4_das_relation_L14.png)
+
+## 2026-11-10 14:10 · P4 DAS (gemma3-12b)
+Model **gemma3-12b**, layer 18, site list; 300 training pairs, 300 test pairs. Interchange accuracy = on questions where the model answers differently when the object is really elsewhere, the share whose answer after swapping only the learned subspace equals that answer (ceiling 1). Geometric accuracy (answers equal the moved layout) in the last column.
+
+| method | closest | direction | farthest | more_east | more_north | ALL | |
+|---|---|---|---|---|---|---|---|
+| random k=2 | 0.00 [0.00, 0.00] | 0.00 [0.00, 0.01] | 0.00 [0.00, 0.00] | 0.00 [0.00, 0.01] | 0.01 [0.00, 0.02] | 0.00 [0.00, 0.01] | geometric 0.10 |
+| DAS k=2 | 0.14 [0.03, 0.30] | 0.02 [0.01, 0.03] | 0.17 [0.04, 0.30] | 0.15 [0.08, 0.22] | 0.10 [0.05, 0.15] | 0.07 [0.05, 0.09] | geometric 0.14 |
+
+Preregistered criterion (k = 2, ≥ 0.7 on every question type): **not met** (lowest: 0.02 on direction).
+
+![p4_das](figures/p4_das.png)
+
+## 2026-11-10 14:46 · P4i 2-D code set to unstated positions (gemma3-12b) — exploratory
+Model **gemma3-12b**, the 2-D subspace learned by DAS at the relation site, layer 14; 150 of its held-out test pairs. Exploratory. The subspace is set to base + α·(moved − base); answers are scored against the layout with the object at the matching interpolated position (questions with margin ≥ 1 unit / 10° there). *Novel*: questions whose answer at that position differs from the answer in both stated layouts (chance 0.15). Clean model accuracy on the base layouts: 0.85.
+
+| α | agrees with interpolated layout | novel: interpolated answer | novel: original-layout answer | novel: moved-layout answer | n novel |
+|---|---|---|---|---|---|
+| 0 | 0.85 [0.82, 0.87] | – | – | – | 0 |
+| 0.25 | 0.86 [0.83, 0.88] | 0.00 [0.00, 0.00] | 0.85 [0.54, 1.00] | 0.00 [0.00, 0.00] | 13 |
+| 0.5 | 0.66 [0.63, 0.68] | 0.06 [0.02, 0.10] | 0.63 [0.54, 0.72] | 0.23 [0.16, 0.31] | 150 |
+| 0.75 | 0.75 [0.72, 0.78] | 0.00 [0.00, 0.00] | 0.18 [0.00, 0.44] | 0.73 [0.33, 1.00] | 11 |
+| 1 | 0.78 [0.75, 0.81] | – | – | – | 0 |
+| 1.5 | 0.80 [0.77, 0.83] | 0.26 [0.09, 0.45] | 0.22 [0.07, 0.42] | 0.59 [0.37, 0.81] | 27 |
+
+![p4_interp_relation_L14](figures/p4_interp_relation_L14.png)
+
+## 2026-11-10 14:46 · E1 summary
+Model **gemma3-12b**. Verdict against `docs/preregistration.md`: **Mixed**: see the per-criterion breakdown.
+
+| criterion | met |
+|---|---|
+| map_r2 | yes |
+| map_hops | yes |
+| rel_r2 | no |
+| map_jc | no |
+| rel_jc | yes |
+| map_das | no |
+
+- P2: best layer 21, R² 0.74; 1-step 0.76 vs 2-step 0.74; stated-relation baseline on 2-step objects 0.22
+- P3: joint agreement at readout positions 0.00 (layer 2); relation sentence at that layer 0.94
+- P4: DAS k=2 lowest per-type interchange accuracy 0.02
+
+Prior work to engage in the write-up: Tehenan et al. 2025 (linear spatial models, single-answer steering) and An et al. 2026 (weak, fragmented coordinate probes in 7–8B models).
+
+![fig1_behavior](figures/fig1_behavior.png)
+
+![fig2_probes](figures/fig2_probes.png)
+
+![fig3_consistency](figures/fig3_consistency.png)
+
+![fig4_slider](figures/fig4_slider.png)
