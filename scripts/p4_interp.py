@@ -49,7 +49,7 @@ def main():
     stem = f"{a.site}_L{a.layer}" + (f"_{a.label}" if a.label else "")
     m = load(a.model)
     iv = SubspaceIntervention(m.d_model, 2)
-    iv.load_state_dict(torch.load(OUT / f"{a.model}_L{a.layer}_{a.site}" + (f"_{a.label}" if a.label else "") + "_k2.pt"))
+    iv.load_state_dict(torch.load(OUT / (f"{a.model}_L{a.layer}_{a.site}" + (f"_{a.label}" if a.label else "") + "_k2.pt")))
     # the DAS test pairs (same seed): never used for training the subspace
     pairs = make_pairs(m, a.n, seed=a.seed, n_objects=tuple(a.n_objects), exclude_qtypes=tuple(a.exclude))
     df = eval_interp(m, iv, pairs, a.layer, a.site, alphas=a.alphas)
