@@ -108,3 +108,11 @@ def test_site_all_but_readout(m, pair):
     readout = set(spec.list_pos.values()) | {spec.eol_pos}
     assert set(pos) == set(range(spec.prefix_len)) - readout
     assert pos == sorted(pos)
+
+
+def test_sentence_end_sites(m, pair):
+    base, _, leaf, _ = pair
+    spec = build_prompt(base, None, m.tok, m.family)
+    lo, hi = spec.relation_spans[leaf]
+    assert site_positions(spec, "sent_end", leaf) == [hi - 1]
+    assert site_positions(spec, "sent_rest", leaf) == list(range(lo, hi - 1))

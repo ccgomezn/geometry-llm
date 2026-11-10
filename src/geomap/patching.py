@@ -15,7 +15,7 @@ from geomap.questions import Question, all_questions, answer_for, split_question
 from geomap.scenes import Scene, generate_scene
 from geomap.scoring import predict, score
 
-Site = Literal["list", "relation", "eol", "all", "all_but_readout"]
+Site = Literal["list", "relation", "eol", "all", "all_but_readout", "sent_end", "sent_rest"]
 
 
 def site_positions(spec: PromptSpec, site: Site, leaf: str) -> list[int]:
@@ -23,6 +23,11 @@ def site_positions(spec: PromptSpec, site: Site, leaf: str) -> list[int]:
         return [spec.list_pos[leaf]]
     if site == "relation":
         return list(range(*spec.relation_spans[leaf]))
+    if site == "sent_end":  # last token of the object's own sentence
+        return [spec.relation_spans[leaf][1] - 1]
+    if site == "sent_rest":  # the rest of that sentence
+        lo, hi = spec.relation_spans[leaf]
+        return list(range(lo, hi - 1))
     if site == "eol":
         return [spec.eol_pos]
     if site == "all":
