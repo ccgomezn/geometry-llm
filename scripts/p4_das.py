@@ -38,15 +38,19 @@ def main():
     ap.add_argument("--batch-size", type=int, default=8)
     ap.add_argument("--n-objects", type=int, nargs="+", default=[4, 5])
     ap.add_argument("--exclude", nargs="*", default=[])
+    ap.add_argument("--seeds", type=int, nargs=2, default=[5, 6], metavar=("TRAIN", "TEST"))
+    ap.add_argument("--label", default=None,
+                    help="names a separately preregistered run (e.g. 'confirm'): its own files and RESULTS title")
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     layer = a.layer if a.layer is not None else best_layer(a.model)
     # the preregistered run (list site, layer from the P3 sweep) keeps the default names; anything else is exploratory
     expl = a.site != "list" or a.layer is not None
-    tag = f"_{a.site}_L{layer}" if expl else ""
+    tag = (f"_{a.site}_L{layer}" if expl else "") + (f"_{a.label}" if a.label else "")
+    stem = f"{a.model}_L{layer}_{a.site}" + (f"_{a.label}" if a.label else "")
     m = load(a.model)
     kw = dict(n_objects=tuple(a.n_objects), exclude_qtypes=tuple(a.exclude))
-    train, test = make_pairs(m, a.n_train, seed=5, **kw), make_pairs(m, a.n_test, seed=6, **kw)
+    train, test = make_pairs(m, a.n_train, seed=a.seeds[0], **kw), make_pairs(m, a.n_test, seed=a.seeds[1], **kw)
 
     results = {}
     torch.manual_seed(123)
@@ -54,7 +58,7 @@ def main():
     results["random k=2"] = eval_das(m, rnd, test, layer, a.site)
     for k in a.ks:
         iv = train_das(m, train, layer, a.site, k=k, epochs=a.epochs, lr=a.lr, batch_size=a.batch_size)
-        torch.save(iv.state_dict(), OUT / f"{a.model}_L{layer}_{a.site}_k{k}.pt")
+        torch.save(iv.state_dict(), OUT / f"{stem}_k{k}.pt")
         results[f"DAS k={k}"] = eval_das(m, iv, test, layer, a.site)
         print(f"k={k} loss history {iv.history}", flush=True)
     full = pd.concat([d.assign(method=k) for k, d in results.items()])
@@ -94,7 +98,10 @@ def main():
         low = (f"lowest: {per.acc.min():.2f} on {per.loc[per.acc.idxmin(), 'qtype']}" if per.acc.notna().any()
                else "no question where the model's answer changes")
         lines += ["", f"Preregistered criterion (k = 2, ≥ 0.7 on every question type): **{'met' if ok else 'not met'}** ({low})."]
-    append_entry(f"P4 DAS ({a.model})" + (f" — exploratory: {a.site} site, layer {layer}" if expl else ""), "\n".join(lines), [FIG / f"p4_das{tag}.png"])
+    kind = f"preregistered '{a.label}' run" if a.label else "exploratory"
+    if a.label:
+        lines += [f"Seeds (train, test): {a.seeds[0]}, {a.seeds[1]}. Decision rule: see docs/preregistration_p4c.md."]
+    append_entry(f"P4 DAS ({a.model})" + (f" — {kind}: {a.site} site, layer {layer}" if expl else ""), "\n".join(lines), [FIG / f"p4_das{tag}.png"])
     print("\n".join(lines))
 
 

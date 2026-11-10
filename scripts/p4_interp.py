@@ -43,14 +43,17 @@ def main():
     ap.add_argument("--alphas", type=float, nargs="+", default=[0.0, 0.25, 0.5, 0.75, 1.0, 1.5])
     ap.add_argument("--n-objects", type=int, nargs="+", default=[3])
     ap.add_argument("--exclude", nargs="*", default=[])
+    ap.add_argument("--seed", type=int, default=6, help="test-pair seed of the DAS run whose subspace is used")
+    ap.add_argument("--label", default=None, help="label of the DAS run (see p4_das.py --label)")
     a = ap.parse_args()
+    stem = f"{a.site}_L{a.layer}" + (f"_{a.label}" if a.label else "")
     m = load(a.model)
     iv = SubspaceIntervention(m.d_model, 2)
-    iv.load_state_dict(torch.load(OUT / f"{a.model}_L{a.layer}_{a.site}_k2.pt"))
+    iv.load_state_dict(torch.load(OUT / f"{a.model}_L{a.layer}_{a.site}" + (f"_{a.label}" if a.label else "") + "_k2.pt"))
     # the DAS test pairs (same seed): never used for training the subspace
-    pairs = make_pairs(m, a.n, seed=6, n_objects=tuple(a.n_objects), exclude_qtypes=tuple(a.exclude))
+    pairs = make_pairs(m, a.n, seed=a.seed, n_objects=tuple(a.n_objects), exclude_qtypes=tuple(a.exclude))
     df = eval_interp(m, iv, pairs, a.layer, a.site, alphas=a.alphas)
-    df.to_parquet(OUT / f"{a.model}_interp_{a.site}_L{a.layer}.parquet")
+    df.to_parquet(OUT / f"{a.model}_interp_{stem}.parquet")
     df["hit"] = df.pred == df.geo
     df["is_base"] = df.pred == df.geo_base
     df["is_src"] = df.pred == df.geo_src
@@ -65,7 +68,7 @@ def main():
             r[name], r[name + "_lo"], r[name + "_hi"] = rate(d, col)
         rows.append(r)
     s = pd.DataFrame(rows)
-    s.to_csv(OUT / f"{a.model}_interp_{a.site}_L{a.layer}.csv", index=False)
+    s.to_csv(OUT / f"{a.model}_interp_{stem}.csv", index=False)
     clean_acc = (df[df.alpha == df.alpha.min()].model_base == df[df.alpha == df.alpha.min()].geo_base).mean()
     n_cands = {"direction": 8}
     nv_all = df[novel]
@@ -85,7 +88,7 @@ def main():
     ax.set_title(f"Setting the 2-D code to unstated positions ({a.model}, {a.site} site, layer {a.layer})", fontsize=10)
     ax.legend(fontsize=7, loc="center left")
     fig.tight_layout()
-    fig.savefig(FIG / f"p4_interp_{a.site}_L{a.layer}.png", dpi=170)
+    fig.savefig(FIG / f"p4_interp_{stem}.png", dpi=170)
     plt.close(fig)
 
     lines = [f"Model **{a.model}**, the 2-D subspace learned by DAS at the {a.site} site, layer {a.layer}; {len(pairs)} "
@@ -98,8 +101,9 @@ def main():
     f = lambda r, c: f"{r[c]:.2f} [{r[c + '_lo']:.2f}, {r[c + '_hi']:.2f}]" if r["n_novel" if c != "agree" else "n_ok"] else "–"
     lines += [f"| {r.alpha:g} | {f(r, 'agree')} | {f(r, 'novel')} | {f(r, 'novel_base')} | {f(r, 'novel_src')} | {int(r.n_novel)} |"
               for _, r in s.iterrows()]
-    append_entry(f"P4i 2-D code set to unstated positions ({a.model}) — exploratory", "\n".join(lines),
-                 [FIG / f"p4_interp_{a.site}_L{a.layer}.png"])
+    append_entry(f"P4i 2-D code set to unstated positions ({a.model}) — "
+                 + (f"preregistered '{a.label}' run" if a.label else "exploratory"), "\n".join(lines),
+                 [FIG / f"p4_interp_{stem}.png"])
     print("\n".join(lines))
 
 
