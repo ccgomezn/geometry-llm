@@ -430,3 +430,23 @@ Dated entries are appended after each phase. Every number carries a 95% bootstra
 | gemma3-12b | 0.68 | 0.76 | fail |
 | qwen3-14b | 0.56 | 0.69 | fail |
 | gemma3-27b | 0.70 | 0.77 | fail |
+
+## 2026-11-10 00:53 · P2 probes (gemma3-12b)
+Model **gemma3-12b**, 3000 scenes (80/20 split by scene), per-object readout in the object list; ridge penalty chosen by scene-grouped cross-validation.
+
+- **Best layer 21: R² = 0.74 [0.72, 0.75]** (1000 bootstrap resamples over test scenes)
+- Controls at that layer: shuffled -0.00, layer 0 -0.00, random-init (same layer) -0.00
+- Stated-relation baseline (each object's own sentence only): overall 0.70; 1-step 0.92, 2+-step 0.22
+- By chain length at layer 21: probe 1-step 0.76, 2+-step 0.74 (gap +0.01); 2+-step advantage over the stated-relation baseline +0.53
+- RSA (activation vs true distances, Spearman) at layer 21: 0.19 [0.16, 0.21]; peak 0.20 at layer 19
+- Joint end-of-list probe (all objects from one position): peak R² 0.03 at layer 29
+
+Against the preregistered P2 criteria (as clarified):
+- R² ≥ 0.6: yes
+- beats shuffled, layer-0 and random-init by ≥ 0.3, and the stated-relation baseline by ≥ 0.3 on 2-step objects: yes
+- 2-step objects within 0.1 of 1-step: yes
+- H-rel signature (R² < 0.3, or 2-step more than 0.2 below 1-step): no
+
+![p2_r2_by_layer](figures/p2_r2_by_layer.png)
+
+![p2_r2_by_hop](figures/p2_r2_by_hop.png)

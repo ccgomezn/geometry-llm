@@ -9,3 +9,7 @@ CUDA_VISIBLE_DEVICES=0 /home/cris_anemona_ai/.local/bin/uv run python scripts/p1
 CUDA_VISIBLE_DEVICES=1,2,3 /home/cris_anemona_ai/.local/bin/uv run python scripts/p1_behavior.py --models gemma3-27b --n-scenes 500 --near-n 200 --abl-n 200 --cot-n 0 --batch-size 16
 /home/cris_anemona_ai/.local/bin/uv run python scripts/choose_model.py
 /home/cris_anemona_ai/.local/bin/uv run python scripts/build_cache.py --model gemma3-12b --dataset main --n 3000 --n-objects 3 --seed 2 --batch-size 16
+/home/cris_anemona_ai/.local/bin/uv run python scripts/build_cache.py --model gemma3-12b --dataset eol --n 1000 --n-objects 3 --seed 8 --batch-size 16
+/home/cris_anemona_ai/.local/bin/uv run python scripts/build_cache.py --model gemma3-12b --dataset main --n 3000 --n-objects 3 --seed 2 --batch-size 16 --random-init
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p2_probes.py --model gemma3-12b --eol eol3
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p3_patching.py --model gemma3-12b --n-objects 3 --exclude closer_than --layer-step 2 --batch-size 16
