@@ -116,3 +116,23 @@ def test_sentence_end_sites(m, pair):
     lo, hi = spec.relation_spans[leaf]
     assert site_positions(spec, "sent_end", leaf) == [hi - 1]
     assert site_positions(spec, "sent_rest", leaf) == list(range(lo, hi - 1))
+
+
+def test_question_patch_at_embeddings_is_identity(m, pair):
+    # the question text is identical in base and source, so at layer 0 copying it changes nothing
+    from geomap.patching import run_pair_question
+    base, src, leaf, qs = pair
+    d = run_pair_question(m, base, src, leaf, qs, layers=[0, 1])
+    clean = d[d.site == "none"].set_index("qid")
+    for site in ("question", "question_last"):
+        p0 = d[(d.site == site) & (d.layer == 0)].set_index("qid")
+        assert np.allclose(p0.lp_base_ans, clean.lp_base_ans.reindex(p0.index), atol=1e-4)
+    assert {"none", "source", "question", "question_last"} == set(d.site)
+
+
+def test_question_positions(m, pair):
+    from geomap.patching import question_positions
+    base, _, _, qs = pair
+    spec = build_prompt(base, qs[0], m.tok, m.family)
+    assert question_positions(spec, "question") == list(range(spec.prefix_len, len(spec.input_ids)))
+    assert question_positions(spec, "question_last") == [len(spec.input_ids) - 1]

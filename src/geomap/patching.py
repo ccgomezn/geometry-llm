@@ -167,3 +167,52 @@ def make_pairs(m, n, seed, max_diag=6, max_ctrl=4, n_objects=(4, 5), exclude_qty
         chosen += [ctrl[i] for i in rng.permutation(len(ctrl))[:max_ctrl]]
         pairs.append((base, src, leaf, chosen))
     return pairs
+
+
+def question_positions(spec: PromptSpec, site: str) -> list[int]:
+    """Positions after the shared description: the question and the assistant header ("question"), or only the
+    final position, where the answer is read out ("question_last")."""
+    if site == "question":
+        return list(range(spec.prefix_len, len(spec.input_ids)))
+    if site == "question_last":
+        return [len(spec.input_ids) - 1]
+    raise ValueError(site)
+
+
+def full_acts(m: LoadedModel, spec: PromptSpec, layers: Sequence[int]) -> dict[int, torch.Tensor]:
+    ids = torch.tensor([spec.input_ids])
+    saved = {}
+    with torch.no_grad(), m.lm.trace({"input_ids": ids, "attention_mask": torch.ones_like(ids)}):
+        for l in sorted(layers):
+            saved[l] = layer_out(m, l)[0].detach().cpu().save()
+    return dict(saved)
+
+
+def run_pair_question(m: LoadedModel, base: Scene, src: Scene, leaf: str, qs: Sequence[Question],
+                      layers: Sequence[int], sites: Sequence[str] = ("question", "question_last"),
+                      batch_size: int = 16) -> pd.DataFrame:
+    """Like run_pair, but copies the source run's activations at the question positions (the question text is the
+    same in both prompts, so the copied states differ only through what they have read from the description)."""
+    items, meta, info = [], [], []
+    for qi, q in enumerate(qs):
+        bspec = build_prompt(base, q, m.tok, m.family)
+        sspec = build_prompt(src, q, m.tok, m.family)
+        if len(bspec.input_ids) != len(sspec.input_ids):
+            raise ValueError("base and source prompts are not aligned")
+        acts = full_acts(m, sspec, layers)
+        items.append((bspec, q)); meta.append(None); info.append(("none", -1, qi))
+        items.append((sspec, q)); meta.append(None); info.append(("source", -1, qi))
+        for site in sites:
+            pos = question_positions(bspec, site)
+            for l in layers:
+                items.append((bspec, q))
+                meta.append((l, pos, acts[l][pos]))
+                info.append((site, l, qi))
+    scores = score(m, items, edit=patch_edit(meta), batch_size=batch_size)
+    rows = []
+    for (site, l, qi), sc in zip(info, scores):
+        q = qs[qi]
+        b, s = answer_for(q, base.coords), answer_for(q, src.coords)
+        rows.append(dict(site=site, layer=l, qid=qi, qtype=q.qtype.value, diagnostic=b != s,
+                         base_ans=b, src_ans=s, model_ans=predict(sc), lp_base_ans=sc[b], lp_src_ans=sc[s]))
+    return pd.DataFrame(rows)
