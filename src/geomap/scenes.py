@@ -141,3 +141,47 @@ def move_leaf(scene: Scene, leaf: str, dx: int, dy: int, bound: int = 6) -> Scen
     coords = dict(scene.coords)
     coords[leaf] = pos
     return replace(scene, coords=coords, relations=rels)
+
+
+def descendants(scene: Scene, name: str) -> set[str]:
+    out, frontier = set(), {name}
+    while frontier:
+        frontier = {n for n, p in scene.parent.items() if p in frontier} - out
+        out |= frontier
+    return out
+
+
+def move_object(scene: Scene, name: str, dx: int, dy: int, bound: int = 6) -> Scene:
+    """Set `name`'s offset from its parent to (dx, dy); everything placed relative to it moves with it."""
+    if scene.parent[name] is None:
+        raise ValueError("cannot move the root")
+    if (dx, dy) == (0, 0):
+        raise ValueError("zero offset")
+    px, py = scene.coords[scene.parent[name]]
+    ox, oy = scene.coords[name]
+    sx, sy = px + dx - ox, py + dy - oy
+    moving = {name} | descendants(scene, name)
+    coords = {n: ((x + sx, y + sy) if n in moving else (x, y)) for n, (x, y) in scene.coords.items()}
+    if any(abs(x) > bound or abs(y) > bound for x, y in coords.values()):
+        raise ValueError("out of bounds")
+    if len(set(coords.values())) < len(coords):
+        raise ValueError("collision")
+    rels = tuple(replace(r, dx=dx, dy=dy) if r.subj == name else r for r in scene.relations)
+    return replace(scene, coords=coords, relations=rels)
+
+
+def hybrid(base: Scene, src: Scene, child: str) -> Scene:
+    """`src`, but with the leaf `child` re-expressed relative to its (moved) parent so it keeps its base position."""
+    if child not in leaves(src):
+        raise ValueError(f"{child} is not a leaf")
+    pos = base.coords[child]
+    px, py = src.coords[src.parent[child]]
+    dx, dy = pos[0] - px, pos[1] - py
+    if (dx, dy) == (0, 0):
+        raise ValueError("zero offset")
+    if any(src.coords[n] == pos for n in src.names if n != child):
+        raise ValueError("collision")
+    rels = tuple(replace(r, dx=dx, dy=dy) if r.subj == child else r for r in src.relations)
+    coords = dict(src.coords)
+    coords[child] = pos
+    return replace(src, coords=coords, relations=rels)
