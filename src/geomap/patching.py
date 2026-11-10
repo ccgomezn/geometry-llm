@@ -15,7 +15,7 @@ from geomap.questions import Question, all_questions, answer_for, split_question
 from geomap.scenes import Scene, generate_scene
 from geomap.scoring import predict, score
 
-Site = Literal["list", "relation", "eol", "all"]
+Site = Literal["list", "relation", "eol", "all", "all_but_readout"]
 
 
 def site_positions(spec: PromptSpec, site: Site, leaf: str) -> list[int]:
@@ -27,6 +27,9 @@ def site_positions(spec: PromptSpec, site: Site, leaf: str) -> list[int]:
         return [spec.eol_pos]
     if site == "all":
         return list(range(spec.prefix_len))
+    if site == "all_but_readout":  # necessity test: everything except every list position and the end of the list
+        readout = set(spec.list_pos.values()) | {spec.eol_pos}
+        return [p for p in range(spec.prefix_len) if p not in readout]
     raise ValueError(site)
 
 

@@ -98,3 +98,13 @@ def test_model_relative_joint_iia():
     rows += [r(2, "none", -1, 0, "A"), r(2, "source", -1, 0, "A"), r(2, "list", 5, 0, "A")]
     c = consistency(pd.DataFrame(rows), n_boot=20).iloc[0]
     assert c.joint_iia == 0.5 and c.n_pairs_iia == 2 and c.iia_rate == 0.5
+
+
+def test_site_all_but_readout(m, pair):
+    # necessity test: copy the whole description except every object's list position and the end of the list
+    base, _, leaf, _ = pair
+    spec = build_prompt(base, None, m.tok, m.family)
+    pos = site_positions(spec, "all_but_readout", leaf)
+    readout = set(spec.list_pos.values()) | {spec.eol_pos}
+    assert set(pos) == set(range(spec.prefix_len)) - readout
+    assert pos == sorted(pos)
