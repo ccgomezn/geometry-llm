@@ -1,0 +1,42 @@
+<main>
+  <h1>Move the map</h1>
+  <p class="lede">A language model reads a short description of where three things are. We never change the text. Instead we
+    edit <b>two numbers inside the model</b>, in the sentence that places one object, and ask it six questions.
+    Click a spot on the map to move that object there.</p>
+  <div class="tabs" id="tabs" role="group" aria-label="Scene"></div>
+  <div class="layout">
+    <figure>
+      <svg class="map" id="map" viewBox="0 0 420 420" role="img" aria-label="Map of the scene"></svg>
+      <div class="legend" id="legend"></div>
+      <label class="toggle"><input type="checkbox" id="rings"> Show where a probe reads each object from the activations (rough: it reads
+        positions well on average, R² 0.74, but the answers don't rely on that copy)</label>
+    </figure>
+    <div>
+      <div class="panel">
+        <h2>What the model reads (unchanged)</h2>
+        <p class="desc" id="desc"></p>
+        <p class="edit-note" id="editnote"></p>
+      </div>
+      <div class="panel">
+        <h2>How far to move it (inside the model)</h2>
+        <div class="slider-row"><input type="range" id="alpha" min="0" max="4" step="1" value="4" aria-label="How far to move the object"></div>
+        <div class="ticks"><span>not at all</span><span>¼</span><span>halfway</span><span>¾</span><span>all the way</span></div>
+        <p class="callout" id="callout" hidden></p>
+      </div>
+      <div class="panel">
+        <h2>The model's answers</h2>
+        <table>
+          <thead><tr><th>Question</th><th>Correct here</th><th>Model, after the edit</th></tr></thead>
+          <tbody id="answers"></tbody>
+        </table>
+        <p class="score" id="score"></p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p id="stats"></p>
+    <p>Gemma 3 12B. Edit: a 2-D subspace learned by distributed alignment search, layer 14, over the moved object's sentence.
+      Probe rings: positions read from the activations at the object-list mentions by a linear probe (layer 21), pinned to the first object.
+      Demo scenes are ones the model answers correctly before any edit.</p>
+  </footer>
+</main>

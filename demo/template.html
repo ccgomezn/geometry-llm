@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Move the Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --surface: #fcfcfb; --panel: #f4f3f0; --line: #e4e2dc; --grid: #ecebe6;
+  --text: #0b0b0b; --text-2: #52514e; --muted: #8a8984;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+  --ok: #1d7a3e; --bad: #b3261e; --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface: #1a1a19; --panel: #232321; --line: #34332f; --grid: #2a2a27;
+    --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e86;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    --ok: #5cc27f; --bad: #f08a80; --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #1a1a19; --panel: #232321; --line: #34332f; --grid: #2a2a27;
+  --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e86;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+  --ok: #5cc27f; --bad: #f08a80; --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--surface); color: var(--text); }
+body { font: 15px/1.5 Inter, system-ui, sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 20px 16px 28px; }
+h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.01em; }
+.lede { color: var(--text-2); margin: 0 0 14px; max-width: 70ch; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.tabs button { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line);
+  background: transparent; color: var(--text-2); cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+.layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+figure { margin: 0; max-width: 420px; }
+@media (max-width: 600px) { .layout { grid-template-columns: minmax(0, 1fr); } figure { margin: 0 auto; width: 100%; } }
+svg.map { width: 100%; height: auto; display: block; background: var(--panel); border-radius: 10px; touch-action: manipulation; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--text-2); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.panel { background: var(--panel); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+.panel h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 6px; }
+.desc { margin: 0; }
+.desc mark { background: none; color: inherit; border-bottom: 2px solid var(--leaf, var(--accent)); padding-bottom: 1px; }
+.edit-note { font-size: 13px; color: var(--text-2); margin: 8px 0 0; }
+.edit-note b { color: var(--text); font-weight: 600; }
+.slider-row { display: flex; align-items: center; gap: 10px; }
+.slider-row input { flex: 1; accent-color: var(--accent); }
+.ticks { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin: 2px 0 0; padding: 0 2px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 0 6px 6px 0; border-bottom: 1px solid var(--line); }
+td { padding: 7px 6px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.q { color: var(--text-2); width: 42%; }
+.ans { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; white-space: nowrap; }
+.mark-ok { color: var(--ok); font-weight: 600; }
+.mark-bad { color: var(--bad); font-weight: 600; }
+.conf { color: var(--muted); font-size: 11px; }
+.skip { color: var(--muted); font-style: italic; }
+.score { font-size: 14px; margin: 10px 0 0; }
+.score b { font-size: 18px; }
+.callout { font-size: 13px; color: var(--text-2); border-left: 3px solid var(--accent); padding: 2px 0 2px 10px; margin: 10px 0 0; }
+footer { margin-top: 18px; font-size: 12.5px; color: var(--text-2); border-top: 1px solid var(--line); padding-top: 12px; }
+footer p { margin: 0 0 6px; }
+.toggle { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--text-2); margin-top: 8px; cursor: pointer; }
+.toggle input { margin-top: 2px; accent-color: var(--accent); }
+.target { cursor: pointer; }
+.target:focus { outline: none; }
+.target:focus-visible circle.hit { stroke: var(--text); stroke-width: 2; }
+.mover { transition: transform 0.45s cubic-bezier(.3,.7,.2,1); }
+@media (prefers-reduced-motion: reduce) { .mover { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Move the map</h1>
+  <p class="lede">A language model reads a short description of where three things are. We never change the text. Instead we
+    edit <b>two numbers inside the model</b>, in the sentence that places one object, and ask it six questions.
+    Click a spot on the map to move that object there.</p>
+  <div class="tabs" id="tabs" role="group" aria-label="Scene"></div>
+  <div class="layout">
+    <figure>
+      <svg class="map" id="map" viewBox="0 0 420 420" role="img" aria-label="Map of the scene"></svg>
+      <div class="legend" id="legend"></div>
+      <label class="toggle"><input type="checkbox" id="rings"> Show where a probe reads each object from the activations (rough: it reads
+        positions well on average, R² 0.74, but the answers don't rely on that copy)</label>
+    </figure>
+    <div>
+      <div class="panel">
+        <h2>What the model reads (unchanged)</h2>
+        <p class="desc" id="desc"></p>
+        <p class="edit-note" id="editnote"></p>
+      </div>
+      <div class="panel">
+        <h2>How far to move it (inside the model)</h2>
+        <div class="slider-row"><input type="range" id="alpha" min="0" max="4" step="1" value="4" aria-label="How far to move the object"></div>
+        <div class="ticks"><span>not at all</span><span>¼</span><span>halfway</span><span>¾</span><span>all the way</span></div>
+        <p class="callout" id="callout" hidden></p>
+      </div>
+      <div class="panel">
+        <h2>The model's answers</h2>
+        <table>
+          <thead><tr><th>Question</th><th>Correct here</th><th>Model, after the edit</th></tr></thead>
+          <tbody id="answers"></tbody>
+        </table>
+        <p class="score" id="score"></p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p id="stats"></p>
+    <p>Gemma 3 12B. Edit: a 2-D subspace learned by distributed alignment search, layer 14, over the moved object's sentence.
+      Probe rings: positions read from the activations at the object-list mentions by a linear probe (layer 21), pinned to the first object.
+      Demo scenes are ones the model answers correctly before any edit.</p>
+  </footer>
+</main>
+<script>
+const DATA = /*DATA*/null;
+const COLORS = ["--s1", "--s2", "--s3"];
+const ALPHA_LABEL = ["not at all", "a quarter of the way", "halfway", "three quarters of the way", "all the way"];
+const state = { scene: 0, target: 0, alpha: 4, rings: false };
+// open each scene on a spot where the edit changes the correct answers and the model follows
+function bestTarget(sc) {
+  let best = 0, score = -1;
+  sc.targets.forEach((t, i) => {
+    const a = t.steps[0], z = t.steps[4];
+    const v = z.truth.reduce((n, tr, q) => n + (z.clear[q] && tr !== a.truth[q] && z.model[q] === tr ? 1 : 0), 0);
+    if (v > score) { score = v; best = i; }
+  });
+  return best;
+}
+const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const R = 7, PAD = 26, SIZE = 420, U = (SIZE - 2 * PAD) / (2 * R);
+const sx = (x) => PAD + (x + R) * U, sy = (y) => PAD + (R - y) * U;
+
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const fmt = (p) => `(${p.map((v) => Number.isInteger(v) ? v : v.toFixed(1)).join(", ")})`;
+const pct = (v) => `${Math.round(v * 100)}%`;
+
+function tabs() {
+  const t = $("tabs");
+  t.innerHTML = "";
+  DATA.scenes.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.textContent = `Scene ${i + 1}`;
+    b.setAttribute("aria-pressed", i === state.scene);
+    b.onclick = () => { state.scene = i; state.target = bestTarget(s); state.alpha = 4; $("alpha").value = 4; render(); };
+    t.appendChild(b);
+  });
+}
+
+function render() {
+  const sc = DATA.scenes[state.scene];
+  const tg = sc.targets[state.target];
+  const st = tg.steps[state.alpha];
+  const color = (n) => `var(${COLORS[sc.names.indexOf(n)]})`;
+  [...$("tabs").children].forEach((b, i) => b.setAttribute("aria-pressed", i === state.scene));
+  document.documentElement.style.setProperty("--leaf", color(sc.leaf));
+
+  // map
+  const svg = $("map");
+  svg.innerHTML = "";
+  const g = el("g", {}, svg);
+  for (let v = -R; v <= R; v++) {
+    el("line", { x1: sx(v), x2: sx(v), y1: sy(-R), y2: sy(R), stroke: "var(--grid)", "stroke-width": v === 0 ? 1.5 : 1 }, g);
+    el("line", { y1: sy(v), y2: sy(v), x1: sx(-R), x2: sx(R), stroke: "var(--grid)", "stroke-width": v === 0 ? 1.5 : 1 }, g);
+  }
+  const lab = (x, y, txt, anchor = "middle") => {
+    const t = el("text", { x, y, "text-anchor": anchor, "font-size": 13, fill: "var(--muted)", "font-family": "Inter, sans-serif" }, svg);
+    t.textContent = txt;
+  };
+  lab(SIZE / 2, 15, "N"); lab(SIZE - 10, SIZE / 2 + 4, "E");
+  // where the moved object started
+  const [ox, oy] = sc.coords[sc.leaf];
+  el("circle", { cx: sx(ox), cy: sy(oy), r: 9, fill: "none", stroke: color(sc.leaf), "stroke-width": 1.5, "stroke-dasharray": "3 3", opacity: 0.8 }, svg);
+  // clickable targets
+  sc.targets.forEach((t, i) => {
+    const a = el("g", { class: "target", tabindex: 0, role: "button", "aria-label": `Move ${sc.leaf} to ${fmt(t.pos)}` }, svg);
+    el("circle", { class: "hit", cx: sx(t.pos[0]), cy: sy(t.pos[1]), r: 12, fill: "transparent" }, a);
+    el("circle", { cx: sx(t.pos[0]), cy: sy(t.pos[1]), r: i === state.target ? 6 : 4, fill: i === state.target ? "none" : color(sc.leaf),
+      stroke: color(sc.leaf), "stroke-width": i === state.target ? 2 : 0, opacity: i === state.target ? 1 : 0.35 }, a);
+    const go = () => { state.target = i; render(); };
+    a.addEventListener("click", go);
+    a.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  });
+  // objects: true position (dot) and position read from activations (ring)
+  const posOf = (n) => n === sc.leaf ? st.pos : sc.coords[n];
+  sc.names.forEach((n) => {
+    const p = posOf(n);
+    // put the label below the dot when another object sits just above it
+    const below = sc.names.some((o) => o !== n && Math.abs(posOf(o)[0] - p[0]) < 2.5 && posOf(o)[1] > p[1] && posOf(o)[1] - p[1] < 1.2);
+    const d = st.decoded[n];
+    if (state.rings && n !== sc.root) {
+      const ring = el("g", { class: "mover", transform: `translate(${sx(d[0])},${sy(d[1])})` }, svg);
+      el("circle", { r: 10, fill: "none", stroke: color(n), "stroke-width": 2 }, ring);
+    }
+    const dot = el("g", { class: "mover", transform: `translate(${sx(p[0])},${sy(p[1])})` }, svg);
+    el("circle", { r: 8, fill: color(n), stroke: "var(--panel)", "stroke-width": 2 }, dot);
+    const t = el("text", { x: 12, y: below ? 22 : -10, "font-size": 15, "font-weight": 600, fill: "var(--text)", "font-family": "Inter, sans-serif",
+      stroke: "var(--panel)", "stroke-width": 3, "paint-order": "stroke" }, dot);
+    t.textContent = n;
+  });
+
+  // legend
+  $("legend").innerHTML =
+    `<span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="var(--text-2)"/></svg>where it is</span>` +
+    (state.rings ? `<span><svg width="16" height="16"><circle cx="8" cy="8" r="6" fill="none" stroke="var(--text-2)" stroke-width="2"/></svg>where the probe reads it</span>` : "") +
+    `<span><svg width="16" height="16"><circle cx="8" cy="8" r="6" fill="none" stroke="var(--text-2)" stroke-width="1.5" stroke-dasharray="3 3"/></svg>${sc.leaf}'s stated position</span>` +
+    `<span><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="var(--text-2)" opacity="0.35"/></svg>click to move ${sc.leaf}</span>`;
+
+  // description
+  $("desc").innerHTML = sc.text.replace(sc.leaf_sentence, `<mark>${sc.leaf_sentence}</mark>`);
+  const partial = state.alpha > 0 && state.alpha < 4;
+  $("editnote").innerHTML = state.alpha === 0
+    ? `No edit: the model answers about the scene as written.`
+    : partial
+      ? `We set the 2 numbers ${ALPHA_LABEL[state.alpha]} between their values for ${fmt(sc.coords[sc.leaf])} and ${fmt(tg.pos)}. ` +
+        `A map would now put <b>${sc.leaf}</b> at <b>${fmt(st.pos)}</b>, a position no sentence states.`
+      : `We set the 2 numbers to the values the model has when this sentence puts <b>${sc.leaf}</b> at <b>${fmt(st.pos)}</b> ` +
+        `instead of ${fmt(sc.coords[sc.leaf])}.`;
+  const co = $("callout");
+  co.hidden = !partial;
+  if (partial) {
+    const a0 = tg.steps[0].truth, a1 = tg.steps[4].truth;
+    const nov = st.truth.map((tr, q) => st.clear[q] && tr !== a0[q] && tr !== a1[q] ? q : -1).filter((q) => q >= 0);
+    const got = nov.filter((q) => st.model[q] === st.truth[q]).length;
+    co.textContent = nov.length
+      ? `Here ${nov.length === 1 ? "one answer should" : nov.length + " answers should"} differ from both stated layouts. ` +
+        `The model gives the in-between answer ${got === 0 ? "for none of them" : `for ${got}`}; the rest snap to one of the two stated layouts. ` +
+        "Across 300 scenes this is the rule: the edit flips a switch between stated facts rather than sliding a point on a map."
+      : "At this spot no question has an in-between answer; try another spot or another scene to see the snapping.";
+  }
+
+  // answers
+  const rows = sc.questions.map((q, i) => {
+    const truth = st.truth[i], ans = st.model[i], clear = st.clear[i];
+    const conf = st.probs[i][ans];
+    const ok = ans === truth;
+    const right = clear ? (ok ? `<span class="mark-ok" aria-label="matches">✓</span>` : `<span class="mark-bad" aria-label="does not match">✗</span>`) : "";
+    return `<tr><td class="q">${q.text}</td>` +
+      `<td>${clear ? `<span class="ans">${truth}</span>` : `<span class="skip">too close to call</span>`}</td>` +
+      `<td><span class="ans">${ans}</span> ${right} <span class="conf">${pct(conf)}</span></td></tr>`;
+  });
+  $("answers").innerHTML = rows.join("");
+  const n = st.clear.filter(Boolean).length;
+  const hit = st.model.filter((a, i) => st.clear[i] && a === st.truth[i]).length;
+  $("score").innerHTML = `<b>${hit} of ${n}</b> answers match the layout with ${sc.leaf} at ${fmt(st.pos)}.`;
+}
+
+function init() {
+  const S = DATA.stats;
+  $("stats").innerHTML = `Over ${S.n_pairs} held-out scene pairs, this 2-number edit moves <b>${pct(S.das_acc)}</b> of the answers to the moved layout ` +
+    `(the answers the model gives when it actually reads the moved description; a random 2-number edit: ${pct(S.random_acc)}). Set halfway, only <b>${pct(S.halfway_novel)}</b> of answers that should change ` +
+    `to an in-between answer do so (chance ${pct(S.halfway_chance)}).`;
+  $("alpha").addEventListener("input", (e) => { state.alpha = +e.target.value; render(); });
+  $("rings").addEventListener("change", (e) => { state.rings = e.target.checked; render(); });
+  state.target = bestTarget(DATA.scenes[0]);
+  tabs();
+  render();
+}
+init();
+</script>
+</body>
+</html>
