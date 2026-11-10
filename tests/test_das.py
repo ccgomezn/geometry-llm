@@ -113,3 +113,36 @@ def test_mention_site_full_rank_equals_one_token_patch(m, pairs):
         cands, cl = question_scores(rows, lp[g], g)
         r = rows[g[0]]
         assert abs(float(cl[cands.index(r["src_ans"])]) - ref.loc[r["qid"], "lp_src_ans"]) < 1e-3
+
+
+def test_interpolated_coords_moves_only_the_leaf(pairs):
+    from geomap.das import interpolated_coords
+    base, src, leaf, _ = pairs[0]
+    assert interpolated_coords(base, src, leaf, 0.0) == dict(base.coords)
+    assert interpolated_coords(base, src, leaf, 1.0) == {k: tuple(map(float, v)) for k, v in src.coords.items()}
+    mid = interpolated_coords(base, src, leaf, 0.5)
+    (bx, by), (sx, sy) = base.coords[leaf], src.coords[leaf]
+    assert mid[leaf] == ((bx + sx) / 2, (by + sy) / 2)
+    assert all(mid[n] == base.coords[n] for n in base.names if n != leaf)
+
+
+def test_interp_rows_endpoints(m, pairs):
+    from geomap.das import interp_rows
+    rows = pair_rows(m, pairs[:2], layer=1, site="relation")
+    full = SubspaceIntervention(m.d_model, m.d_model)
+    r0 = interp_rows(m, rows, pairs[:2], layer=1, site="relation", alpha=0.0)
+    r1 = interp_rows(m, rows, pairs[:2], layer=1, site="relation", alpha=1.0)
+    assert all(torch.allclose(a["src_h"], b["src_h"]) for a, b in zip(r1, rows))
+    clean = row_logprobs(m, rows, None, layer=1).cpu()
+    assert torch.allclose(row_logprobs(m, r0, full, layer=1).cpu(), clean, atol=1e-3)
+
+
+def test_eval_interp_records(m, pairs):
+    from geomap.das import eval_interp
+    iv = SubspaceIntervention(m.d_model, 2)
+    df = eval_interp(m, iv, pairs[:2], layer=1, site="relation", alphas=(0.0, 0.5))
+    assert set(df.alpha) == {0.0, 0.5}
+    n_q = sum(len(p[3]) for p in pairs[:2])
+    assert len(df) == 2 * n_q
+    a0 = df[df.alpha == 0.0]
+    assert (a0.geo == a0.geo_base).all()

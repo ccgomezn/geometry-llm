@@ -14,7 +14,7 @@ from geomap.analysis import bootstrap_ci
 from geomap.models import LoadedModel
 from geomap.patching import Site, full_acts, prefix_acts, site_positions
 from geomap.prompts import build_prompt
-from geomap.questions import answer_for
+from geomap.questions import answer_for, passes_margin
 from geomap.scoring import candidate_sequences, predict, score
 
 
@@ -212,3 +212,51 @@ def eval_das(m: LoadedModel, iv: SubspaceIntervention, test_pairs, layer: int, s
                         acc_geom=dg.correct_geom.mean() if len(dg) else np.nan,
                         control_stability=cc.correct.mean() if len(cc) else np.nan))
     return pd.DataFrame(out)
+
+
+def interpolated_coords(base, src, leaf: str, alpha: float) -> dict[str, tuple[float, float]]:
+    """The base layout with the moved leaf a fraction `alpha` of the way to its source position."""
+    (bx, by), (sx, sy) = base.coords[leaf], src.coords[leaf]
+    out = {n: tuple(map(float, c)) for n, c in base.coords.items()}
+    out[leaf] = (bx + alpha * (sx - bx), by + alpha * (sy - by))
+    return out
+
+
+def interp_rows(m: LoadedModel, rows: list[dict], pairs, layer: int, site: Site, alpha: float) -> list[dict]:
+    """Copies of `rows` whose swapped-in states lie a fraction `alpha` of the way from the base run's states to the
+    source run's (same positions). With a subspace intervention this sets the subspace coordinates to
+    base + alpha * (source - base): alpha = 0.5 asks for a position that no sentence states."""
+    if site == "mention":
+        raise ValueError("interpolation is defined for prefix sites")
+    base_h = {}
+    out = []
+    for r in rows:
+        p = r["pair"]
+        if p not in base_h:
+            base = pairs[p][0]
+            base_h[p] = prefix_acts(m, build_prompt(base, None, m.tok, m.family), [layer])[layer][r["pos"]].float()
+        out.append(dict(r, src_h=base_h[p] + alpha * (r["src_h"] - base_h[p])))
+    return out
+
+
+def eval_interp(m: LoadedModel, iv: SubspaceIntervention, pairs, layer: int, site: Site,
+                alphas=(0.0, 0.25, 0.5, 0.75, 1.0), min_margin: float = 1.0, min_angle: float = 10.0) -> pd.DataFrame:
+    """One record per (alpha, pair, question): the answer after setting the subspace to the interpolated state,
+    and the geometric answers for the base, source and interpolated layouts (with a margin flag for the latter)."""
+    rows = pair_rows(m, pairs, layer, site)
+    groups = _groups(rows)
+    recs = []
+    for alpha in alphas:
+        ra = interp_rows(m, rows, pairs, layer, site, alpha)
+        lp = row_logprobs(m, ra, iv, layer).cpu()
+        for g in groups:
+            cands, cl = question_scores(ra, lp[g], g)
+            r = rows[g[0]]
+            base, src, leaf, qs = pairs[r["pair"]]
+            q = qs[r["qid"]]
+            ic = interpolated_coords(base, src, leaf, alpha)
+            recs.append(dict(alpha=alpha, pair=r["pair"], qid=r["qid"], qtype=r["qtype"],
+                             pred=cands[int(cl.argmax())], model_base=r["model_base"], model_src=r["model_src"],
+                             geo=answer_for(q, ic), geo_base=r["base_ans"], geo_src=r["src_ans"],
+                             margin_ok=passes_margin(q, ic, min_margin, min_angle)))
+    return pd.DataFrame(recs)
