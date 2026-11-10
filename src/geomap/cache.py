@@ -64,3 +64,10 @@ def save_cache(path, cache: dict, scenes, layers: Sequence[int]) -> None:
 def load_cache(path):
     obj = torch.load(path, weights_only=False)
     return obj["cache"], obj["scenes"], obj["layers"]
+
+
+def sentence_end_positions(spec: PromptSpec, scene) -> dict[str, int]:
+    """Last token of each object's own relation sentence, in object-list order. The root has no sentence of its
+    own; it gets the last token of the first sentence (which places an object relative to the root)."""
+    first = scene.relations[0].subj
+    return {n: spec.relation_spans[first if n == scene.root else n][1] - 1 for n in scene.names}

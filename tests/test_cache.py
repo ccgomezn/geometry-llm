@@ -72,3 +72,15 @@ def test_cache_rejects_non_finite(m, monkeypatch):
     monkeypatch.setattr(gc, "layer_out", huge)
     with pytest.raises(ValueError):
         cache_prefix(m, specs, layers=[1])
+
+
+def test_sentence_end_positions(m):
+    from geomap.cache import sentence_end_positions
+    for s in _scenes(4):
+        spec = build_prompt(s, None, m.tok, m.family)
+        pos = sentence_end_positions(spec, s)
+        assert list(pos) == list(s.names)  # same slot order as the object list
+        first = s.relations[0].subj
+        for n in s.names:
+            src = first if n == s.root else n  # the root has no sentence: use the end of the first sentence
+            assert pos[n] == spec.relation_spans[src][1] - 1
