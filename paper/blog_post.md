@@ -29,7 +29,9 @@ Earlier work has read real-world coordinates of famous places out of language mo
 
 Reading a map out of a model isn't the same as the model *using* it. So I went looking for the part of the model its answers actually depend on, and found something compact: inside the sentence that places an object, **two numbers** control where the model thinks that object is.
 
-Change those two numbers (and nothing else: the text stays the same) and the model's answers move with the object. Across 300 new scenes, on questions where the move should change the answer, the edit gives the answer the model would give if the sentence really said the new position **81% of the time**. Editing two random numbers instead does nothing (0%).
+Change those two numbers (and nothing else: the text stays the same) and the model's answers move with the object. Across 300 new scenes, on questions where the move should change the answer, the edit gives the answer the model would give if the sentence really said the new position **72% of the time**. Editing two random numbers instead does nothing (0%).
+
+A note on that number. I first found the effect while exploring, at 81%. But I'd picked the sentence and the layer after looking at the data, which flatters the result. So I wrote the test down in advance (that sentence, that layer, a pass mark of 70%) and reran everything on scenes the model had never been tested on. It passed: **72%, against 0% for random numbers.** It is strongest for "who is further north / east" (about 90%), weaker for direction (60%), and weakest for closest and farthest (about 35%), which depend on every object at once.
 
 ![Editing two numbers inside the model moves the object, and the model's answers follow. Halfway, the answers snap instead of sliding.](../demo/move-the-map.gif)
 
@@ -41,13 +43,24 @@ https://codepen.io/CristhianGomezN/pen/myWvzwJ
 
 Here's the twist. If those two numbers were coordinates on an inner map, setting them *halfway* between two positions should put the object halfway. Suppose an object is north of you in one layout and east in another: halfway, it should be north-east.
 
-That's not what happens. Set halfway, the model snaps to one layout or the other. On questions whose answer should change to something in-between, it gives that answer 6% of the time, below the 14% you'd get by guessing. The model computes positions, and a compact code steers its answers, but that code behaves like a **switch between stated facts**, not a dial on a map.
+That's not what happens. Set halfway, the model snaps to one layout or the other. On questions whose answer should change to something in-between, it gives that answer 9% of the time, below the 14% you'd get by guessing (this was also fixed in advance; the exploratory run gave 6%). The model computes positions, and a compact code steers its answers, but that code behaves like a **switch between stated facts**, not a dial on a map.
 
-So: does an AI picture the scene? It builds the picture (Finding 1). But when it answers, it reaches for something more like a filing card for each sentence than a point on a map. That's a sharper answer than I expected, and it gives the next experiments a target.
+## Finding 4: the worked-out positions aren't what it answers from
+
+Back to Cy, whose position the model has to work out. Finding 1 showed that position is in there. Is it the one the answers use?
+
+Take a chain: Ana is placed relative to Bo, and Cy relative to Ana. Now change only Ana's sentence. Ana moves, and Cy moves with Ana, but Cy's own sentence is word-for-word the same. Whatever differs inside the model over Cy's sentence can only be Cy's worked-out position. So I copied the model's activations over Cy's sentence from the moved version into the original one, layer by layer, and asked: do the answers now put Cy at its moved spot?
+
+Almost never. At the best layer, 7% of the answers that should change did; at most layers, under 2%. (Again, the test and the pass mark were written down before the data existed.) The model works out where Cy is, but when it answers, it goes back to the sentences it was given and recombines them.
+
+## So, does an AI picture the scene?
+
+Partly. It builds the picture: positions it was never told are sitting in its activations (Finding 1). But when it answers, it doesn't consult that picture. It reaches for something more like a filing card for each sentence: a compact, editable code for what each sentence stated (Findings 2 and 3), recombined on demand (Finding 4). That's a sharper answer than I expected, and it gives the next experiments a target.
+
+<!-- 27B: fill in after the replication -->
 
 ## What's next
 
-- **Chains.** When B moves, does C (placed relative to B) move with it inside the model, and from which layer does C's own position get stored? Early results say the model starts fixing C's position around layer 16.
 - **Bigger models.** Does the switch become a dial with scale?
 - **Shapes, not points.** Triangles, holes, rotations: geometry where a real picture would pay off.
 - **Seeing.** What changes when the same model is shown an actual image.

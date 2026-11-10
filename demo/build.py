@@ -27,11 +27,13 @@ def compact(d):
     return d
 
 
-def stats(model="gemma3-12b"):
-    das = pd.read_csv(ROOT / "results" / "p4" / f"{model}_das_relation_L14.csv")
+def stats(model="gemma3-12b", label="confirm"):
+    """Headline numbers from the preregistered confirmation run (docs/preregistration_p4c.md)."""
+    sfx = f"_{label}" if label else ""
+    das = pd.read_csv(ROOT / "results" / "p4" / f"{model}_das_relation_L14{sfx}.csv")
     allq = das[das.qtype == "ALL"].set_index("method")
-    it = pd.read_csv(ROOT / "results" / "p4" / f"{model}_interp_relation_L14.csv").set_index("alpha")
-    df = pd.read_parquet(ROOT / "results" / "p4" / f"{model}_interp_relation_L14.parquet")
+    it = pd.read_csv(ROOT / "results" / "p4" / f"{model}_interp_relation_L14{sfx}.csv").set_index("alpha")
+    df = pd.read_parquet(ROOT / "results" / "p4" / f"{model}_interp_relation_L14{sfx}.parquet")
     nov = df[(df.alpha == 0.5) & df.margin_ok & (df.geo != df.geo_base) & (df.geo != df.geo_src)]
     chance = float(np.mean([1 / 8 if q == "direction" else 1 / 2 for q in nov.qtype]))
     return dict(n_pairs=300, das_acc=float(allq.loc["DAS k=2", "acc"]), random_acc=float(allq.loc["random k=2", "acc"]),

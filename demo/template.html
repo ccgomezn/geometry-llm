@@ -264,7 +264,7 @@ function render() {
 
 function init() {
   const S = DATA.stats;
-  $("stats").innerHTML = `Over ${S.n_pairs} held-out scene pairs, this 2-number edit moves <b>${pct(S.das_acc)}</b> of the answers to the moved layout ` +
+  $("stats").innerHTML = `In a preregistered test on ${S.n_pairs} new scene pairs, a 2-number edit learned this way moves <b>${pct(S.das_acc)}</b> of the answers to the moved layout ` +
     `(the answers the model gives when it actually reads the moved description; a random 2-number edit: ${pct(S.random_acc)}). Set halfway, only <b>${pct(S.halfway_novel)}</b> of answers that should change ` +
     `to an in-between answer do so (chance ${pct(S.halfway_chance)}).`;
   $("alpha").addEventListener("input", (e) => { state.alpha = +e.target.value; render(); });
