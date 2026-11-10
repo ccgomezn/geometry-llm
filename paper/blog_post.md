@@ -1,4 +1,4 @@
-# We Found a Map Inside an AI. Then We Tried to Move It.
+# The AI Worked Out Where Things Are, Even When Nobody Told It
 
 *Notes from an ongoing experiment on whether language models "picture" a scene they only read about.*
 
@@ -6,39 +6,30 @@
 
 Read this: *"Ana is 3 units north of Bo. Cy is 2 units east of Ana."* Now answer: who is farthest from Bo?
 
-You probably didn't reread the sentences. You placed three dots in your head and looked. Psychologists have argued for decades about whether that inner picture does real work or is a side effect of thinking. I want to ask the same of AI: **when a language model solves a geometry problem given only in words, does it build a picture inside, and does it use it?**
+You probably didn't reread the sentences. You placed three dots in your head and looked. Notice that nobody told you where Cy is relative to Bo: you worked it out by chaining the two sentences. Psychologists have argued for decades about what that inner picture is and what it does. I want to ask the same of AI: **when a language model reads a scene described only in words, does it build something like a map inside?**
 
 ## The setup
 
-I generated thousands of small layouts no model could have seen before, described only in words. Each came with questions the text never answers directly: farthest, closest, which direction, who is further north.
+I generated thousands of small layouts that no model could have seen before, described only in words. Each came with questions the text never answers directly: farthest, closest, which direction, who is further north.
 
-Eight open models (Qwen, Llama and Gemma, 1.7 to 27 billion parameters) had to answer instantly, without "thinking out loud". The smallest that handled three-object layouts reliably was **Gemma 3 12B**, so that's the one I opened up. Before looking inside, I wrote down in advance what would count as evidence for a map, so I couldn't move the goalposts later.
+First, a filter: there's no point looking for a map inside a model that can't do the task. Eight open models (Qwen, Llama and Gemma, from 1.7 to 27 billion parameters) had to answer instantly, without "thinking out loud". Most struggled. The smallest that handled three-object layouts reliably was **Gemma 3 12B**, so that's the one I opened up. Before looking inside, I wrote down in advance what would count as evidence, so I couldn't move the goalposts later.
 
-## Finding 1: there is a map
+## What we found: positions nobody stated
 
-From the model's internal activations, a simple decoder recovers every object's x and y coordinates (R² = 0.74). That includes positions the text never states. Cy's position only follows from chaining two sentences, and a decoder that only sees what each sentence says gets 0.22 on objects like Cy. So the model really *combines* the sentences into positions.
+Each object is mentioned once more after the description, in a list ("The objects are: Ana, Bo, Cy"). At each mention, I trained a simple linear decoder to read that object's x and y coordinates from the model's internal activations.
 
-## Finding 2: moving the map where we found it does nothing
+- **It works, and well:** R² = 0.74 on layouts the decoder never saw. Shuffled labels, the model's first layer and an untrained copy of the model all score zero.
+- **The interesting part is objects like Cy,** whose position is never stated relative to the scene: it only follows from combining two sentences. The decoder reads those as well as directly stated ones (0.74 vs 0.76). A decoder that only gets what each object's own sentence says reaches 0.22 on them.
+- **It appears suddenly.** The first 11 layers carry nothing readable. The coordinates show up around layer 12 and peak at layer 21, as if the model spends its early layers reading and then assembles the layout.
 
-Readable doesn't mean used, so I tried to move an object inside the model. I replaced the internal representation where the coordinates live with one from a layout where that object sits elsewhere. If the answers came from there, they should change.
+Earlier work has read real-world coordinates of famous places out of language models, which is memorised geography. For scenes described in the prompt, recent probes found categorical relations (left of, above) or weaker, fragmented coordinate signals. Here, a model works out a coordinate for every object in a scene it has never seen, including positions it had to compute.
 
-They didn't. In 390 tries, the full set of answers never followed. Swapping the *sentence* about that object, however, moved every answer consistently.
+## What's next
 
-## What that does and doesn't mean
+Being able to read a map out of a model is not the same as the model *relying* on it. That's the question we're testing now. We edit the model's internal state, moving one object inside it, and check whether all of its answers move consistently, the way they would if it were consulting a picture.
 
-It's tempting to conclude "the model builds a map and ignores it". I don't think we can say that yet. There are two other explanations, and both are about where we looked:
-
-- **The model may keep more than one copy.** Overwrite one and the others outvote it.
-- **The map it uses may sit somewhere else**, for example right at the sentence about the object, which is exactly where our edit worked.
-
-What we *can* say is already useful: a decoder that passes every standard check can point at a representation that has no effect on the answer. Finding *where* information is readable isn't the same as finding *what the model relies on*.
-
-## What we're running now
-
-1. **Look for the map where the edit works.** Can the coordinates be read off the sentence itself, including the positions that require combining sentences?
-2. **Remove the other copies.** Copy everything from the other layout *except* the place where we found the map. If the answers still follow, that copy really isn't needed.
-3. **The decisive test: move the middle of a chain.** Take A → B → C, where C is placed relative to B, and move B inside the model. If the model has already worked out where C is, C stays put while B moves. If it rebuilds positions from the sentences each time, C follows B. Doing this layer by layer shows whether, and when, the model "draws the picture".
+The sharpest version uses a chain: A → B → C, where C is placed relative to B. Move B inside the model. If the model has already worked out where C is, C stays put. If it rebuilds positions from the sentences every time it's asked, C follows B. Doing this layer by layer tells us whether, and when, the model "draws the picture".
 
 The long-term goal is the step from *reading* to *seeing*: what changes when the same model is shown an actual image.
 
-*Code, preregistration and results are in one repository and will be released with the paper.*
+*Code, preregistration and results will be released with the paper.*
