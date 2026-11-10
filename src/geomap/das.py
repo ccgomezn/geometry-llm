@@ -101,12 +101,13 @@ def _forward(m: LoadedModel, batch: list[dict], iv: nn.Module | None, layer: int
         iv.to(dev)
     handle = _module(m, layer).register_forward_hook(hook) if iv is not None else None
     try:
-        logits = m.hf(input_ids=ids.to(dev), attention_mask=am.to(dev),
-                      logits_to_keep=torch.tensor(need)).logits.float()  # CPU index: valid whatever GPU holds the last layer
+        # an int, not an index tensor: accelerate moves tensor arguments to the first GPU, while the last hidden
+        # states may sit on another one. Keep the last T - need[0] positions, then select the needed ones.
+        logits = m.hf(input_ids=ids.to(dev), attention_mask=am.to(dev), logits_to_keep=T - need[0]).logits
     finally:
         if handle is not None:
             handle.remove()
-    lp = logits.log_softmax(-1)
+    lp = logits[:, torch.tensor([p - need[0] for p in need], device=logits.device)].float().log_softmax(-1)
     out = []
     for j, r in enumerate(batch):
         toks = r["ids"][r["n"]:]
