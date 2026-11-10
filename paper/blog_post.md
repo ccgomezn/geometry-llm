@@ -35,7 +35,7 @@ Change those two numbers (and nothing else: the text stays the same) and the mod
 
 *Try it yourself: pick a scene, click a spot, drag the slider.*
 
-[PASTE THE CODEPEN URL HERE, ON ITS OWN LINE]
+https://codepen.io/CristhianGomezN/pen/myWvzwJ
 
 ## Finding 3: it's a switch, not a slider
 
