@@ -101,13 +101,19 @@ def _forward(m: LoadedModel, batch: list[dict], iv: nn.Module | None, layer: int
         iv.to(dev)
     handle = _module(m, layer).register_forward_hook(hook) if iv is not None else None
     try:
-        # an int, not an index tensor: accelerate moves tensor arguments to the first GPU, while the last hidden
-        # states may sit on another one. Keep the last T - need[0] positions, then select the needed ones.
-        logits = m.hf(input_ids=ids.to(dev), attention_mask=am.to(dev), logits_to_keep=T - need[0]).logits
+        # Run the decoder, then apply the output head only at the scored positions: full-vocabulary logits at
+        # every position of 100+ candidate rows do not fit. The index is built on the hidden states' device
+        # (with device_map="auto" that is the last GPU, not the first).
+        hs = m.hf.model(input_ids=ids.to(dev), attention_mask=am.to(dev)).last_hidden_state
+        logits = m.hf.lm_head(hs[:, torch.tensor(need, device=hs.device)])
+        cfg = getattr(m.hf.config, "text_config", m.hf.config)
+        cap = getattr(cfg, "final_logit_softcapping", None)
+        if cap:
+            logits = torch.tanh(logits / cap) * cap
     finally:
         if handle is not None:
             handle.remove()
-    lp = logits[:, torch.tensor([p - need[0] for p in need], device=logits.device)].float().log_softmax(-1)
+    lp = logits.float().log_softmax(-1)
     out = []
     for j, r in enumerate(batch):
         toks = r["ids"][r["n"]:]
@@ -148,19 +154,19 @@ def train_das(m: LoadedModel, train_pairs, layer: int, site: Site = "list", k: i
         perm = rng.permutation(len(groups))
         for b in range(0, len(groups), batch_size):
             gb = [groups[i] for i in perm[b:b + batch_size]]
-            idx = [i for g in gb for i in g]
-            lp = row_logprobs(m, [rows[i] for i in idx], iv, layer, grad=True, batch_size=len(idx))
-            loss, off = 0.0, 0
-            for g in gb:
-                cands, cl = question_scores(rows, lp[off:off + len(g)], g)
-                target = cands.index(rows[g[0]]["model_src"])
-                loss = loss + nn.functional.cross_entropy(cl[None], torch.tensor([target], device=cl.device))
-                off += len(g)
-            loss = loss / len(gb)
+            # one question per forward/backward, gradients accumulated: activations kept for backward through
+            # the upper layers of a 12B model fit for one question's ~30 candidate rows, not for 8 questions'
             opt.zero_grad()
-            loss.backward()
+            loss_sum = 0.0
+            for g in gb:
+                lp = row_logprobs(m, [rows[i] for i in g], iv, layer, grad=True, batch_size=len(g))
+                cands, cl = question_scores(rows, lp, g)
+                target = cands.index(rows[g[0]]["model_src"])
+                loss = nn.functional.cross_entropy(cl[None], torch.tensor([target], device=cl.device)) / len(gb)
+                loss.backward()
+                loss_sum += float(loss)
             opt.step()
-            losses.append(float(loss))
+            losses.append(loss_sum)
         iv.history.append(float(np.mean(losses)))
     return iv
 

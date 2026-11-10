@@ -74,18 +74,27 @@ def test_eval_headline_counts_only_model_diagnostic(m, pairs):
         assert df.loc["ALL", "acc"] == 0.0  # masked intervention never reproduces the source answer
 
 
-def test_logits_to_keep_is_an_int(m, pairs, monkeypatch):
-    # with device_map="auto", accelerate's hook moves every tensor argument to the first GPU, while the final
-    # hidden states sit on the last one; an index tensor then crashes (P4 on 4 GPUs). An int is never moved.
-    seen = {}
-    real = m.hf.forward
+def test_lm_head_sees_only_scored_positions(m, pairs, monkeypatch):
+    # memory: full-vocabulary logits at every kept position of 100+ candidate rows OOM'd a 12B model
+    rows = pair_rows(m, [pairs[0]], layer=1, site="list")[:6]
+    need = sorted({p for r in rows for p in range(r["n"] - 1, len(r["ids"]) - 1)})
+    seen = []
+    h = m.hf.lm_head.register_forward_hook(lambda mod, inp, out: seen.append(inp[0].shape[1]))
+    try:
+        row_logprobs(m, rows, SubspaceIntervention(m.d_model, 2), layer=1)
+    finally:
+        h.remove()
+    assert seen == [len(need)]
 
-    def spy(*args, **kw):
-        if "logits_to_keep" in kw:
-            seen["ltk"] = kw["logits_to_keep"]
-        return real(*args, **kw)
 
-    rows = pair_rows(m, [pairs[0]], layer=1, site="list")
-    monkeypatch.setattr(m.hf, "forward", spy)
-    row_logprobs(m, rows[:2], SubspaceIntervention(m.d_model, 2), layer=1)
-    assert isinstance(seen["ltk"], int)
+def test_training_forward_holds_one_question_at_a_time(m, pairs):
+    # memory: 8 questions' candidate rows (200+ prompts) in one forward with autograd OOM'd a 12B model
+    from geomap.das import _groups
+    biggest = max(len(g) for g in _groups(pair_rows(m, pairs[:2], layer=1, site="list")))
+    sizes = []
+    h = m.hf.lm_head.register_forward_hook(lambda mod, inp, out: sizes.append(inp[0].shape[0]))
+    try:
+        train_das(m, pairs[:2], layer=1, site="list", k=2, epochs=1, batch_size=8)
+    finally:
+        h.remove()
+    assert max(sizes) <= biggest
