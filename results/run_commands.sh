@@ -39,3 +39,4 @@ CUDA_VISIBLE_DEVICES=1,2,3 /home/cris_anemona_ai/.local/bin/uv run python script
 /home/cris_anemona_ai/.local/bin/uv run python scripts/e3_transfer.py --model gemma3-12b --exclude closer_than
 /home/cris_anemona_ai/.local/bin/uv run python scripts/p4_interp.py --model gemma3-12b --exclude closer_than --layer 14 --seed 106 --label confirm
 /home/cris_anemona_ai/.local/bin/uv run python scripts/p4_das.py --model gemma3-27b --n-objects 3 --exclude closer_than --n-train 300 --n-test 300 --epochs 2 --site relation --seeds 105 106 --label confirm --layer 18
+/home/cris_anemona_ai/.local/bin/uv run python scripts/p4_interp.py --model gemma3-27b --exclude closer_than --layer 18 --seed 106 --label confirm

@@ -33,6 +33,8 @@ Change those two numbers (and nothing else: the text stays the same) and the mod
 
 A note on that number. I first found the effect while exploring, at 81%. But I'd picked the sentence and the layer after looking at the data, which flatters the result. So I wrote the test down in advance (that sentence, that layer, a pass mark of 70%) and reran everything on scenes the model had never been tested on. It passed: **72%, against 0% for random numbers.** It is strongest for "who is further north / east" (about 90%), weaker for direction (60%), and weakest for closest and farthest (about 35%), which depend on every object at once.
 
+And it isn't a quirk of one model. I ran the same test, with the same rules fixed in advance, on **Gemma 3 27B**, more than twice the size, at the matching depth. It passed more clearly: **83%, against 0% for random numbers**, with direction questions up from 60% to 81%. The bigger model has the same kind of two-number code, and its answers follow it more reliably.
+
 ![Editing two numbers inside the model moves the object, and the model's answers follow. Halfway, the answers snap instead of sliding.](../demo/move-the-map.gif)
 
 *Try it yourself: pick a scene, click a spot, drag the slider.*
@@ -43,7 +45,7 @@ https://codepen.io/CristhianGomezN/pen/myWvzwJ
 
 Here's the twist. If those two numbers were coordinates on an inner map, setting them *halfway* between two positions should put the object halfway. Suppose an object is north of you in one layout and east in another: halfway, it should be north-east.
 
-That's not what happens. Set halfway, the model snaps to one layout or the other. On questions whose answer should change to something in-between, it gives that answer 9% of the time, below the 14% you'd get by guessing (this was also fixed in advance; the exploratory run gave 6%). The model computes positions, and a compact code steers its answers, but that code behaves like a **switch between stated facts**, not a dial on a map.
+That's not what happens. Set halfway, the model snaps to one layout or the other. On questions whose answer should change to something in-between, it gives that answer 9% of the time, below the 14% you'd get by guessing (this was also fixed in advance; the exploratory run gave 6%). On Gemma 3 27B it is even clearer: 5%, with the model snapping back to the original layout most of the time. The model computes positions, and a compact code steers its answers, but that code behaves like a **switch between stated facts**, not a dial on a map.
 
 ## Finding 4: the worked-out positions aren't what it answers from
 
@@ -67,11 +69,10 @@ Which raises the obvious question: **if the model answers from what it was told,
 
 The next experiment is designed to tell these apart: erase the map wherever the model stores the positions it worked out, and see whether its answers get worse. If they do, the map is doing real work. If nothing changes, it's a by-product.
 
-<!-- 27B: fill in after the replication -->
 
 ## What's next
 
-- **Bigger models.** Does the switch become a dial with scale?
+- **Bigger models.** From 12B to 27B, the code got stronger but stayed a switch. Does that ever change with scale?
 - **Shapes, not points.** Triangles, holes, rotations: geometry where a real picture would pay off.
 - **Seeing.** What changes when the same model is shown an actual image.
 

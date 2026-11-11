@@ -897,8 +897,43 @@ Model **gemma3-12b**, the 2-D subspace learned by DAS at the relation site, laye
 
 ![p4_interp_relation_L14_confirm](figures/p4_interp_relation_L14_confirm.png)
 
-### Note on the 2026-11-10 'confirm' entries (added by hand)
+## 2026-11-10 23:14 · P4 DAS (gemma3-27b) — preregistered 'confirm' run: relation site, layer 18
+Model **gemma3-27b**, layer 18, site relation; 300 training pairs, 300 test pairs. Interchange accuracy = on questions where the model answers differently when the object is really elsewhere, the share whose answer after swapping only the learned subspace equals that answer (ceiling 1). Geometric accuracy (answers equal the moved layout) in the last column.
 
-- **P4 DAS confirm:** the auto-printed "Preregistered criterion … not met" line applies the original per-type rule. The P4c preregistration (docs/preregistration_p4c.md) made the decision rule ALL ≥ 0.70 and random ≤ 0.05, with per-type rates reported only. Under that rule: ALL 0.72 [0.68, 0.75], random 0.00 → **2-D code confirmed** on gemma3-12b.
-- **P4i confirm:** the entry is labelled "Exploratory" by the script template; this run is the preregistered one (seed 106, label confirm). At α = ½: novel 0.085 [0.041, 0.137], n = 164; chance on that subset 0.141 (the 0.15 in the entry pools all α). Upper CI bound < chance → **switch**.
-- **E3:** follow_T ≤ 0.07 at every layer ≥ 1 → **not carried**. The "follows source" column is ≈ 0.85 already at layer 0 (base and source answers mostly agree on those questions), so it is not informative.
+| method | closest | direction | farthest | more_east | more_north | ALL | |
+|---|---|---|---|---|---|---|---|
+| random k=2 | 0.00 [0.00, 0.00] | 0.00 [0.00, 0.00] | 0.04 [0.00, 0.12] | 0.00 [0.00, 0.00] | 0.01 [0.00, 0.02] | 0.00 [0.00, 0.01] | geometric 0.10 |
+| DAS k=2 | 0.43 [0.28, 0.58] | 0.81 [0.77, 0.85] | 0.38 [0.23, 0.56] | 0.84 [0.78, 0.90] | 0.94 [0.90, 0.97] | 0.83 [0.80, 0.85] | geometric 0.74 |
+
+Preregistered criterion (k = 2, ≥ 0.7 on every question type): **not met** (lowest: 0.38 on farthest).
+Seeds (train, test): 105, 106. Decision rule: see docs/preregistration_p4c.md.
+
+![p4_das_relation_L18_confirm](figures/p4_das_relation_L18_confirm.png)
+
+## 2026-11-11 00:38 · P4i 2-D code set to unstated positions (gemma3-27b) — preregistered 'confirm' run
+Model **gemma3-27b**, the 2-D subspace learned by DAS at the relation site, layer 18; 150 of its held-out test pairs. Exploratory. The subspace is set to base + α·(moved − base); answers are scored against the layout with the object at the matching interpolated position (questions with margin ≥ 1 unit / 10° there). *Novel*: questions whose answer at that position differs from the answer in both stated layouts (chance 0.15). Clean model accuracy on the base layouts: 0.85.
+
+| α | agrees with interpolated layout | novel: interpolated answer | novel: original-layout answer | novel: moved-layout answer | n novel |
+|---|---|---|---|---|---|
+| 0 | 0.85 [0.82, 0.87] | – | – | – | 0 |
+| 0.25 | 0.84 [0.80, 0.86] | 0.00 [0.00, 0.00] | 0.81 [0.60, 1.00] | 0.05 [0.00, 0.17] | 21 |
+| 0.5 | 0.64 [0.61, 0.67] | 0.05 [0.02, 0.10] | 0.73 [0.64, 0.81] | 0.21 [0.14, 0.28] | 164 |
+| 0.75 | 0.79 [0.75, 0.81] | 0.05 [0.00, 0.16] | 0.20 [0.00, 0.42] | 0.70 [0.45, 0.95] | 20 |
+| 1 | 0.80 [0.77, 0.83] | – | – | – | 0 |
+| 1.5 | 0.80 [0.77, 0.83] | 0.20 [0.08, 0.33] | 0.11 [0.04, 0.21] | 0.63 [0.47, 0.79] | 46 |
+
+![p4_interp_relation_L18_confirm](figures/p4_interp_relation_L18_confirm.png)
+
+### Note on the 2026-11-10/11 'confirm' entries (added by hand)
+
+Decision rules: docs/preregistration_p4c.md (P4c) and docs/preregistration_e3.md (E3). The auto-printed "Preregistered criterion (≥ 0.7 on every question type) … not met" lines apply the original per-type rule, which P4c demoted to reported-only; the P4c rule is ALL ≥ 0.70 and random ≤ 0.05. The P4i entries' "Exploratory" wording comes from the script template; the 'confirm' runs are the preregistered ones. Their "chance 0.15" pools all α; at α = ½ the chance on the novel subset is 0.141 (n = 164, both models).
+
+| test | gemma3-12b (L14) | gemma3-27b (L18) |
+|---|---|---|
+| P4c DAS k=2, ALL | 0.72 [0.68, 0.75] | 0.83 [0.80, 0.85] |
+| random k=2, ALL | 0.00 | 0.00 |
+| verdict | **2-D code confirmed** | **2-D code confirmed** |
+| P4i α = ½, novel rate | 0.085 [0.041, 0.137] | 0.055 [0.019, 0.096] |
+| verdict (upper CI < 0.141) | **switch** | **switch** |
+
+- **E3 (gemma3-12b):** follow_T ≤ 0.07 at every layer ≥ 1 → **not carried**. The "follows source" column is ≈ 0.85 already at layer 0 (base and source answers mostly agree on those questions), so it is not informative.
