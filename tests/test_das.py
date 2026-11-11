@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 import torch
 
@@ -146,3 +147,11 @@ def test_eval_interp_records(m, pairs):
     assert len(df) == 2 * n_q
     a0 = df[df.alpha == 0.0]
     assert (a0.geo == a0.geo_base).all()
+
+
+def test_eval_das_accepts_prebuilt_rows(m, pairs):
+    torch.manual_seed(0)
+    iv = SubspaceIntervention(m.d_model, 2)
+    a = eval_das(m, iv, pairs, 1, "relation", n_boot=50)
+    b = eval_das(m, iv, pairs, 1, "relation", n_boot=50, rows=pair_rows(m, pairs, 1, "relation"))
+    pd.testing.assert_frame_equal(a, b)

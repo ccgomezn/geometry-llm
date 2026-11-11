@@ -185,11 +185,12 @@ def train_das(m: LoadedModel, train_pairs, layer: int, site: Site = "list", k: i
 
 
 def eval_das(m: LoadedModel, iv: SubspaceIntervention, test_pairs, layer: int, site: Site,
-             n_boot: int = 1000) -> pd.DataFrame:
+             n_boot: int = 1000, rows: list[dict] | None = None) -> pd.DataFrame:
     """Interchange accuracy: on questions where the model's clean base and clean source answers differ, the share
     whose answer after swapping the subspace equals the clean-source answer (ceiling 1). Also reports the
-    geometric version (source-map answers on geometrically diagnostic questions) and control stability."""
-    rows = pair_rows(m, test_pairs, layer, site)
+    geometric version (source-map answers on geometrically diagnostic questions) and control stability.
+    `rows` (from pair_rows, possibly with edited source states, e.g. a write-in) skips building them."""
+    rows = pair_rows(m, test_pairs, layer, site) if rows is None else rows
     lp = row_logprobs(m, rows, iv, layer).cpu()
     recs = []
     for g in _groups(rows):

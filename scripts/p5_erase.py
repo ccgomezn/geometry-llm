@@ -1,0 +1,112 @@
+"""P5c (docs/preregistration_p5.md): erase the probe-readable coordinates (INLP basis, every token position) and
+check whether answers about the worked-out (two-step) object suffer more than with a random basis of the same rank."""
+
+import argparse
+import time
+
+import numpy as np
+import pandas as pd
+import torch
+
+from geomap.cache import cache_prefix
+from geomap.followups import chain_items, erase_edit, erase_summary, inlp_basis, verdict_erase
+from geomap.models import load
+from geomap.probes import centered_xy
+from geomap.prompts import NAME_POOLS, build_prompt, single_token_names
+from geomap.questions import answer_for
+from geomap.report import ROOT, append_entry
+from geomap.scenes import generate_scene
+from geomap.scoring import predict, score
+
+OUT = ROOT / "results" / "p5"
+LAYERS = list(range(12, 31))
+CONFIGS = {"L14": [14], "L21": [21], "L28": [28], "window 12-30": LAYERS}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model", default="gemma3-12b")
+    ap.add_argument("--n-fit", type=int, default=2000)
+    ap.add_argument("--n-test", type=int, default=300)
+    ap.add_argument("--batch-size", type=int, default=16)
+    ap.add_argument("--smoke", action="store_true", help="tiny model, layers 1-2; writes to /tmp only")
+    a = ap.parse_args()
+    global OUT, LAYERS, CONFIGS
+    if a.smoke:
+        import tempfile
+        OUT, LAYERS = __import__("pathlib").Path(tempfile.mkdtemp()), [1, 2]
+        CONFIGS = {"L1": [1], "window 1-2": LAYERS}
+    OUT.mkdir(parents=True, exist_ok=True)
+    t0 = time.time()
+    m = load(a.model)
+
+    # fit: INLP basis per layer at the object-list positions
+    rng = np.random.default_rng(201)
+    pools = [single_token_names(m.tok, NAME_POOLS[k]) for k in ("people", "objects")]
+    scenes = [generate_scene(rng, pools[i % 2], 3) for i in range(a.n_fit)]
+    specs = [build_prompt(s, None, m.tok, m.family) for s in scenes]
+    acts = cache_prefix(m, specs, LAYERS, batch_size=a.batch_size)["list"]  # [N, L, 6, d]
+    print(f"[p5c] cached {tuple(acts.shape)}, {time.time() - t0:.0f}s", flush=True)
+    bases, rand, fit_rows = {}, {}, []
+    g = torch.Generator().manual_seed(0)
+    for li, layer in enumerate(LAYERS):
+        A = acts[:, li].float().numpy()
+        X, Y, meta = centered_xy(A, scenes, np.arange(len(scenes)))
+        B, hist = inlp_basis(X, Y, meta.scene.values, max_rounds=20, r2_stop=0.1)
+        valid = ~np.isnan(A[:, :, 0])
+        mu = A[valid].mean(0)
+        Bt = torch.as_tensor(B, dtype=torch.float32)
+        bases[layer] = (Bt, torch.as_tensor(mu @ B, dtype=torch.float32))
+        R = torch.linalg.qr(torch.randn(m.d_model, B.shape[1], generator=g))[0]
+        rand[layer] = (R, torch.as_tensor(mu, dtype=torch.float32) @ R)
+        fit_rows.append(dict(layer=layer, rank=B.shape[1], r2_before=hist[0], r2_after=hist[-1], rounds=len(hist) - 1))
+        print(f"[p5c] layer {layer}: rank {B.shape[1]}, R² {hist[0]:.2f} -> {hist[-1]:.3f}", flush=True)
+    del acts
+    fit = pd.DataFrame(fit_rows)
+    fit.to_csv(OUT / f"{a.model}_p5c_inlp.csv", index=False)
+
+    # test: clean vs erased answers on new chains
+    items = chain_items(m, a.n_test, seed=202, exclude_qtypes=("closer_than",))
+    flat = [(si, qi, s, q, comp) for si, (s, _, _, qs) in enumerate(items) for qi, (q, comp) in enumerate(qs)]
+    specs = [(build_prompt(s, q, m.tok, m.family), q) for _, _, s, q, _ in flat]
+    truth = [answer_for(q, s.coords) for _, _, s, q, _ in flat]
+    print(f"[p5c] {len(flat)} questions in {len(items)} chains", flush=True)
+    recs = []
+
+    def run(cond, cfg, edit):
+        preds = [predict(sc) for sc in score(m, specs, edit=edit, batch_size=a.batch_size)]
+        for (si, qi, _, q, comp), p, t in zip(flat, preds, truth):
+            recs.append(dict(scene=si, qi=qi, qtype=q.qtype.value, composed=comp, config=cfg, cond=cond,
+                             pred=p, truth=t, correct=float(p == t)))
+        print(f"[p5c] {cond:6s} {cfg:13s} acc {np.mean([p == t for p, t in zip(preds, truth)]):.3f} "
+              f"({time.time() - t0:.0f}s)", flush=True)
+
+    run("clean", "-", None)
+    for cfg, ls in CONFIGS.items():
+        run("probe", cfg, erase_edit({l: bases[l] for l in ls}))
+        run("random", cfg, erase_edit({l: rand[l] for l in ls}))
+    df = pd.DataFrame(recs)
+    df.to_parquet(OUT / f"{a.model}_p5c.parquet")
+    s = erase_summary(df)
+    s.to_csv(OUT / f"{a.model}_p5c_summary.csv", index=False)
+    r2_after = float(fit.r2_after.max())
+    v = verdict_erase(s, r2_after=r2_after)
+
+    lines = [f"Model **{a.model}**. INLP basis fitted per layer at the object-list positions ({a.n_fit} scenes); "
+             f"erased at every token position. Rank per layer {fit['rank'].min()}–{fit['rank'].max()}; probe R² "
+             f"before {fit.r2_before.min():.2f}–{fit.r2_before.max():.2f}, after ≤ {r2_after:.3f}. "
+             f"Test: {len(items)} new chains, {len(flat)} questions.", "",
+             "| erased at | questions | clean acc | drop (probe basis) | drop (random basis) | excess drop [95% CI] | n |",
+             "|---|---|---|---|---|---|---|"]
+    for r in s.itertuples():
+        lines.append(f"| {r.config} | {'composed (involve C)' if r.composed else 'stated only'} | {r.clean:.2f} | "
+                     f"{r.drop_probe:.3f} | {r.drop_random:.3f} | {r.excess:.3f} [{r.excess_lo:.3f}, {r.excess_hi:.3f}] "
+                     f"| {r.n} |")
+    lines += ["", f"Preregistered verdict: **{v}**. Rules: docs/preregistration_p5.md."]
+    if not a.smoke:
+        append_entry(f"P5c erase the map ({a.model}) — preregistered", "\n".join(lines), [])
+    print("\n".join(lines))
+
+
+if __name__ == "__main__":
+    main()

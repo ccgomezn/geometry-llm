@@ -105,6 +105,8 @@ class GroupRidge:
                 P = Kva @ (Q @ (QtY / (w + a)[:, None]))
                 err[j] += float(((P - Yva) ** 2).sum())
         self.alpha_ = float(alphas[int(err.argmin())])
+        # group-CV R² at the chosen penalty (pooled over outputs): lets callers skip a second, nested CV
+        self.cv_r2_ = float(1 - err.min() / ((Y - Y.mean(0)) ** 2).sum())
         Xt, Q, w, QtY = self._solve(X, Y, [self.alpha_])
         A = Q @ (QtY / (w + self.alpha_)[:, None])
         self.coef_ = (Xt.T @ A).T.double().cpu().numpy()  # [n_outputs, d]

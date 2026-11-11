@@ -1,0 +1,161 @@
+import numpy as np
+import pandas as pd
+import pytest
+import torch
+
+from geomap.followups import (chain_items, cv_r2, erase_edit, fit_token_maps, inlp_basis, project, sentence_diffs,
+                              writein_rows)
+from geomap.models import load_tiny_for_tests
+from geomap.patching import make_pairs
+from geomap.scoring import score
+
+
+@pytest.fixture(scope="module")
+def m():
+    return load_tiny_for_tests()
+
+
+@pytest.fixture(scope="module")
+def pairs(m):
+    return make_pairs(m, 4, seed=1, n_objects=(3,))
+
+
+def _toy_diffs(n_pairs=60, d=16, seed=0, noise=0.0):
+    """dh = A_j @ doff (+ noise) with a known per-token linear map, for 3 tokens per pair."""
+    rng = np.random.default_rng(seed)
+    A = {j: rng.standard_normal((d, 2)) for j in range(3)}
+    recs = []
+    for p in range(n_pairs):
+        doff = rng.integers(-4, 5, size=2).astype(float)
+        for j in range(3):
+            recs.append(dict(pair=p, j=j, doff=doff, dh=A[j] @ doff + noise * rng.standard_normal(d)))
+    return recs, A
+
+
+def test_sentence_diffs_shapes_and_offsets(m, pairs):
+    recs = sentence_diffs(m, pairs, layer=1)
+    base, src, leaf, _ = pairs[0]
+    lo, hi = __import__("geomap.prompts", fromlist=["build_prompt"]).build_prompt(base, None, m.tok, m.family).relation_spans[leaf]
+    r0 = [r for r in recs if r["pair"] == 0]
+    assert len(r0) == hi - lo
+    assert sorted(r["j"] for r in r0) == list(range(hi - lo))  # j counts from the sentence end
+    rb = next(r for r in base.relations if r.subj == leaf)
+    rs = next(r for r in src.relations if r.subj == leaf)
+    assert np.allclose(r0[0]["doff"], [rs.dx - rb.dx, rs.dy - rb.dy])
+    assert r0[0]["dh"].shape == (m.d_model,)
+
+
+def test_fit_token_maps_recovers_linear_map():
+    recs, A = _toy_diffs()
+    Q = np.linalg.qr(np.random.default_rng(1).standard_normal((16, 2)))[0]
+    maps = fit_token_maps(project(recs, Q), n_tok=8)
+    for j in range(3):
+        assert np.allclose(maps[j], Q.T @ A[j], atol=1e-8)
+    assert cv_r2(project(recs, Q), n_tok=8) > 0.999
+
+
+def test_cv_r2_is_low_for_noise():
+    recs, _ = _toy_diffs()
+    rng = np.random.default_rng(2)
+    for r in recs:
+        r["dh"] = rng.standard_normal(16)
+    Q = np.linalg.qr(rng.standard_normal((16, 2)))[0]
+    assert cv_r2(project(recs, Q), n_tok=8) < 0.1
+
+
+def test_pooled_key_for_far_tokens():
+    recs, _ = _toy_diffs()
+    for r in recs:
+        r["j"] += 10  # every token beyond n_tok
+    Q = np.eye(16)[:, :2]
+    maps = fit_token_maps(project(recs, Q), n_tok=8)
+    assert set(maps) == {8}
+
+
+def test_writein_rows_adds_mapped_offset_in_subspace():
+    d = 16
+    Q = np.linalg.qr(np.random.default_rng(3).standard_normal((d, 2)))[0]
+    maps = {0: np.array([[1.0, 0], [0, 2.0]]), 1: np.eye(2), 8: np.zeros((2, 2))}
+    base_h = torch.randn(3, d)
+    rows = [dict(pair=0, pos=[5, 6, 7], src_h=torch.zeros(3, d))]
+    out = writein_rows(rows, {0: base_h}, {0: np.array([2.0, -1.0])}, maps, Q, n_tok=8)
+    exp = base_h.clone()
+    # positions 5,6,7 are j = 2,1,0 from the end; j = 2 is beyond the fitted keys {0, 1} -> pooled key (8)
+    for k, j in enumerate([2, 1, 0]):
+        W = maps.get(j, maps[8])
+        exp[k] += torch.tensor(Q @ (W @ np.array([2.0, -1.0])), dtype=exp.dtype)
+    assert torch.allclose(out[0]["src_h"], exp, atol=1e-5)
+    assert rows[0]["src_h"].abs().sum() == 0  # input rows untouched
+
+
+def test_inlp_removes_linear_information():
+    rng = np.random.default_rng(4)
+    n, d = 400, 20
+    X = rng.standard_normal((n, d))
+    Y = X[:, :2] @ np.array([[2.0, 0.5], [-1.0, 1.0]]) + 0.05 * rng.standard_normal((n, 2))
+    groups = np.repeat(np.arange(n // 4), 4)
+    B, hist = inlp_basis(X, Y, groups, max_rounds=10, r2_stop=0.1)
+    assert np.allclose(B.T @ B, np.eye(B.shape[1]), atol=1e-6)
+    assert hist[0] > 0.9 and hist[-1] < 0.1
+    Xe = X - (X @ B) @ B.T
+    from geomap.probes import GroupRidge
+    from geomap.followups import _cv_r2_ridge
+    assert _cv_r2_ridge(Xe, Y, groups) < 0.1
+
+
+def test_erase_edit_empty_basis_is_identity_and_real_basis_changes_scores(m, pairs):
+    from geomap.prompts import build_prompt
+    base, _, _, qs = pairs[0]
+    items = [(build_prompt(base, q, m.tok, m.family), q) for q in qs[:2]]
+    clean = score(m, items)
+    empty = score(m, items, edit=erase_edit({1: (torch.zeros(m.d_model, 0), torch.zeros(0))}))
+    for a, b in zip(clean, empty):
+        assert all(abs(a[k] - b[k]) < 1e-4 for k in a)
+    B = torch.linalg.qr(torch.randn(m.d_model, 16))[0]
+    erased = score(m, items, edit=erase_edit({1: (B, torch.zeros(16))}))
+    assert any(abs(a[k] - b[k]) > 1e-4 for a, b in zip(clean, erased) for k in a)
+
+
+def test_chain_items_flags_composed_questions(m):
+    items = chain_items(m, 3, seed=5, exclude_qtypes=("closer_than",))
+    assert len(items) == 3
+    for scene, mid, child, qs in items:
+        assert scene.hop[child] == 2 and scene.parent[child] == mid
+        for q, composed in qs:
+            assert composed == (child in q.args or child in q.candidates)
+
+
+def test_groupridge_reports_cv_r2():
+    from geomap.probes import GroupRidge
+    rng = np.random.default_rng(6)
+    X = rng.standard_normal((300, 10))
+    Y = X[:, :2] + 0.01 * rng.standard_normal((300, 2))
+    g = np.repeat(np.arange(100), 3)
+    assert GroupRidge().fit(X, Y, g).cv_r2_ > 0.99
+    assert GroupRidge().fit(X, rng.standard_normal((300, 2)), g).cv_r2_ < 0.05
+
+
+def _erase_df(drop_comp_probe, drop_comp_rand, drop_stated_probe, drop_stated_rand, n=40):
+    """Synthetic per-question records: clean accuracy 1, erased accuracy 1 − drop (exact shares over n scenes)."""
+    recs = []
+    for s in range(n):
+        for composed, dp, dr in ((True, drop_comp_probe, drop_comp_rand), (False, drop_stated_probe, drop_stated_rand)):
+            recs.append(dict(scene=s, qi=int(composed), composed=composed, config="L21", cond="clean", correct=1.0))
+            recs.append(dict(scene=s, qi=int(composed), composed=composed, config="L21", cond="probe",
+                             correct=float(s >= dp * n)))
+            recs.append(dict(scene=s, qi=int(composed), composed=composed, config="L21", cond="random",
+                             correct=float(s >= dr * n)))
+    return pd.DataFrame(recs)
+
+
+def test_erase_summary_and_verdicts():
+    from geomap.followups import erase_summary, verdict_erase
+    s = erase_summary(_erase_df(0.30, 0.05, 0.05, 0.05), n_boot=50)
+    row = s[(s.config == "L21") & s.composed].iloc[0]
+    assert abs(row.excess - 0.25) < 1e-9
+    assert verdict_erase(s, r2_after=0.05) == "map used"
+    s0 = erase_summary(_erase_df(0.06, 0.05, 0.05, 0.05), n_boot=50)
+    assert verdict_erase(s0, r2_after=0.05) == "map not used (in this subspace)"
+    assert verdict_erase(s0, r2_after=0.30) == "unclear"  # erasure did not remove the readable map
+    s1 = erase_summary(_erase_df(0.30, 0.05, 0.30, 0.05), n_boot=50)  # composed no worse hit than stated-only
+    assert verdict_erase(s1, r2_after=0.05) == "unclear"
