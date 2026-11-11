@@ -23,6 +23,8 @@ Each object is mentioned once more after the description, in a list ("The object
 - **It's computed, not just stored.** A skeptic could say the model keeps both sentences side by side and the decoder adds them up. So I also decoded each object's *distance* to the first one, which you can't get by adding the stated steps. The activations give it (R² 0.62); the best decoder built from the stated steps alone gets nothing (−0.05).
 - **It appears suddenly.** The coordinates show up around layer 12 and peak at layer 21, as if the model spends its early layers reading and then assembles the layout.
 
+![A simple decoder reads worked-out positions (0.74) and distances (0.62) from the model's activations; the best guess from the sentences alone gets 0.22 and nothing.](figures/blog_1_worked_out.png)
+
 Earlier work has read real-world coordinates of famous places out of language models, which is memorised geography. For scenes described in the prompt, recent probes found categorical relations (left of, above) or weaker, fragmented coordinate signals. Here, a model works out a coordinate for every object in a scene it has never seen, including positions it had to compute.
 
 ## Finding 2: two numbers move the object
@@ -34,6 +36,8 @@ Change those two numbers (and nothing else: the text stays the same) and the mod
 A note on that number. I first found the effect while exploring, at 81%. But I'd picked the sentence and the layer after looking at the data, which flatters the result. So I wrote the test down in advance (that sentence, that layer, a pass mark of 70%) and reran everything on scenes the model had never been tested on. It passed: **72%, against 0% for random numbers.** It is strongest for "who is further north / east" (about 90%), weaker for direction (60%), and weakest for closest and farthest (about 35%), which depend on every object at once.
 
 And it isn't a quirk of one model. I ran the same test, with the same rules fixed in advance, on **Gemma 3 27B**, more than twice the size, at the matching depth. It passed more clearly: **83%, against 0% for random numbers**, with direction questions up from 60% to 81%. The bigger model has the same kind of two-number code, and its answers follow it more reliably.
+
+![Editing the two numbers moves 72% (12B) and 83% (27B) of the answers; editing two random numbers moves none.](figures/blog_2_two_numbers.png)
 
 ![Editing two numbers inside the model moves the object, and the model's answers follow. Halfway, the answers snap instead of sliding.](../demo/move-the-map.gif)
 
@@ -47,6 +51,8 @@ Here's the twist. If those two numbers were coordinates on an inner map, setting
 
 That's not what happens. Set halfway, the model snaps to one layout or the other. On questions whose answer should change to something in-between, it gives that answer 9% of the time, below the 14% you'd get by guessing (this was also fixed in advance; the exploratory run gave 6%). On Gemma 3 27B it is even clearer: 5%, with the model snapping back to the original layout most of the time. The model computes positions, and a compact code steers its answers, but that code behaves like a **switch between stated facts**, not a dial on a map.
 
+![Set halfway, the model gives the original or the moved layout's answer; in-between answers stay below what guessing would give.](figures/blog_3_switch.png)
+
 ## Finding 4: the worked-out positions aren't what it answers from
 
 Back to Cy, whose position the model has to work out. Finding 1 showed that position is in there. Is it the one the answers use?
@@ -54,6 +60,8 @@ Back to Cy, whose position the model has to work out. Finding 1 showed that posi
 Take a chain: Ana is placed relative to Bo, and Cy relative to Ana. Now change only Ana's sentence. Ana moves, and Cy moves with Ana, but Cy's own sentence is word-for-word the same. Whatever differs inside the model over Cy's sentence can only be Cy's worked-out position. So I copied the model's activations over Cy's sentence from the moved version into the original one, layer by layer, and asked: do the answers now put Cy at its moved spot?
 
 Almost never. At the best layer, 7% of the answers that should change did; at most layers, under 2%. (Again, the test and the pass mark were written down before the data existed.) The model works out where Cy is, but when it answers, it goes back to the sentences it was given and recombines them.
+
+![Copying Cy's sentence from the moved version barely changes the answers at any layer; the best is 7%.](figures/blog_4_not_used.png)
 
 ## So, does an AI picture the scene?
 

@@ -1,16 +1,19 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Medium copy</title><style>
-:root{--bg:#fff;--ink:#222;--muted:#666;--accent:#2a78d6;--note:#fff6d6}
-@media (prefers-color-scheme:dark){:root{--bg:#16181c;--ink:#e8e8e8;--muted:#9aa;--accent:#3987e5;--note:#3a3320}}
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Medium copy</title><style>
+:root{--bg:#fff;--ink:#222;--muted:#666;--accent:#2a78d6;--note:#fff3c4}
+@media (prefers-color-scheme:dark){:root{--bg:#16181c;--ink:#e8e8e8;--muted:#9aa;--accent:#3987e5;--note:#4a4020}}
 body{background:var(--bg);color:var(--ink);font:18px/1.6 Georgia,serif;max-width:700px;margin:0 auto;padding:16px}
 .bar{font:15px/1.5 system-ui,sans-serif;border:1px solid var(--muted);border-radius:8px;padding:12px 16px;margin:16px 0 32px}
-.bar ol{margin:6px 0 0;padding-left:20px} button{font:600 15px system-ui;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
-#ok{margin-left:10px;color:var(--muted)} article p strong:only-child{background:var(--note)}
+.bar ol{margin:6px 0 0;padding-left:20px} .bar ul{margin:4px 0;font-size:13px}
+button{font:600 15px system-ui;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+#ok{margin-left:10px;color:var(--muted)} article p > strong:only-child{background:var(--note)}
 </style></head><body>
 <div class="bar"><button id="copy">Copy article</button><span id="ok"></span>
 <ol><li>Click <b>Copy article</b>, open a new Medium story, click in the title, paste.</li>
-<li>Delete the two highlighted placeholder lines and do what they say (upload the GIF; paste the CodePen link alone on a line and press Enter).</li>
-<li>Check the headings: Medium has two sizes; select a heading and use the big or small <b>T</b> if needed.</li></ol></div>
+<li>At each highlighted line: delete it, click the <b>+</b> on the empty line, upload the named file, and paste the
+italic line under it as the caption. For the CodePen line: paste the link alone on the line and press Enter.</li>
+<li>Check the headings: Medium has two sizes; select a heading and use the big or small <b>T</b> if needed.</li></ol>
+Files to upload, in order (in the repo folder):<ul><li><code>paper/figures/blog_1_worked_out.png</code></li><li><code>paper/figures/blog_2_two_numbers.png</code></li><li><code>demo/move-the-map.gif</code></li><li><code>paper/figures/blog_3_switch.png</code></li><li><code>paper/figures/blog_4_not_used.png</code></li></ul></div>
 <article id="post"><h1 id="the-ai-worked-out-where-things-are-even-when-nobody-told-it">The
 AI Worked Out Where Things Are, Even When Nobody Told It</h1>
 <p><em>Notes from an ongoing experiment on whether language models
@@ -61,6 +64,11 @@ nothing (−0.05).</li>
 layer 12 and peak at layer 21, as if the model spends its early layers
 reading and then assembles the layout.</li>
 </ul>
+<p><strong>[ IMAGE 1: upload paper/figures/blog_1_worked_out.png
+]</strong></p>
+<p><em>A simple decoder reads worked-out positions (0.74) and distances
+(0.62) from the model’s activations; the best guess from the sentences
+alone gets 0.22 and nothing.</em></p>
 <p>Earlier work has read real-world coordinates of famous places out of
 language models, which is memorised geography. For scenes described in
 the prompt, recent probes found categorical relations (left of, above)
@@ -95,11 +103,20 @@ the size, at the matching depth. It passed more clearly: <strong>83%,
 against 0% for random numbers</strong>, with direction questions up from
 60% to 81%. The bigger model has the same kind of two-number code, and
 its answers follow it more reliably.</p>
-<p><strong>[ GIF HERE: upload demo/move-the-map.gif ]</strong> <em>Try
-it yourself: pick a scene, click a spot, drag the slider.</em></p>
-<p><strong>[ EMBED HERE: paste
-https://codepen.io/CristhianGomezN/pen/myWvzwJ on an empty line, press
-Enter ]</strong> ## Finding 3: it’s a switch, not a slider</p>
+<p><strong>[ IMAGE 2: upload paper/figures/blog_2_two_numbers.png
+]</strong></p>
+<p><em>Editing the two numbers moves 72% (12B) and 83% (27B) of the
+answers; editing two random numbers moves none.</em></p>
+<p><strong>[ IMAGE 3: upload demo/move-the-map.gif ]</strong></p>
+<p><em>Editing two numbers inside the model moves the object, and the
+model’s answers follow. Halfway, the answers snap instead of
+sliding.</em></p>
+<p><em>Try it yourself: pick a scene, click a spot, drag the
+slider.</em></p>
+<p><strong>[ EMBED: paste https://codepen.io/CristhianGomezN/pen/myWvzwJ
+alone on an empty line, then press Enter ]</strong></p>
+<h2 id="finding-3-its-a-switch-not-a-slider">Finding 3: it’s a switch,
+not a slider</h2>
 <p>Here’s the twist. If those two numbers were coordinates on an inner
 map, setting them <em>halfway</em> between two positions should put the
 object halfway. Suppose an object is north of you in one layout and east
@@ -112,6 +129,10 @@ by guessing (this was also fixed in advance; the exploratory run gave
 to the original layout most of the time. The model computes positions,
 and a compact code steers its answers, but that code behaves like a
 <strong>switch between stated facts</strong>, not a dial on a map.</p>
+<p><strong>[ IMAGE 4: upload paper/figures/blog_3_switch.png
+]</strong></p>
+<p><em>Set halfway, the model gives the original or the moved layout’s
+answer; in-between answers stay below what guessing would give.</em></p>
 <h2
 id="finding-4-the-worked-out-positions-arent-what-it-answers-from">Finding
 4: the worked-out positions aren’t what it answers from</h2>
@@ -129,6 +150,10 @@ did; at most layers, under 2%. (Again, the test and the pass mark were
 written down before the data existed.) The model works out where Cy is,
 but when it answers, it goes back to the sentences it was given and
 recombines them.</p>
+<p><strong>[ IMAGE 5: upload paper/figures/blog_4_not_used.png
+]</strong></p>
+<p><em>Copying Cy’s sentence from the moved version barely changes the
+answers at any layer; the best is 7%.</em></p>
 <h2 id="so-does-an-ai-picture-the-scene">So, does an AI picture the
 scene?</h2>
 <p>Partly. It builds the picture: positions it was never told are
