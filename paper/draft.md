@@ -1,78 +1,141 @@
-# [TITLE]
+# Decodable, Not Used: A Language Model Composes a Spatial Map but Answers from a Code for Each Stated Relation
 
 *Cristhian Gómez Neira — draft, November 2026*
 
 ## Abstract
 
-When people read "A is 3 units north of B; C is 2 units east of A", they can answer questions the text never answers by consulting an inner picture. Do language models? We generate unseen layouts described only in text and study Gemma 3 12B, the smallest of eight open models that solves 3-object layouts without written reasoning. A linear probe decodes each object's (x, y) from the model's activations at the object's name in a list after the description (R² = 0.74 at layer 21; controls ≈ 0). This includes positions the text implies only by chaining two sentences, so the model encodes *composed* per-object coordinates. Yet these coordinates are not where the answers come from. We copied that representation from a layout where the object sits elsewhere. In 390 pairs, the answers never followed (joint agreement 0.00). Steering along the decoded directions changed the answer in 2% of the 268 sweeps where geometry says it must. Copying the object's *sentence* instead moves every answer consistently, until the information stops being read from the description at about layer 32. [NECESSITY SENTENCE] [DAS SENTENCE] A strong, well-controlled probe can sit off the causal path. Claims that a model "imagines" a scene need interventions, not decodability alone.
+When people read "A is 3 units north of B; C is 2 units east of A", they can answer questions the text never answers, as if consulting an inner picture. We ask whether a language model does the same, and whether it *uses* such a picture. We generate unseen layouts described only in text and study Gemma 3 12B, the smallest of eight open models that solves 3-object layouts without written reasoning. Linear probes decode each object's (x, y) from its activations (R² = 0.74, controls ≈ 0), including positions that follow only by combining two sentences, and a nonlinear quantity (distance to the root) that no additive code of the stated offsets predicts (0.62 vs −0.05). Yet copying these decodable representations from a layout where the object sits elsewhere changes no answer. The answers depend instead on a 2-D subspace over the sentence that states the object's position. Swapping it moves 0.72 of the affected answers in a preregistered test (0.83 in Gemma 3 27B; random subspaces 0.00). Set halfway between two layouts, this code does not produce in-between answers: it switches between the stated ones (0.085 and 0.055 vs chance 0.141). Composed positions are decodable but are not the variable the answers read.
 
 ## 1. Introduction
 
-Does a language model solve a spatial problem by consulting something like a picture, or by chaining stated relations? That is a question about the *format* of its internal computation. Written reasoning cannot settle it, because written reasoning contains only words. Geometry can be *read out* of language models: world coordinates of places (Gurnee & Tegmark, 2023), circular features for days and months (Engels et al., 2024), and spatial relations in described scenes (Tehenan et al., 2025). Some of it is used: Tehenan et al. steer single answers along probed relation directions. An et al. (2026) find spatial information in 7–8B models that "can causally influence behavior" but is "transient, fragmented across task families, and weakly integrated into final predictions".
+Does a language model solve a spatial problem by consulting something like a map, or by chaining the relations it was given? This is a question about the *format* of its internal computation, and written reasoning cannot settle it, because written reasoning contains only words. Geometry can be *read out* of language models: world coordinates of places (Gurnee & Tegmark, 2023), circular features for days and months (Engels et al., 2024), and spatial relations in described scenes (Tehenan et al., 2025). Some of it is used. Tehenan et al. steer single answers along probed relation directions, and An et al. (2026) find spatial information in 7–8B models that "can causally influence behavior" but is "transient, fragmented across task families, and weakly integrated into final predictions".
 
-We test the property that separates a usable map from a readable one. **Editing one object's internal position should move every spatial answer consistently.** We contribute a text-only layout task with a behaviour gate, so that we analyse a model that actually solves it silently. We also contribute a preregistered causal test of map use (`docs/preregistration.md`). In Gemma 3 12B, the result is a dissociation: coordinates are linearly decodable and composed across sentences, but overwriting them changes no answer.
+We test the property that separates a usable map from a readable one: **editing one object's internal position should move every spatial answer consistently, including to positions no sentence states.** Our contributions:
+
+- A text-only layout task with a behaviour gate, so that the analysed model actually solves it without writing.
+- Evidence that Gemma 3 12B *composes* per-object coordinates across sentences, including a nonlinear quantity (distance) that rules out simple sentence copying.
+- A dissociation: copying the decodable coordinates, or steering along the probe's directions, changes no answer (preregistered).
+- A 2-D subspace over the stated sentence that does control the answers, confirmed on fresh data with a preregistered rule and replicated in Gemma 3 27B.
+- Evidence that this code behaves as a switch between stated values, not as a coordinate: halfway settings snap, and a composed position copied from a word-identical sentence is not used (both preregistered).
 
 ## 2. Task and methods
 
-**Scenes.** Each scene places 3–6 named objects on an integer grid in [−6, 6]². Positions are fixed by a tree of relations: "X is k units north of Y", or "k north and m east". One object is the root; an object placed relative to an object that is itself placed relative to the root is "two steps" away. A *leaf* is an object nothing else is placed relative to. After the description, the prompt lists the objects ("The objects are: A, B, C."). Each name in this list can attend to every sentence, so it is a natural *readout position*: where a finished map could be stored.
+**Scenes.** Each scene places 3 named objects on an integer grid in [−6, 6]². Positions are fixed by a tree of relations ("X is k units north of Y", or "k north and m east"). One object is the root. An object placed relative to an object that is itself placed relative to the root is "two steps" away. A *leaf* is an object nothing else is placed relative to. After the description, the prompt lists the objects ("The objects are: A, B, C."). Each name in this list can attend to every sentence, so it is a natural *readout position* for a finished map.
 
-**Questions.** Six types are used: farthest from X; closest to X; compass direction of Y from X; which of two objects is farther north; which is farther east; and is Y closer to X than Z? Each allowed answer is scored by its log-probability, with no generation, and correct answers win by at least 1 unit (10° for direction).
+**Questions.** Five types are used: farthest from X; closest to X; compass direction of Y from X (8 options); which of two objects is farther north; and which is farther east. Each allowed answer is scored by its log-probability, with no generation. Correct answers win by at least 1 unit (10° for direction). All causal metrics below are *model-relative*: they compare the patched answer with the model's own answer on the scene being imitated.
 
-**Behaviour gate** (preregistered). A model qualifies with ≥ 0.75 accuracy on 4-object scenes and above-chance accuracy on multi-step questions; if none qualifies, 3-object scenes are used. The smallest qualifying model is analysed, and question types at chance are excluded.
+**Behaviour gate** (preregistered). A model qualifies with ≥ 0.75 accuracy on 4-object scenes and above-chance accuracy on multi-step questions. If none qualifies, 3-object scenes are used. The smallest qualifying model is analysed, and question types at chance are excluded.
 
-**Probes.** Ridge regression maps the hidden state (residual stream) at an object's list position to its (x, y) relative to the scene centre. Scenes are split 80/20 into training and test sets. Controls are shuffled labels, layer 0, and a randomly initialised model. A *stated-sentence baseline* regresses position on the object's own stated offset and chain depth. That is what a reader who never combines sentences would know.
+**Probes.** Ridge regression maps the residual stream at an object's list position to its (x, y) relative to the scene centre, with 3,000 scenes split 80/20 by scene. Controls are shuffled labels, layer 0, and a randomly initialised model. A *stated-sentence baseline* regresses position on the object's own stated offset and chain depth: what a reader who never combines sentences would know. A distance probe predicts each object's distance to the root. Distance is not a sum of stated offsets, so the best *additive* baseline (one-hot codes of the object's and its parent's offsets) cannot fit it for two-step objects.
 
-**Patching.** Each pair of scenes differs in the one sentence that places a leaf object. We run the model on the base scene but copy in the source scene's hidden states at one site and one layer. The sites are the object's list position, the end of the list, the object's sentence, or the whole description (positive control). *Joint agreement* is the share of pairs in which every answer then equals the model's own answer on the source scene. It counts pairs where at least one answer differs between the two scenes, and its ceiling is 1. Preregistered criteria: a map needs ≥ 0.6 at a readout position; relational processing needs < 0.2 there, with more carried by the sentence.
+**Patching.** Each pair of scenes differs in the one sentence that places a leaf. We run the model on the base scene but copy in the source scene's hidden states at one site and one layer. Sites: the object's list position; the end of the list; the object's sentence; the whole description (positive control); and, exploratorily, parts of the sentence and the question tokens. *Joint agreement* is the share of pairs in which every answer then equals the model's answer on the source scene, among pairs where at least one answer differs.
 
-**Subspace swaps and steering.** Distributed alignment search (DAS; Geiger et al., 2024) learns a 2-D subspace at the readout position whose swap alone should move the answers (preregistered: ≥ 0.7 on every question type). A *slider* moves the readout representation along the probe's (x, y) directions and checks whether answers flip where geometry predicts.
+**Distributed alignment search (DAS).** Following Geiger et al. (2024), we learn an orthonormal Q ∈ ℝ^{d×2} and set h′ = h_base + QQᵀ(h_src − h_base) at every position of a site at one layer. Q is trained with Adam (lr 10⁻³, 2 epochs) so that the patched run gives the model's answer on the source scene. *Interchange accuracy* is the share of questions, among those where the model's source and base answers differ, on which the patched answer equals the source answer. The control is a random 2-D subspace. Training and test use disjoint pairs (300 each).
+
+**Interpolation test.** With Q fixed, we set the subspace to base + α(source − base) for α ∈ {0, ¼, ½, ¾, 1, 1½} on 150 test pairs. Answers are scored against the layout with the object at the matching interpolated position (margin ≥ 1 unit / 10° there). The key subset is *novel* questions, whose answer at the interpolated position differs from the answer in both stated layouts. A coordinate code should give that in-between answer; a switch between stated values should not. Chance on this subset is the mean of 1/8 (direction) and 1/2 (binary questions), 0.141.
+
+**Composed-position transfer (E3).** In a chain R → M → C, the source scene changes only M's sentence, so M and C both move, while C's sentence is word-for-word identical. Activations over C's sentence can then differ only through what they read from M's sentence: C's composed position. We copy C's sentence from the source run into the base run at one layer (0–40, step 2; 150 pairs). *follow_T* is the share of answers equal to the model's answer on a *target* scene, with C at its moved absolute position and M unmoved, among questions where target and base answers differ. *stable* is the share of control answers left unchanged.
+
+**Preregistration.** Hypotheses, metrics and decision rules were committed before the corresponding data (`docs/preregistration*.md`). Section 6 lists which results are preregistered, which are exploratory, and which preregistered predictions failed.
 
 ## 3. Results
 
 ### 3.1 Behaviour
 
-We screened eight models (Qwen3 1.7B–14B, Llama 3.2 3B, Gemma 3 4B–27B) on 150–500 fresh scenes per object count (Fig. 1). None reached 0.75 on 4 objects. On 3 objects, the smallest model to qualify was **Gemma 3 12B** (0.76 [0.74, 0.77]; 0.68 on 4 objects; Gemma 3 27B: 0.77). "Is Y closer to X than Z?" was at chance for every model and was excluded. The object list does not help: removing it leaves Gemma 3 12B's accuracy unchanged (0.66 with and without). Written reasoning does help. On 60 4-object questions, Qwen3-14B scored 0.98 with thinking enabled (answers parsed from the generated text) and 0.57 without (scored with an earlier version of our log-probability scoring). What drives errors differs by family (Fig. 1, right).
+We screened eight models (Qwen3 1.7B–14B, Llama 3.2 3B, Gemma 3 4B–27B) on fresh scenes (Fig. 1). None reached 0.75 on 4 objects. On 3 objects, the smallest model to qualify was **Gemma 3 12B** (0.76 [0.74, 0.77]; 0.68 on 4 objects; Gemma 3 27B: 0.77). "Is Y closer to X than Z?" was at chance for every model and was excluded. The object list does not help: removing it leaves Gemma 3 12B's accuracy unchanged (0.66 with and without). Written reasoning does help: on 60 4-object questions, Qwen3-14B scored 0.98 with thinking enabled and 0.57 without (different scoring methods; see Limitations).
 
 ![Figure 1](../results/figures/paper_fig1_behaviour.png)
 *Figure 1. Left: accuracy without written reasoning (dashed: preregistered gate). Qwen models put little probability on bare one-word answers (median < 0.02), so their accuracies are lower bounds. Right: standardised logistic coefficients of errors on chain depth and on how close the competing answers are.*
 
-### 3.2 The coordinates are decodable and composed
+### 3.2 Composed coordinates are decodable
 
-On 3,000 fresh 3-object scenes (Fig. 2a), R² is ≈ 0 up to layer 11. It jumps at layers 12–13 and peaks at **layer 21 (0.74 [0.72, 0.75])**, and all controls give 0.00. Objects two steps from the root are decoded as well as objects placed by one sentence (0.74 vs 0.76), while the stated-sentence baseline reaches 0.22 on them. The position is therefore composed from two sentences, not copied from one. The code is per object: no probe reads all objects from the end of the list (R² ≤ 0.03), and activation distances track true distances only weakly (Spearman 0.19). The preregistered probing criteria for a map are met.
+On 3,000 fresh scenes, R² at the list position is ≈ 0 up to layer 11, jumps at layers 12–13 and peaks at **layer 21 (0.74 [0.72, 0.75])**; shuffled labels, layer 0 and the random-init model all give 0.00 (Fig. 2a). Two-step objects are decoded as well as one-step objects (0.74 vs 0.76), while the stated-sentence baseline reaches only 0.22 on them. The code is per object: no probe reads all objects from the end of the list (R² ≤ 0.03), and activation distances track true distances only weakly (Spearman 0.19).
 
-### 3.3 The answers do not read them there
+The coordinates are also *computed*, not merely the two stated offsets held side by side. For two-step objects, a probe for distance to the root reaches **R² = 0.62 [0.56, 0.67]** at layer 21, against −0.05 for the best additive baseline (exploratory). The same coordinates are decodable at the object's name inside a question ("Which object is farthest from X?": 0.74 for two-step objects, distance 0.63) and, for two-step objects, at the end of the object's own sentence (0.76 at layer 24). The preregistered probing criteria for a map are met.
 
-The sweep patches every second layer on 100 pairs (Fig. 2b); the confirmation run uses 390 new pairs at the two best sweep layers per site.
+### 3.3 The answers do not read them where they are decodable
 
-- **Copying the readout positions moves no answer.** At the moved object's list position, joint agreement is ≤ 0.01 at every layer of the sweep, including layer 21 where the probe peaks. In the confirmation run it is **0.00 [0.00, 0.00]**, and the same holds at the end of the list. The patch takes effect: it shifts the base answer's log-probability by at most 0.13 nats on average (per layer), against 3–7 nats for the sentence patch (layers 6–24). That is far too little to change an answer.
-- **The sentence carries the information until it leaves the description.** Copying the moved object's sentence gives 0.94 [0.91, 0.96] at layer 6, close to the whole-description control (0.95). At such early layers this is little more than editing the input. The finding is what happens later. Between layers 16 and 32, both the sentence patch and the whole-description patch lose their effect (layer 20: 0.18 and 0.23; layer 32: 0.01), so the information is no longer read from the description. We did not patch the question tokens, the likely destination. From layer 16 on, the whole description carries somewhat more than the sentence alone (layer 18: 0.50 vs 0.36), so other positions contribute too.
+- **Copying the readout positions moves no answer** (preregistered). At the moved object's list position, joint agreement is ≤ 0.01 at every layer of a 100-pair sweep, including layer 21 where the probe peaks. On 390 new pairs it is **0.00 [0.00, 0.00]** at the two best sweep layers, and the same holds at the end of the list. The patch is not inert, but small: it shifts the base answer's log-probability by at most 0.13 nats on average, against 3–7 nats for the sentence patch (layers 6–24). Copying everything *except* the readout positions works as well as copying the whole description (layer 21: 0.20 vs 0.25; exploratory).
+- **Nor do the other decodable sites.** Copying only the moved object's name in the question gives 0.00 at every layer, although the coordinates are decodable there (exploratory). Copying only the last token of its sentence gives ≤ 0.01, while copying the rest of the sentence matches the whole sentence (exploratory).
+- **Steering along the probe directions fails** (preregistered). Moving the list-position representation along the probe's (x, y) directions at layer 21, over ±5 units, flips an answer in 2% of the 268 sweeps where geometry says some answer must flip; predicted and observed flip points are uncorrelated (r = 0.03), and all steered states stay within the natural norm range.
+- **A learned 2-D subspace at the list position fails** (preregistered). DAS at layer 18 reaches an interchange accuracy of **0.07 [0.05, 0.09]** (Fig. 3a, grey).
 
-[NECESSITY BLOCK]
-
-Against the preregistration, the P3 criterion for a map fails and the P3 criterion for relational processing is met. Because the probing criteria favour a map, the overall preregistered verdict is **mixed**.
+Where does the information go? Copying the moved object's *sentence* gives 0.94 [0.91, 0.96] at layer 6, close to the whole-description control (0.95). Between layers 16 and 32 both lose their effect (layer 20: 0.18 and 0.23; layer 32: 0.01). Over the same layers, copying the question tokens gains it (0.01 at layer 16, 0.20 at layer 28, 0.78 at layer 32; exploratory). The final position alone carries it only at layers 46–48 (≥ 0.56). The information flows from the stated sentence to the question; the list and mention positions, where the coordinates are best decoded, are bypassed. Against the original preregistration, the P3 criterion for a map fails and the criterion for relational processing is met, so the overall verdict was **mixed**.
 
 ![Figure 2](../results/figures/paper_fig2_mechanism.png)
-*Figure 2. (a) Probe R² by layer, with controls. (b) Joint agreement after copying one site from the source scene (100 pairs). (c) Interchange accuracy when only a learned 2-D subspace is swapped.*
+*Figure 2. (a) Probe R² of (x, y) at the list position by layer, with controls and the stated-sentence baseline. (b) Joint agreement after copying one site from the source scene (100 pairs). [Panel (c) of this render is empty and should be removed; the subspace results are in Figure 3.]*
 
-### 3.4 Subspace swaps and steering
+### 3.4 A 2-D code at the stated sentence controls the answers
 
-[DAS BLOCK]
+Because the sentence carries the information, we moved DAS to the sentence site. Exploratorily, at layer 14 (chosen after the sweep), a 2-D subspace reached 0.81 [0.78, 0.83]. We then fixed the site, layer, k = 2, training procedure and decision rule in advance (ALL ≥ 0.70 and random ≤ 0.05; `docs/preregistration_p4c.md`) and reran on fresh pairs (seeds 105/106).
 
-Steering confirms the patching result. We moved the leaf's list-position representation along the probe's (x, y) directions at layer 21, over ±5 units in half-unit steps, including positions no sentence states. In 268 sweeps (50 scenes), geometry predicts that some answer must flip; the model's answer flipped in 2% of them. Predicted and observed flip points are uncorrelated (r = 0.03), and every steered state stayed within the natural range of activation norms. This contrasts with Tehenan et al. (2025), who steer answers along *relation* directions: here it is the coordinate code that does not steer.
+| | Gemma 3 12B, layer 14 / 48 | Gemma 3 27B, layer 18 / 62 |
+|---|---|---|
+| DAS k = 2, all questions | **0.72 [0.68, 0.75]** | **0.83 [0.80, 0.85]** |
+| random k = 2 | 0.00 [0.00, 0.01] | 0.00 [0.00, 0.01] |
+| further north / east | 0.94 / 0.90 | 0.94 / 0.84 |
+| direction | 0.60 [0.54, 0.65] | 0.81 [0.77, 0.85] |
+| closest / farthest | 0.38 / 0.33 | 0.43 / 0.38 |
+| verdict | confirmed | confirmed |
+
+The 27B layer was set by matched relative depth (14/48 × 62 ≈ 18), not searched. The drop from 0.81 to 0.72 is the expected shrinkage after a post-hoc choice of site and layer. The code is reliable for questions about one coordinate, weaker for direction, and weak for closest and farthest, which depend on all objects at once (Fig. 3a).
+
+Three follow-up analyses use only saved results (exploratory; `results/free/`):
+
+- **Stability.** The exploratory and confirmation subspaces were trained on disjoint scenes. Their principal angles are 47.0° and 56.1° (cosines 0.68 and 0.56). For random 2-D subspaces of the same 3,840-d space, the largest cosine is at most 0.07 in 2,000 draws. Independent runs find overlapping, though not identical, planes.
+- **Failures.** At α = 1 on the 150 interpolation pairs, the answer follows the edit on 0.70 (12B) and 0.82 (27B) of affected questions. Most failures leave the base answer in place (0.18 and 0.14) rather than producing a third answer (0.11 and 0.04).
+- **Competence.** The edit succeeds more often where the model answers the moved scene correctly when reading it as text: 0.75 vs 0.48 (12B) and 0.85 vs 0.59 (27B). The code is tied to the computation the model uses when it gets the answer right.
+
+![Figure 3](figures/paper_fig3_code.png)
+*Figure 3. (a) Interchange accuracy of a learned 2-D subspace by question type (95% CIs; dashed: 0.7). Grey: list position, the preregistered readout site. Blue and orange: the moved object's sentence, exploratory and preregistered runs. Random 2-D subspaces give ≤ 0.04 for every type. (b) Share of affected questions whose answer equals the model's moved-layout answer (solid) or neither layout's answer (dotted), as the subspace is set to base + α(source − base).*
+
+### 3.5 The code is a switch, not a coordinate
+
+If the two dimensions encoded the object's position, setting them halfway should put the object halfway, and questions whose answer at that position differs from both stated layouts should get that in-between answer. They rarely do (preregistered rule: *switch* if the upper 95% bound of the in-between rate is below chance):
+
+| | Gemma 3 12B | Gemma 3 27B |
+|---|---|---|
+| α = ½, in-between answer (n = 164) | **0.085 [0.041, 0.137]** | **0.055 [0.019, 0.096]** |
+| original-layout answer | 0.60 [0.51, 0.68] | 0.73 [0.64, 0.81] |
+| moved-layout answer | 0.23 [0.16, 0.31] | 0.21 [0.14, 0.28] |
+| verdict (chance 0.141) | switch | switch |
+
+The exploratory run gave the same picture (0.06 [0.02, 0.10], n = 150). The transition is sharp and the same in both models: on questions where the two layouts' answers differ, the share taking the moved-layout answer is 0.00 / 0.05 / 0.31 / 0.62 / 0.70 for α = 0, ¼, ½, ¾, 1 in 12B and 0.01 / 0.04 / 0.29 / 0.73 / 0.82 in 27B, while answers matching neither layout stay at 0.14 or below (Fig. 3b). The code selects between the stated values; it is not a metric dial.
+
+### 3.6 A composed position is not what the answers take
+
+Two preregistered chain experiments ask where C's composed position lives when C is placed relative to M.
+
+*Copying M's sentence (E2).* C follows M wherever the patch is effective (C follows 0.95 at layer 14, M 0.96), which met the preregistered criterion for lazy, relational processing. On a stricter question set, defined after the data (a dated deviation), C follows less than M from layer 16 (0.70 vs 0.92), giving a mixed verdict.
+
+*Copying C's identical sentence (E3).* If C's sentence carried C's composed position and the answers read it there, copying it should move C without moving M. It does not. At layer 0, as required by design, follow_T is 0.00. Over layers 2–40 it never exceeds **0.07 [0.04, 0.09]** (layer 18), while control answers stay at ≥ 0.97 (369 target and 625 control questions). The preregistered verdict is **not carried**. (A reported "follows source" column is ≈ 0.85 already at layer 0, because base and source answers mostly agree on those questions; it is uninformative.)
+
+![Figure 4](figures/blog_4_not_used.png)
+*Figure 4. E3: share of answers that place C at its moved position with M unmoved (blue) and share of control answers unchanged (grey), by the layer at which C's word-identical sentence is copied (Gemma 3 12B, 150 chains; 95% CIs).*
 
 ## 4. Discussion
 
-**What we found.** Gemma 3 12B composes relations into per-object coordinates, but its answers do not depend on them where they are decodable. The causal information sits at the moved object's sentence and stops being read from the description between layers 16 and 32.
+**What we found.** Gemma 3 12B (and 27B) composes per-object coordinates, including positions and distances that require combining sentences. These coordinates are linearly decodable at every place we looked: the object list, the object's name in the question, and the end of its sentence. None of these representations is what the answers read. The answers depend on a compact code over the sentence that *states* an object's position, and this code behaves like a selector between stated values: it moves answers to the stated alternative, rarely to anything in between. When an object's position must be inferred, the copy computed over its own sentence is not used either; the answers are recomputed from the sentences that state the relations.
 
-**What this implies.**
+**A filing card, not a map.** A useful summary is that the model keeps something like a filing card per sentence, a low-dimensional code for what that sentence stated, and recombines the cards at question time, from about layer 16 to 32. It also builds a map-like code for every object, but in this task the map is decodable and not causally used. Because our moved objects are leaves, the 2-D code cannot be distinguished from a code for the object's stated offset; the switch behaviour favours the offset reading.
 
-1. *Decodability bounds use from above; it does not show it.* Our probe beats every control, including one that rules out sentence copying, and still sits off the causal path. Probing evidence for "world models" and "maps" should be paired with an intervention at the decoded site (cf. Hewitt & Liang, 2019; Vafa et al., 2024; An et al., 2026).
-2. *"Imagining" is a causal claim.* The imagery debate was about whether depictive representations do work in reasoning, not whether they exist (Kosslyn et al., 1978; Pylyshyn, 2002). The same distinction applies to models. Here, a depictive-looking code exists and does no detectable work where it is written.
+**Decodability bounds use from above.** Our probes beat every control, including a nonlinear target that rules out sentence copying, and still sit off the causal path. Probing evidence for "world models" and "maps" should be paired with an intervention at the decoded site (cf. Hewitt & Liang, 2019; Vafa et al., 2024; An et al., 2026). The contrast with Tehenan et al. (2025), who steer answers along relation directions, fits the same picture: relation codes steer, coordinate codes did not. "Imagining" is likewise a causal claim. The imagery debate concerned whether depictive representations do work in reasoning, not whether they exist (Kosslyn et al., 1978; Pylyshyn, 2002).
 
-**What remains open.** First, a map built on demand at the question tokens is not ruled out. Second, because we moved only leaves, moving a sentence and moving a position are the same edit. Our results therefore locate the information but do not identify its format. Moving an object that others depend on, and checking that its dependants move with it, would separate the two. Third, writing might serve as the workspace that silent processing lacks (0.98 vs 0.57 for Qwen3-14B). That would need testing in the same model with the same scoring.
+**Why build the map?** We see three possibilities. (i) *Redundancy*: the map is one of several copies, and when the copies disagree, as in our patches, the stated sentences win. (ii) *By-product*: representations that track positions help next-token prediction in general and are decodable here without being needed. (iii) *Other uses*: the map serves questions or tasks we did not ask, such as describing the scene or continuing the story. Erasing the coordinate code everywhere it is decodable, rather than copying it at one site, would separate (i) from (ii); new task families would test (iii).
 
 ## 5. Limitations
 
-One model, 3-object scenes, five question types and leaf-only moves. Sentence templates are fixed and positions lie on an integer grid. Preregistration clarifications are dated in `docs/preregistration.md`: one before any model data, and two after the behaviour screen but before any probe or patching result, plus an outcome note. Rescoring after a code review changed the model the unchanged selection rule picked, from Gemma 3 27B to Gemma 3 12B. The thinking comparison mixes two scoring methods and covers 60 questions.
+- **Scope.** Two models of one family (Gemma 3); 3-object scenes; five question types; fixed sentence templates and integer grids. Other families did not pass the behaviour gate, which limits what we can say about them.
+- **DAS illusions.** A learned subspace can move behaviour through a direction the model does not naturally use [CITE: Makelov et al. 2023, "Is this the subspace you are looking for?"]. Disjoint-data stability, the random control, the link to model competence, and the sentence-site location argue against a pure illusion, but we have not measured how much natural variance the subspace carries or whether values written from a fitted encoding work as well as copied ones.
+- **E3 and redundancy.** A null transfer from C's sentence is compatible with the composed position being present there but overridden by recomputation from M's unchanged sentence. "Not carried" means not decisive, not absent.
+- **Leaf-only moves.** Moving a leaf changes its sentence and its position together, so the sentence-site experiments locate the information but do not identify its format.
+- **Other.** The Qwen3 thinking comparison mixes two scoring methods and covers 60 questions. Small question types (closest, farthest) have wide intervals.
+
+## 6. Preregistration and deviations
+
+- **Preregistered, as planned** (`docs/preregistration.md`): the behaviour gate; P2 probing criteria (met); P3 patching criteria (map criterion failed; relational criterion met); the probe-direction slider (failed, 2% flips); DAS at the list position (failed, 0.07). Overall E1 verdict: mixed. Clarifications are dated in the file: one before any model data, two after the behaviour screen but before any probe or patching result. Rescoring after a code review changed the model the unchanged rule selected, from Gemma 3 27B to Gemma 3 12B.
+- **Preregistered follow-ups** (`docs/preregistration_e2.md`, `_e3.md`, `_p4c.md`): E2 (lazy; mixed on a stricter set defined after the data, a dated deviation); P4c confirmation and 27B replication (both confirmed under ALL ≥ 0.70, random ≤ 0.05; the original per-type ≥ 0.7 criterion, reported only, is not met); halfway test (switch in both models); E3 (not carried).
+- **Exploratory**: the distance, sentence-end and question-mention probes; the necessity, sentence-part, question-token and mention patches; DAS at the sentence site at layer 14 (the choice that P4c then confirmed); the first interpolation run; the stability, failure and competence analyses.
 
 ## References
 
@@ -82,6 +145,7 @@ One model, 3-object scenes, five question types and leaf-only moves. Sentence te
 - Gurnee, W., & Tegmark, M. (2023). Language Models Represent Space and Time. *ICLR 2024*. arXiv:2310.02207.
 - Hewitt, J., & Liang, P. (2019). Designing and Interpreting Probes with Control Tasks. *EMNLP-IJCNLP*, 2733–2743. doi:10.18653/v1/D19-1275
 - Kosslyn, S. M., Ball, T. M., & Reiser, B. J. (1978). Visual images preserve metric spatial information: Evidence from studies of image scanning. *JEP:HPP*, 4(1), 47–60. doi:10.1037/0096-1523.4.1.47
+- [CITE: Makelov, A., Lange, G., & Nanda, N. (2023). Is This the Subspace You Are Looking For? An Interpretability Illusion for Subspace Activation Patching — verify authors, venue, arXiv id]
 - Pylyshyn, Z. W. (2002). Mental imagery: In search of a theory. *BBS*, 25(2), 157–182. doi:10.1017/S0140525X02000043
 - Tehenan, M., Bolivar Moya, C., Long, T., & Lin, G. (2025). Linear Spatial World Models Emerge in Large Language Models. arXiv:2506.02996.
 - Vafa, K., Chen, J. Y., Rambachan, A., Kleinberg, J., & Mullainathan, S. (2024). Evaluating the World Model Implicit in a Generative Model. *NeurIPS 2024*. arXiv:2406.03689.
