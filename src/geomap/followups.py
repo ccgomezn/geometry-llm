@@ -166,18 +166,18 @@ def chain_items(m: LoadedModel, n: int, seed: int, exclude_qtypes=(), min_margin
     return out
 
 
-def erase_summary(df: pd.DataFrame, n_boot: int = 1000, seed: int = 0) -> pd.DataFrame:
+def erase_summary(df: pd.DataFrame, n_boot: int = 1000, seed: int = 0, group: str = "composed") -> pd.DataFrame:
     """Per (config, composed): clean accuracy, drops with the probe basis and the random basis, and the excess drop
     (probe − random) with a scene-bootstrap 95% CI. df: one row per (scene, qi, config, cond) with `correct`."""
     rows = []
     clean = df[df.cond == "clean"].groupby(["scene", "qi"]).correct.first()
-    for (cfg, comp), g in df[df.cond != "clean"].groupby(["config", "composed"]):
+    for (cfg, comp), g in df[df.cond != "clean"].groupby(["config", group]):
         w = g.pivot_table(index=["scene", "qi"], columns="cond", values="correct")
         w["clean"] = clean.reindex(w.index)
         w["excess"] = (w.clean - w.probe) - (w.clean - w.random)
         per = w.reset_index()
         est, lo, hi = bootstrap_ci(per.excess, groups=per.scene, n_boot=n_boot, seed=seed)
-        rows.append(dict(config=cfg, composed=bool(comp), n=len(w), clean=w.clean.mean(),
+        rows.append(dict(config=cfg, **{group: bool(comp) if group == "composed" else comp}, n=len(w), clean=w.clean.mean(),
                          drop_probe=(w.clean - w.probe).mean(), drop_random=(w.clean - w.random).mean(),
                          excess=est, excess_lo=lo, excess_hi=hi))
     return pd.DataFrame(rows)
@@ -192,4 +192,41 @@ def verdict_erase(summary: pd.DataFrame, r2_after: float, used: float = 0.10, ga
         return "map used"
     if (comp <= none).all() and r2_after <= r2_max:
         return "map not used (in this subspace)"
+    return "unclear"
+
+
+# ---------- P6 ----------
+
+def depth_group(depth: int) -> str:
+    return "shallow" if depth <= 1 else "middle" if depth == 2 else "deep"
+
+
+def depth_items(m: LoadedModel, n: int, seed: int, n_objects=(4, 5), exclude_qtypes=(), max_q: int = 24,
+                min_margin: float = 1.0, min_angle: float = 10.0) -> list[tuple[Scene, list[tuple[Question, int]]]]:
+    """Scenes with n_objects alternating; up to max_q margin-passing questions each (random subset), each with its
+    depth: the largest hop among the objects it names or offers as candidates."""
+    rng = np.random.default_rng(seed)
+    pools = [single_token_names(m.tok, NAME_POOLS[k]) for k in ("people", "objects")]
+    out = []
+    while len(out) < n:
+        s = generate_scene(rng, pools[len(out) % 2], n_objects[len(out) % len(n_objects)])
+        qs = [q for q in all_questions(s, min_margin, min_angle) if q.qtype.value not in exclude_qtypes]
+        if not qs:
+            continue
+        qs = [qs[i] for i in sorted(rng.permutation(len(qs))[:max_q])]
+        out.append((s, [(q, max(s.hop[x] for x in set(q.args) | set(q.candidates) if x in s.hop)) for q in qs]))
+    return out
+
+
+def verdict_hard(summary: pd.DataFrame, r2_after: float, headroom: float, used: float = 0.10, gap: float = 0.05,
+                 none: float = 0.03, r2_max: float = 0.1, min_headroom: float = 0.15) -> str:
+    """docs/preregistration_p6.md. headroom: clean accuracy on deep questions minus their mean chance."""
+    if headroom < min_headroom:
+        return "uninformative"
+    deep = summary[summary.group == "deep"].set_index("config").excess
+    shallow = summary[summary.group == "shallow"].set_index("config").excess
+    if any(deep[c] >= used and deep[c] - shallow.get(c, np.nan) >= gap for c in deep.index):
+        return "map used when chaining is hard"
+    if (deep <= none).all() and r2_after <= r2_max:
+        return "still not used"
     return "unclear"

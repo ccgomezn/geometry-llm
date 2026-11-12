@@ -159,3 +159,45 @@ def test_erase_summary_and_verdicts():
     assert verdict_erase(s0, r2_after=0.30) == "unclear"  # erasure did not remove the readable map
     s1 = erase_summary(_erase_df(0.30, 0.05, 0.30, 0.05), n_boot=50)  # composed no worse hit than stated-only
     assert verdict_erase(s1, r2_after=0.05) == "unclear"
+
+
+def test_depth_items_groups_by_deepest_object(m):
+    from geomap.followups import depth_items
+    items = depth_items(m, 4, seed=7, n_objects=(4, 5), exclude_qtypes=("closer_than",), max_q=10)
+    assert len(items) == 4
+    assert [len(s.names) for s, _ in items] == [4, 5, 4, 5]
+    for s, qs in items:
+        assert 0 < len(qs) <= 10
+        for q, depth in qs:
+            assert depth == max(s.hop[n] for n in set(q.args) | set(q.candidates) if n in s.hop)
+
+
+def test_depth_group_labels():
+    from geomap.followups import depth_group
+    assert [depth_group(d) for d in (0, 1, 2, 3, 4)] == ["shallow", "shallow", "middle", "deep", "deep"]
+
+
+def _group_df(drops, n=40):
+    """drops: {group: (probe_drop, random_drop)} with clean accuracy 1."""
+    recs = []
+    for s in range(n):
+        for gi, (g, (dp, dr)) in enumerate(drops.items()):
+            for cond, d in (("clean", 0.0), ("probe", dp), ("random", dr)):
+                recs.append(dict(scene=s, qi=gi, group=g, config="L21", cond=cond, correct=float(s >= d * n)))
+    return pd.DataFrame(recs)
+
+
+def test_verdict_hard():
+    from geomap.followups import erase_summary, verdict_hard
+    used = erase_summary(_group_df({"shallow": (0.05, 0.05), "middle": (0.1, 0.05), "deep": (0.30, 0.05)}),
+                         n_boot=20, group="group")
+    assert set(used.group) == {"shallow", "middle", "deep"}
+    assert verdict_hard(used, r2_after=0.05, headroom=0.3) == "map used when chaining is hard"
+    flat = erase_summary(_group_df({"shallow": (0.05, 0.05), "middle": (0.05, 0.05), "deep": (0.06, 0.05)}),
+                         n_boot=20, group="group")
+    assert verdict_hard(flat, r2_after=0.05, headroom=0.3) == "still not used"
+    assert verdict_hard(flat, r2_after=0.05, headroom=0.10) == "uninformative"
+    assert verdict_hard(flat, r2_after=0.20, headroom=0.3) == "unclear"
+    both = erase_summary(_group_df({"shallow": (0.30, 0.05), "middle": (0.3, 0.05), "deep": (0.30, 0.05)}),
+                         n_boot=20, group="group")
+    assert verdict_hard(both, r2_after=0.05, headroom=0.3) == "unclear"  # deep not worse hit than shallow
