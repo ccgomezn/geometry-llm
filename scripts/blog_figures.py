@@ -187,6 +187,33 @@ def fig6():
     save(fig, "blog_6_nothing_happened.png")
 
 
+def fig7():
+    """Part 3: answering from the model's own (unused) map vs the model's answers, layer 21."""
+    s = pd.read_csv(ROOT / "results/p9/gemma3-12b_p9_summary.csv")
+    s = s[s.layer == 21].set_index("cls")
+    order = [("CR", "Cy vs Bo\n(needs the chain)"), ("CM", "Cy vs Ana\n(stated directly)"),
+             ("MR", "Ana vs Bo\n(stated directly)")]
+    fig, ax = plt.subplots(figsize=(7, 4.2))
+    fig.subplots_adjust(left=0.10, right=0.97, top=0.74, bottom=0.17)
+    w = 0.34
+    for i, (c, lab) in enumerate(order):
+        r = s.loc[c]
+        for dx, v, col, name in [(-w / 2 - 0.02, r.acc_model, GRAY, "The model's own answers"),
+                                 (w / 2 + 0.02, r.acc_map, BLUE, "Answers read off its unused map")]:
+            ax.bar(i + dx, v, w, color=col, label=name if i == 0 else None)
+            ax.text(i + dx, v + 0.015, pct(v), ha="center", fontsize=12,
+                    fontweight="bold" if c == "CR" else "normal")
+    ax.set_xticks(range(len(order)), [o[1] for o in order])
+    ax.tick_params(axis="x", length=0, labelcolor=INK)
+    ax.set_ylim(0, 1.0)
+    ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
+    ax.yaxis.set_major_formatter(lambda v, _: pct(v))
+    ax.legend(loc="lower left", frameon=False, fontsize=10, bbox_to_anchor=(0.0, 1.0), ncol=2)
+    title(fig, "The unused map answers better",
+          "Accuracy by question type; Gemma 3 12B, 300 new scenes, 5,350 questions")
+    save(fig, "blog_7_map_beats_model.png")
+
+
 if __name__ == "__main__":
     fig1()
     fig2()
@@ -194,3 +221,4 @@ if __name__ == "__main__":
     fig4()
     fig5()
     fig6()
+    fig7()

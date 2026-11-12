@@ -1,4 +1,4 @@
-# Decodable, Not Used: A Language Model Composes a Spatial Map but Answers from a Code for Each Stated Relation
+# The Model Knows Better Than It Answers: Gemma 3 Composes a Spatial Map Its Answers Never Read
 
 *Cristhian Gómez Neira*
 
