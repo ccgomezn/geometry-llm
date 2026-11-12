@@ -1,5 +1,7 @@
 # The Model Knows Better Than It Answers
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24178043.svg)](https://doi.org/10.5281/zenodo.24178043)
+
 Code, preregistrations and results for a study of how a language model handles spatial layouts described only in text.
 
 We give Gemma 3 (12B and 27B) small scenes such as *"Ana is 3 units north of Bo. Cy is 2 units east of Ana."* and ask
@@ -21,7 +23,7 @@ that map:
 Every confirmatory test was preregistered: its decision rule was committed to this repository before its data existed.
 The git history shows the order.
 
-- Paper draft: [`paper/draft.md`](paper/draft.md) (PDF build: `python3 paper/arxiv/build.py`)
+- Paper (preprint, Zenodo): https://doi.org/10.5281/zenodo.24178043 · source: [`paper/draft.md`](paper/draft.md) (PDF build: `python3 paper/arxiv/build.py`)
 - Plain-language write-ups: [Part 1](https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea),
   [Part 2](https://medium.com/@gfcristhian98/i-found-the-map-inside-the-ai-then-i-deleted-it-and-nothing-happened-70f599a6fc83)
 - Interactive demo: [`demo/move-the-map.html`](demo/move-the-map.html)
@@ -55,4 +57,4 @@ transformers Gemma 3 import. Large checkpoints (`*.pt`) are stored with Git LFS.
 ## Citation
 
 Cristhian Gómez Neira (2026). *The Model Knows Better Than It Answers: Gemma 3 Composes a Spatial Map Its Answers
-Never Read.* Preprint (arXiv link to follow).
+Never Read.* Preprint, Zenodo. https://doi.org/10.5281/zenodo.24178043

@@ -21,4 +21,7 @@ preferred-citation:
     - family-names: "Gómez Neira"
       given-names: "Cristhian"
   year: 2026
-  notes: "Preprint. DOI to be added after the Zenodo upload."
+  doi: "10.5281/zenodo.24178043"
+  publisher:
+    name: "Zenodo"
+  url: "https://doi.org/10.5281/zenodo.24178043"
