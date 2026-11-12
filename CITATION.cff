@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this code or these results, please cite the preprint."
+title: "The Model Knows Better Than It Answers: Gemma 3 Composes a Spatial Map Its Answers Never Read"
+authors:
+  - family-names: "Gómez Neira"
+    given-names: "Cristhian"
+type: software
+license: MIT
+repository-code: "https://github.com/ccgomezn/geometry-llm"
+date-released: 2026-11-13
+keywords:
+  - interpretability
+  - language models
+  - world models
+  - spatial reasoning
+  - preregistration
+preferred-citation:
+  type: article
+  title: "The Model Knows Better Than It Answers: Gemma 3 Composes a Spatial Map Its Answers Never Read"
+  authors:
+    - family-names: "Gómez Neira"
+      given-names: "Cristhian"
+  year: 2026
+  notes: "Preprint. DOI to be added after the Zenodo upload."
