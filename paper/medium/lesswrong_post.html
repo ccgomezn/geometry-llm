@@ -1,0 +1,303 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Medium copy</title><style>
+:root{--bg:#fff;--ink:#222;--muted:#666;--accent:#2a78d6;--note:#fff3c4}
+@media (prefers-color-scheme:dark){:root{--bg:#16181c;--ink:#e8e8e8;--muted:#9aa;--accent:#3987e5;--note:#4a4020}}
+body{background:var(--bg);color:var(--ink);font:18px/1.6 Georgia,serif;max-width:700px;margin:0 auto;padding:16px}
+.bar{font:15px/1.5 system-ui,sans-serif;border:1px solid var(--muted);border-radius:8px;padding:12px 16px;margin:16px 0 32px}
+.bar ol{margin:6px 0 0;padding-left:20px} .bar ul{margin:4px 0;font-size:13px}
+button{font:600 15px system-ui;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+#ok{margin-left:10px;color:var(--muted)} article p > strong:only-child{background:var(--note)}
+</style></head><body>
+<div class="bar"><button id="copy">Copy article</button><span id="ok"></span>
+<ol><li>Click <b>Copy article</b>, open a new post (LessWrong or Medium), click in the title, paste.</li>
+<li>At each highlighted line: delete it, click the <b>+</b> on the empty line, upload the named file, and paste the
+italic line under it as the caption. For the CodePen line: paste the link alone on the line and press Enter.</li>
+<li>Check the headings: Medium has two sizes; select a heading and use the big or small <b>T</b> if needed.</li></ol>
+Files to upload, in order (in the repo folder):<ul><li><code>paper/figures/blog_1_worked_out.png</code></li><li><code>paper/figures/blog_2_two_numbers.png</code></li><li><code>paper/figures/blog_3_switch.png</code></li><li><code>paper/figures/blog_5_deleted.png</code></li><li><code>paper/figures/blog_6_nothing_happened.png</code></li></ul></div>
+<article id="post"><h1
+id="decodable-but-not-used-gemma-3-builds-a-spatial-map-it-doesnt-need-preregistered-probes-das-and-erasure">Decodable
+but not used: Gemma 3 builds a spatial map it doesn’t need
+(preregistered probes, DAS, and erasure)</h1>
+<p><strong>TL;DR.</strong> I gave Gemma 3 (12B and 27B) small layouts
+described only in text (“A is 3 units north of B. C is 2 units east of
+A.”) and asked spatial questions. Linear probes read every object’s (x,
+y) from the activations, including positions that only follow from
+combining two sentences, and even a nonlinear quantity (distance to the
+root) that no additive code of the stated offsets predicts. But that map
+is off the causal path: - copying it doesn’t change answers; - steering
+along it doesn’t either; - <strong>erasing it at every token and every
+layer from 12 to 30 costs no more accuracy than erasing random
+directions of the same rank.</strong></p>
+<p>What the answers do depend on is a 2-D subspace over the sentence
+that <em>states</em> an object’s position. Swapping it moves 72% (12B)
+and 83% (27B) of the affected answers, against 0% for random subspaces.
+It behaves like a switch between stated values, not a coordinate: set
+halfway, it doesn’t give in-between answers. The main results were
+preregistered, including several that failed.</p>
+<p><strong>Epistemic status.</strong> I’m fairly confident about the
+dissociation for this task and this model family: the rules were fixed
+in advance, the effects are large, and both 12B and 27B agree. I’m much
+less confident about how far it generalises. It’s one family, 3-object
+scenes and five question types, and the erasure only removes the
+<em>linear</em> map the probes read.</p>
+<h2 id="setup">Setup</h2>
+<ul>
+<li><strong>Task.</strong>
+<ul>
+<li>Random 2-D integer layouts of 3 objects, described in text as
+relative offsets (“Cy lies 2 units east of Ana”).</li>
+<li>Questions the text never answers directly: compass direction,
+further north or east, closest, farthest.</li>
+<li>Margins are enforced so that answers aren’t borderline.</li>
+</ul></li>
+<li><strong>Behaviour gate.</strong>
+<ul>
+<li>I screened eight open models (Qwen3, Llama 3.2 and Gemma 3,
+1.7B–27B) on answering <em>without</em> chain of thought, scoring
+candidate log-probabilities.</li>
+<li>Gemma 3 12B was the smallest that handled 3-object layouts reliably,
+so it’s the main model, with Gemma 3 27B as a replication.</li>
+</ul></li>
+<li><strong>Methods.</strong>
+<ul>
+<li>Ridge probes with scene-grouped CV and per-scene centring.</li>
+<li>Activation patching at several sites.</li>
+<li>Distributed alignment search (DAS; Geiger et al.) with k = 2.</li>
+<li>An interpolation test.</li>
+<li>A chain-transfer test.</li>
+<li>Iterative nullspace projection (INLP; Ravfogel et al. 2020) for
+erasure.</li>
+</ul></li>
+<li><strong>Preregistration.</strong> Each confirmatory test was
+committed to git, with its decision rule, before its data existed.
+Exploratory analyses are labelled as such below.</li>
+</ul>
+<h2 id="the-model-composes-a-map">1. The model composes a map</h2>
+<p>At the object-list positions (“The objects are: Ana, Bo, Cy”), a
+linear probe reads each object’s (x, y): - <strong>Overall:</strong> R²
+= 0.74 [0.72, 0.75] at layer 21 of 48. Shuffled labels, layer 0 and a
+random-init model all give ≈ 0. - <strong>Objects two steps from the
+root,</strong> whose position requires combining two sentences: 0.74
+(one-step objects: 0.76). A baseline that only gets each object’s own
+stated offset reaches 0.22 on them. - <strong>Distance to the
+root</strong> (exploratory), which isn’t a sum of offsets: R² 0.62
+[0.56, 0.67], against −0.05 for the best additive baseline built from
+both stated offsets.</p>
+<p>So this isn’t the probe adding up two sentence codes; something
+nonlinear has been computed.</p>
+<p><strong>[ IMAGE 1: upload paper/figures/blog_1_worked_out.png
+]</strong></p>
+<p><em>Worked-out positions and distances are linearly decodable; the
+stated sentences alone don’t give them.</em></p>
+<h2 id="but-the-answers-dont-read-it-there">2. …but the answers don’t
+read it there</h2>
+<ul>
+<li><strong>Copying the list-position activations</strong> from a layout
+where an object sits elsewhere barely moves the answers.</li>
+<li><strong>DAS at the list position, preregistered:</strong>
+interchange accuracy <strong>0.07</strong>. The prediction failed.</li>
+<li><strong>Steering along the probe’s directions,</strong> to positions
+no sentence states, preregistered: answers flip where geometry predicts
+in <strong>2%</strong> of sweeps. Also failed.</li>
+<li><strong>The object’s name inside the question,</strong> exploratory:
+patching it does essentially nothing (joint agreement 0.00; per-question
+peak 0.09).</li>
+</ul>
+<h2 id="a-2-d-code-at-the-stated-sentence-does-control-the-answers">3. A
+2-D code at the stated sentence does control the answers</h2>
+<p>DAS with k = 2 over the moved object’s own sentence, at layer 14,
+moved 0.81 of the affected answers in an exploratory run. I had chosen
+that site and layer after looking at the data, so I preregistered a
+confirmation on fresh scenes, with the rule ALL ≥ 0.70 and random ≤
+0.05, and a replication on 27B at matched depth (layer 18 of 62):</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Gemma 3 12B (L14)</th>
+<th>Gemma 3 27B (L18)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DAS k=2, all question types</td>
+<td><strong>0.72</strong> [0.68, 0.75]</td>
+<td><strong>0.83</strong> [0.80, 0.85]</td>
+</tr>
+<tr>
+<td>random 2-D subspace</td>
+<td>0.00</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>further east / north</td>
+<td>0.90 / 0.94</td>
+<td>0.84 / 0.94</td>
+</tr>
+<tr>
+<td>direction</td>
+<td>0.60</td>
+<td>0.81</td>
+</tr>
+<tr>
+<td>closest / farthest</td>
+<td>0.38 / 0.33</td>
+<td>0.43 / 0.38</td>
+</tr>
+</tbody>
+</table>
+<p>Interchange accuracy is model-relative: on questions where the
+model’s clean answers differ between the two layouts, it’s the share
+where the edited run gives the source layout’s answer.</p>
+<p><strong>[ IMAGE 2: upload paper/figures/blog_2_two_numbers.png
+]</strong></p>
+<p><em>The 2-D edit moves answers in both models; random subspaces
+don’t.</em></p>
+<p>Some checks on whether this subspace is real: -
+<strong>Stability.</strong> The exploratory and confirmation runs
+trained on disjoint scenes and land on overlapping subspaces: principal
+angles 47° and 56°, against a maximum cosine of 0.07 for random 2-D
+subspaces. - <strong>Competence.</strong> The edit works where the model
+works. When the model answers the moved scene correctly from text, the
+edit succeeds 75% of the time (12B), against 48% when it doesn’t; for
+27B, 85% against 59%. - <strong>Write-in</strong> (preregistered, see
+§6). Values computed from the stated offset, instead of copied from a
+source run, still move answers through this subspace (0.27, random
+0.00).</p>
+<h2 id="its-a-switch-not-a-coordinate-preregistered">4. It’s a switch,
+not a coordinate (preregistered)</h2>
+<p>I set the subspace to base + α(source − base) and looked at questions
+whose correct answer at the <em>interpolated</em> position differs from
+both stated layouts. If the code were a coordinate, α = ½ should often
+give the in-between answer.</p>
+<ul>
+<li><strong>12B:</strong> 0.085 [0.041, 0.137]</li>
+<li><strong>27B:</strong> 0.055 [0.019, 0.096]</li>
+<li><strong>Chance on that subset:</strong> 0.141</li>
+</ul>
+<p>The CI upper bound is below chance in both models, so the
+preregistered verdict is “switch”. Across α the flip is sharp: the share
+taking the moved layout goes 0 → 5% → 31% → 62% → 70% for 12B and 1 → 4
+→ 29 → 73 → 82% for 27B.</p>
+<p><strong>[ IMAGE 3: upload paper/figures/blog_3_switch.png
+]</strong></p>
+<p><em>At α = ½ the model mostly snaps to one of the two stated
+layouts.</em></p>
+<p>Consistent with this, a preregistered test of <em>natural
+encoding</em> found no linear encoding (§6, P5a). The change in the 2-D
+coordinates isn’t linearly predicted by the change in the stated offset
+any better than for random 2-D subspaces (R² 0.31 against a 95th
+percentile of 0.35). The number tokens themselves change, which is why
+random directions score that high.</p>
+<h2 id="the-composed-position-isnt-transferred-either-preregistered">5.
+The composed position isn’t transferred either (preregistered)</h2>
+<p>Take a chain R → M → C and change only M’s sentence, so that M moves
+and C moves with it while C’s own sentence stays word-for-word
+identical. Then copy C’s sentence activations into the original run,
+layer by layer.</p>
+<p>If that sentence carried C’s composed position and the answers read
+it, C should move while M stays put. It doesn’t: - the patched answers
+follow C’s moved position on at most 0.07 [0.04, 0.09] of questions
+(layer 18); - control answers stay ≥ 0.97.</p>
+<p>Verdict: “not carried”. Caveat: the answers may simply recompute C
+from M’s unchanged sentence.</p>
+<h2 id="erasing-the-map-preregistered">6. Erasing the map
+(preregistered)</h2>
+<p>This is the direct test of “is the map used anywhere?”</p>
+<p><strong>Fitting the erasure.</strong> - At each layer from 12 to 30,
+I fit the ridge probe on object-list activations of 2,000 new scenes. -
+INLP removes its directions until held-out probe R² falls below 0.1.
+That takes rank 2–10, and R² drops from up to 0.69 to at most 0.09 at
+every layer.</p>
+<p><strong>Applying it.</strong> - The basis is erased (mean-preserving)
+at <strong>every token position</strong>: at layer 14, 21 or 28 alone,
+or at all layers 12–30. - The control is a random orthonormal basis of
+the same rank at the same layers.</p>
+<p><strong>[ IMAGE 4: upload paper/figures/blog_5_deleted.png
+]</strong></p>
+<p><em>Probe-readable coordinates before and after INLP, per
+layer.</em></p>
+<p><strong>Testing it.</strong> On 300 new chains (5,320 questions), I
+compared: - questions involving the two-step object (whose position must
+be composed); - questions involving only stated objects.</p>
+<p><strong>Results.</strong> The excess drop (probe-basis erasure minus
+random-basis erasure) on composed questions is −0.003, −0.022, −0.011
+and −0.027 for the four configurations. The largest upper CI bound is
+0.001, and stated-only questions behave the same way. Preregistered
+verdict: <strong>map not used (in this subspace).</strong></p>
+<p><strong>[ IMAGE 5: upload paper/figures/blog_6_nothing_happened.png
+]</strong></p>
+<p><em>Accuracy lost on composed questions: erasing the map vs. erasing
+random directions of the same rank.</em></p>
+<p>Write-in (P5b). Setting the subspace from a per-token linear map of
+the offset, rather than copying it: - moves <strong>0.27</strong> [0.22,
+0.31] of the affected answers; - the copy edit gives 0.72 and the same
+procedure through a random subspace gives 0.00.</p>
+<p>The write-in reaches 0.37 of the copy edit, so the verdict is
+“partial”. It works much better for “further east” (0.65) than “further
+north” (0.28) or direction (0.14).</p>
+<h2 id="what-i-take-from-this">What I take from this</h2>
+<ol type="1">
+<li><strong>Decodability is an upper bound on use, not evidence of
+it.</strong> The probes here pass every control I know of, including a
+nonlinear target that rules out sentence copying, and the representation
+can still be deleted without behavioural cost. Probe-based claims about
+“world models” or “maps” need an intervention at the decoded site, and
+ideally an erasure.</li>
+<li><strong>This model’s answers look more like a filing card than a
+map.</strong> There’s a low-dimensional, switch-like code for what each
+sentence stated, recombined at question time; patching suggests that
+happens roughly in layers 16–32. The code is causally real (it
+replicates, it’s stable, and values written from the offset act through
+it) but not coordinate-like.</li>
+<li><strong>Why compute the map at all?</strong> My candidates:
+<ul>
+<li><strong>It’s nearly free.</strong> Gathering offset directions at
+each object’s name produces something coordinate-like. That doesn’t
+explain distance, though.</li>
+<li><strong>The task doesn’t need it.</strong> With three objects,
+chaining stated relations is cheap.</li>
+<li><strong>It serves other uses.</strong></li>
+</ul>
+The second is testable: make chaining hard (more objects, longer chains,
+whole-layout questions) and see whether erasure starts to hurt. That’s
+my next experiment, and I’d welcome suggestions.</li>
+</ol>
+<h2 id="limitations">Limitations</h2>
+<ul>
+<li>One model family (Gemma 3), and the other families failed the
+behaviour gate. Scenes are 3 objects on integer grids with fixed
+templates. The P5 tests ran on 12B only.</li>
+<li>INLP removes the linear subspace the list-position probe reads.
+Information coded differently elsewhere, or nonlinearly, survives.</li>
+<li>DAS illusions (Makelov et al.): stability, the random controls, the
+competence link and the partial write-in argue against a pure illusion.
+They don’t fully settle it.</li>
+<li>E3’s null is compatible with redundancy and recomputation.</li>
+<li>The small question types (closest, farthest) have wide
+intervals.</li>
+</ul>
+<h2 id="links">Links</h2>
+<ul>
+<li>A non-technical write-up with an interactive demo where you edit the
+2-D code yourself: <a
+href="https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea">Part
+1</a>, <a href="PART-2-LINK">Part 2</a>.</li>
+<li>Paper, code, preregistrations and results: [coming soon / repo
+link].</li>
+</ul>
+<p><em>AI assistance: I used Claude (Anthropic) extensively for the
+code, the analysis and drafting this post. The experimental design
+decisions, preregistrations and conclusions were reviewed by me, and
+every number above comes from the committed results files.</em></p>
+</article>
+<script>
+document.getElementById('copy').onclick=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('post'));
+const s=getSelection();s.removeAllRanges();s.addRange(r);const ok=document.execCommand('copy');s.removeAllRanges();
+document.getElementById('ok').textContent=ok?'Copied. Paste into Medium.':'Select the article text and press Cmd+C.';};
+</script></body></html>
