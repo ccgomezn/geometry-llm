@@ -361,3 +361,76 @@ def verdict_p9(summary: pd.DataFrame, cls: str = "CR", margin: float = 0.05) -> 
     if -r.map_minus_model >= margin and r.map_minus_model_hi < 0:
         return "the model answers better"
     return "comparable"
+
+
+# ---------- P10 ----------
+
+def attention_boost(m: LoadedModel, q_from: list[int], keys: list[list[int]], layers, bias: float):
+    """batch_ctx for score(): in the given attention layers (0-based), add `bias` to the attention logits from item i's
+    query positions >= q_from[i] to its key positions keys[i]. Causal masking is kept; nothing else changes."""
+    decoder = functools.reduce(getattr, m.layers_path.split("."), m.hf)
+
+    @contextmanager
+    def ctx(row_items: list[int]):
+        def pre_hook(mod, args, kwargs):
+            hs = kwargs["hidden_states"] if "hidden_states" in kwargs else args[0]
+            B, T = hs.shape[:2]
+            add = torch.zeros(B, 1, T, T, dtype=torch.float32, device=hs.device)
+            for j, i in enumerate(row_items):
+                ks = [k for k in keys[i] if k < T]
+                if ks:
+                    add[j, 0, q_from[i]:, ks] = bias
+            if bias == 0 or not add.any():
+                return args, kwargs
+            am = kwargs.get("attention_mask")
+            if am is None:
+                am = torch.ones(T, T, dtype=torch.bool, device=hs.device).tril()[None, None].expand(B, 1, T, T)
+            am = am.expand(B, 1, T, am.shape[-1])
+            neg = torch.finfo(hs.dtype).min
+            if am.dtype == torch.bool:
+                f = torch.zeros(am.shape, dtype=torch.float32, device=hs.device).masked_fill(~am, neg)
+            else:
+                f = am.float()
+            f = torch.where(f > neg / 2, f + add[..., :f.shape[-1]], f)  # boost allowed edges only
+            kwargs["attention_mask"] = f.to(hs.dtype)
+            return args, kwargs
+
+        handles = [decoder[l].self_attn.register_forward_pre_hook(pre_hook, with_kwargs=True) for l in layers]
+        try:
+            yield
+        finally:
+            for h in handles:
+                h.remove()
+
+    return ctx
+
+
+def p10_keys(spec) -> dict[str, list[int]]:
+    """names: the object-name tokens in the list (where the map is decoded); control: the token just before each."""
+    names = sorted(spec.list_pos.values())
+    return {"names": names, "control": [p - 1 for p in names]}
+
+
+def boost_summary(df: pd.DataFrame, n_boot: int = 1000, seed: int = 0) -> pd.DataFrame:
+    """Per (bias, class): Δ(names) and Δ(control) vs clean, and the contrast Δ(names) − Δ(control) with a
+    scene-bootstrap 95% CI. df: one row per (scene, qi, cond in {clean, names, control}, bias) with `correct`."""
+    clean = df[df.cond == "clean"].groupby(["scene", "qi"]).correct.first()
+    rows = []
+    for (b, c), g in df[df.cond != "clean"].groupby(["bias", "cls"]):
+        w = g.pivot_table(index=["scene", "qi"], columns="cond", values="correct")
+        w["clean"] = clean.reindex(w.index)
+        d = (w.names - w.control).reset_index(name="d")
+        est, lo, hi = bootstrap_ci(d.d, groups=d.scene, n_boot=n_boot, seed=seed)
+        rows.append(dict(bias=b, cls=c, n=len(w), clean=w.clean.mean(), d_names=(w.names - w.clean).mean(),
+                         d_control=(w.control - w.clean).mean(), contrast=est, contrast_lo=lo, contrast_hi=hi))
+    return pd.DataFrame(rows)
+
+
+def verdict_p10(summary: pd.DataFrame, cls: str = "CR", min_gain: float = 0.03) -> str:
+    """docs/preregistration_p10.md."""
+    s = summary[summary.cls == cls]
+    if ((s.contrast >= min_gain) & (s.contrast_lo > 0) & (s.d_names > 0)).any():
+        return "the map helps when attended"
+    if (s.contrast_lo <= 0).all():
+        return "no benefit"
+    return "unclear"

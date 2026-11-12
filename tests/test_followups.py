@@ -336,3 +336,47 @@ def test_compare_and_verdict_p9():
     assert verdict_p9(compare_answers(df2, n_boot=50)) == "comparable"
     df3 = df.assign(map_correct=np.where(df.cls == "CR", 0.0, df.map_correct))
     assert verdict_p9(compare_answers(df3, n_boot=50)) == "the model answers better"
+
+
+# ---------- P10 ----------
+
+def test_attention_boost_zero_is_identity_and_large_negative_equals_knockout(m, pairs):
+    from geomap.followups import attention_boost, attention_knockout
+    base, items = _items(m, pairs)
+    name = base.relations[0].subj
+    lo, hi = items[0][0].relation_spans[name]
+    q_from = [spec.prefix_len for spec, _ in items]
+    keys = [list(range(lo, hi)) for _ in items]
+    clean = score(m, items)
+    zero = score(m, items, batch_ctx=attention_boost(m, q_from, keys, layers=[0, 1], bias=0.0))
+    for x, y in zip(clean, zero):
+        assert all(abs(x[k] - y[k]) < 1e-5 for k in x)
+    neg = score(m, items, batch_ctx=attention_boost(m, q_from, keys, layers=[0, 1], bias=-1e4))
+    ko = score(m, items, batch_ctx=attention_knockout(m, [[(qf, lo, hi)] for qf in q_from], layers=[0, 1]))
+    for x, y in zip(neg, ko):
+        assert all(abs(x[k] - y[k]) < 1e-3 for k in x)
+    pos = score(m, items, batch_ctx=attention_boost(m, q_from, keys, layers=[0, 1], bias=8.0))
+    assert any(abs(x[k] - y[k]) > 1e-4 for x, y in zip(clean, pos) for k in x)
+
+
+def test_p10_keys():
+    from geomap.followups import p10_keys
+    from geomap.prompts import build_prompt
+    from geomap.models import load_tiny_for_tests
+    mm = load_tiny_for_tests()
+    from geomap.followups import chain_items
+    s, mid, child, qs = chain_items(mm, 1, seed=11, exclude_qtypes=("closer_than",))[0]
+    spec = build_prompt(s, qs[0][0], mm.tok, mm.family)
+    k = p10_keys(spec)
+    assert k["names"] == sorted(spec.list_pos.values())
+    assert k["control"] == [p - 1 for p in sorted(spec.list_pos.values())]
+    assert not set(k["names"]) & set(k["control"])
+
+
+def test_verdict_p10():
+    from geomap.followups import verdict_p10
+    mk = lambda c, lo, dn: dict(cls="CR", bias=4.0, contrast=c, contrast_lo=lo, contrast_hi=c + 0.02, d_names=dn)
+    assert verdict_p10(pd.DataFrame([mk(0.05, 0.02, 0.04)])) == "the map helps when attended"
+    assert verdict_p10(pd.DataFrame([mk(0.01, -0.01, 0.01)])) == "no benefit"
+    assert verdict_p10(pd.DataFrame([mk(0.05, 0.02, -0.01)])) == "unclear"
+    assert verdict_p10(pd.DataFrame([mk(0.02, 0.005, 0.02)])) == "unclear"
