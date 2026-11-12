@@ -15,8 +15,9 @@ PANDOC = shutil.which("pandoc") or "/opt/homebrew/bin/pandoc"
 FIGS = {  # draft path -> arXiv file name
     "../results/figures/paper_fig1_behaviour.png": "fig1_behaviour.png",
     "../results/figures/paper_fig2_mechanism.png": "fig2_mechanism.png",
-    "figures/paper_fig3_code.png": "fig3_code.png",
-    "figures/blog_4_not_used.png": "fig4_transfer.png",
+    "figures/blog_6_nothing_happened.png": "fig3_erasure.png",
+    "figures/paper_fig3_code.png": "fig4_code.png",
+    "figures/blog_7_map_beats_model.png": "fig5_map_vs_model.png",
 }
 
 # characters pdflatex cannot take from UTF-8 input directly

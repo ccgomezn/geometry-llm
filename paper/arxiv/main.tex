@@ -116,287 +116,209 @@ Spatial Map Its Answers Never Read}
 \maketitle
 \begin{abstract}
 When people read ``A is 3 units north of B; C is 2 units east of A'',
-they can answer questions the text never answers, as if consulting an
-inner picture. We ask whether a language model does the same, and
-whether it \emph{uses} such a picture. We generate unseen layouts
-described only in text and study Gemma 3 12B, the smallest of eight open
-models that solves 3-object layouts without written reasoning. Linear
-probes decode each object's (x, y) from its activations (R² = 0.74,
-controls ≈ 0), including positions that follow only by combining two
-sentences, and a nonlinear quantity (distance to the root) that no
-additive code of the stated offsets predicts (0.62 vs −0.05). Yet
-copying these decodable representations from a layout where the object
-sits elsewhere changes no answer. The answers depend instead on a 2-D
-subspace over the sentence that states the object's position. Swapping
-it moves 0.72 of the affected answers in a preregistered test (0.83 in
-Gemma 3 27B; random subspaces 0.00). Set halfway between two layouts,
-this code does not produce in-between answers: it switches between the
-stated ones (0.085 and 0.055 vs chance 0.141). Composed positions are
-decodable but are not the variable the answers read: erasing the
-linearly decodable coordinates at every token and layer 12--30 (probe R²
-≤ 0.09 after erasure) costs no more accuracy than erasing random
-directions of the same rank. This holds on 3-object scenes and on
-4--5-object scenes where questions require chaining up to four
-relations. Attention knockout and transfer tests show why: the question
-reads each object's own sentence in layers 16--31 and never reads the
-object list. The answers also use the chain only partially. When only a
-parent's sentence moves an object, the model updates its answers about
-that object about half as often as when the object's own sentence moves
-it the same distance. The decodable map composes the chain, and the
-answers do not. In a preregistered test, answering geometrically from
-the decoded map beats the model on questions that need the chain (0.80
-vs 0.73), and ties it on the others. Pushing the question to attend to
-the map does not recover that advantage. The 2-D code is not a linear
-function of the stated offset, yet values written from a fitted linear
-map still move 0.27 of the answers (random 0.00).
+they can answer questions the text never answers, as if looking at a
+picture. We ask whether a language model builds such a picture, and
+whether its answers use it. On text-only layouts, Gemma 3 12B builds a
+map: linear probes read each object's position from its activations (R²
+= 0.74), including positions that require combining sentences. But the
+answers do not use this map. Erasing it everywhere costs no more
+accuracy than erasing random directions. Instead, the answers depend on
+a small 2-D code over the sentence that states each position. Swapping
+it moves 72\% of the affected answers (83\% in Gemma 3 27B; random:
+0\%), and it acts as a switch, not a coordinate. The answers also use
+the chain of relations only partly, so answering from the model's own
+unused map beats the model on chain questions (0.80 vs 0.73). The main
+tests were preregistered.
 \end{abstract}
 
 \section{1. Introduction}\label{introduction}
 
-Does a language model solve a spatial problem by consulting something
-like a map, or by chaining the relations it was given? This is a
-question about the \emph{format} of its internal computation, and
-written reasoning cannot settle it, because written reasoning contains
-only words. Geometry can be \emph{read out} of language models: world
-coordinates of places (Gurnee \& Tegmark, 2023), circular features for
-days and months (Engels et al., 2024), and spatial relations in
-described scenes (Tehenan et al., 2025). Some of it is used. Tehenan et
-al.~steer single answers along probed relation directions, and An et
-al.~(2026) find spatial information in 7--8B models that ``can causally
-influence behavior'' but is ``transient, fragmented across task
-families, and weakly integrated into final predictions''.
+Does a language model solve a spatial puzzle by consulting something
+like a map, or by chaining the relations it was told? Written reasoning
+cannot settle this, because it contains only words. The question is
+about the format of the model's internal computation.
 
-We test the property that separates a usable map from a readable one:
-\textbf{editing one object's internal position should move every spatial
-answer consistently, including to positions no sentence states.} Our
-contributions:
+Geometry can be read out of language models. Probes recover the
+coordinates of real places (Gurnee \& Tegmark, 2023), circular codes for
+days and months (Engels et al., 2024), and spatial relations in
+described scenes (Tehenan et al., 2025). Whether such representations
+are used is less clear. An et al.~(2026) find spatial information that
+``can causally influence behavior'' but is ``weakly integrated into
+final predictions''. Probing alone cannot answer the question: a probe
+shows that information is present, not that the model relies on it
+(Hewitt \& Liang, 2019).
+
+We test use directly. If a model answers from a map, then editing one
+object's position in that map should move every spatial answer
+consistently, and removing the map should hurt. We find the opposite.
+The map is real and accurate, but the answers come from a different
+route. Our contributions:
 
 \begin{itemize}
 \tightlist
 \item
-  A text-only layout task with a behaviour gate, so that the analysed
-  model actually solves it without writing.
+  A text-only layout task, with a behaviour test that selects a model
+  able to solve it without written reasoning.
 \item
-  Evidence that Gemma 3 12B \emph{composes} per-object coordinates
-  across sentences, including a nonlinear quantity (distance) that rules
-  out simple sentence copying.
+  Evidence that Gemma 3 12B composes object positions across sentences,
+  including distances that rule out simple copying of the stated
+  offsets.
 \item
-  A dissociation: copying the decodable coordinates, or steering along
-  the probe's directions, changes no answer (preregistered).
+  Evidence that the answers do not use this map: copying it, steering it
+  and erasing it all leave the answers unchanged, also on harder
+  4--5-object scenes.
 \item
-  A 2-D subspace over the stated sentence that does control the answers,
-  confirmed on fresh data with a preregistered rule and replicated in
-  Gemma 3 27B.
+  A small 2-D code at each stated sentence that does control the
+  answers, confirmed on fresh data and replicated in Gemma 3 27B. It
+  behaves like a switch, not a coordinate.
 \item
-  Evidence that this code behaves as a switch between stated values, not
-  as a coordinate: halfway settings snap, and a composed position copied
-  from a word-identical sentence is not used (both preregistered).
-\item
-  A preregistered comparison showing that answers read linearly from the
-  unused map beat the model's own answers on questions that need
-  composition (0.80 vs 0.73), and tie them elsewhere.
-\item
-  Preregistered erasure tests: removing the decodable coordinates
-  everywhere does not hurt answers about inferred positions more than a
-  random erasure, on 3-object scenes or on 4--5-object scenes that need
-  chains of up to four relations; and a write-in test that bears on the
-  subspace-illusion critique.
+  A mechanism: the question reads each object's own sentence, never the
+  map, and uses the chain only partly. Answering from the unused map
+  would be more accurate on chain questions, but pointing the model's
+  attention at the map does not help.
 \end{itemize}
 
-\section{2. Task and methods}\label{task-and-methods}
+\section{2. Setup}\label{setup}
 
-\textbf{Scenes.} Each scene places 3 named objects on an integer grid in
-{[}−6, 6{]}². Positions are fixed by a tree of relations (``X is k units
-north of Y'', or ``k north and m east''). One object is the root. An
-object placed relative to an object that is itself placed relative to
-the root is ``two steps'' away. A \emph{leaf} is an object nothing else
-is placed relative to. After the description, the prompt lists the
-objects (``The objects are: A, B, C.''). Each name in this list can
-attend to every sentence, so it is a natural \emph{readout position} for
-a finished map.
+\textbf{Scenes and questions.} Each scene places three named objects on
+an integer grid, using relations such as ``Cy is 2 units east of Ana''.
+One object is the root. An object placed relative to an object that is
+itself placed relative to the root is two steps away; its position
+follows only by combining two sentences. After the description, the
+prompt lists the objects (``The objects are: Ana, Bo, Cy.''). Questions
+ask which object is farthest from or closest to another, the compass
+direction from one object to another, and which of two objects is
+further north or further east. We score each allowed answer by its
+log-probability, without generation. Correct answers win by at least 1
+unit (10° for direction).
 
-\textbf{Questions.} Five types are used: farthest from X; closest to X;
-compass direction of Y from X (8 options); which of two objects is
-farther north; and which is farther east. Each allowed answer is scored
-by its log-probability, with no generation. Correct answers win by at
-least 1 unit (10° for direction). All causal metrics below are
-\emph{model-relative}: they compare the patched answer with the model's
-own answer on the scene being imitated.
+\textbf{Model.} We screened eight open models (Qwen3 1.7B--14B, Llama
+3.2 3B, Gemma 3 4B--27B) with a preregistered behaviour test. The
+smallest model that solved 3-object scenes reliably without written
+reasoning was \textbf{Gemma 3 12B} (accuracy 0.76 {[}0.74, 0.77{]}; Fig.
+1). Gemma 3 27B served as a replication. One question type (``Is Y
+closer to X than Z?'') was at chance for every model and was excluded.
 
-\textbf{Behaviour gate} (preregistered). A model qualifies with ≥ 0.75
-accuracy on 4-object scenes and above-chance accuracy on multi-step
-questions. If none qualifies, 3-object scenes are used. The smallest
-qualifying model is analysed, and question types at chance are excluded.
+\begin{figure}
+\centering
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={Left: accuracy without written reasoning (dashed line: the preregistered threshold). Qwen models put little probability on one-word answers, so their accuracies are lower bounds. Right: errors grow with chain depth and with how close the competing answers are.}]{figures/fig1_behaviour.png}
+\caption{Left: accuracy without written reasoning (dashed line: the
+preregistered threshold). Qwen models put little probability on one-word
+answers, so their accuracies are lower bounds. Right: errors grow with
+chain depth and with how close the competing answers are.}
+\end{figure}
 
-\textbf{Probes.} Ridge regression maps the residual stream at an
-object's list position to its (x, y) relative to the scene centre, with
-3,000 scenes split 80/20 by scene. Controls are shuffled labels, layer
-0, and a randomly initialised model. A \emph{stated-sentence baseline}
-regresses position on the object's own stated offset and chain depth:
-what a reader who never combines sentences would know. A distance probe
-predicts each object's distance to the root. Distance is not a sum of
-stated offsets, so the best \emph{additive} baseline (one-hot codes of
-the object's and its parent's offsets) cannot fit it for two-step
-objects.
+\textbf{Methods.} We use four kinds of tools.
 
-\textbf{Patching.} Each pair of scenes differs in the one sentence that
-places a leaf. We run the model on the base scene but copy in the source
-scene's hidden states at one site and one layer. Sites: the object's
-list position; the end of the list; the object's sentence; the whole
-description (positive control); and, exploratorily, parts of the
-sentence and the question tokens. \emph{Joint agreement} is the share of
-pairs in which every answer then equals the model's answer on the source
-scene, among pairs where at least one answer differs.
+\begin{itemize}
+\tightlist
+\item
+  \emph{Probes:} ridge regressions that read each object's (x, y) from
+  the residual stream at its name in the object list, with
+  shuffled-label, layer-0 and random-model controls.
+\item
+  \emph{Activation patching:} run the model on one scene but copy in
+  hidden states from a scene where one object sits elsewhere.
+\item
+  \emph{Distributed alignment search} (DAS; Geiger et al., 2024): learn
+  a 2-D subspace whose swap moves the answers.
+\item
+  \emph{Erasure:} iterative nullspace projection (Ravfogel et al., 2020)
+  removes the directions a probe reads.
+\end{itemize}
 
-\textbf{Distributed alignment search (DAS).} Following Geiger et
-al.~(2024), we learn an orthonormal \(Q \in \mathbb{R}^{d\times 2}\) and
-set \(h' = h_{\text{base}} + QQ^\top(h_{\text{src}} - h_{\text{base}})\)
-at every position of a site at one layer. Q is trained with Adam (lr
-10⁻³, 2 epochs) so that the patched run gives the model's answer on the
-source scene. \emph{Interchange accuracy} is the share of questions,
-among those where the model's source and base answers differ, on which
-the patched answer equals the source answer. The control is a random 2-D
-subspace. Training and test use disjoint pairs (300 each).
+Unless stated otherwise, causal metrics compare the edited answer with
+the answer the model itself gives on the scene being imitated.
 
-\textbf{Interpolation test.} With Q fixed, we set the subspace to base +
-α(source − base) for α ∈ \{0, ¼, ½, ¾, 1, 1½\} on 150 test pairs.
-Answers are scored against the layout with the object at the matching
-interpolated position (margin ≥ 1 unit / 10° there). The key subset is
-\emph{novel} questions, whose answer at the interpolated position
-differs from the answer in both stated layouts. A coordinate code should
-give that in-between answer; a switch between stated values should not.
-Chance on this subset is the mean of 1/8 (direction) and 1/2 (binary
-questions), 0.141.
-
-\textbf{Composed-position transfer (E3).} In a chain R → M → C, the
-source scene changes only M's sentence, so M and C both move, while C's
-sentence is word-for-word identical. Activations over C's sentence can
-then differ only through what they read from M's sentence: C's composed
-position. We copy C's sentence from the source run into the base run at
-one layer (0--40, step 2; 150 pairs). \emph{follow\_T} is the share of
-answers equal to the model's answer on a \emph{target} scene, with C at
-its moved absolute position and M unmoved, among questions where target
-and base answers differ. \emph{stable} is the share of control answers
-left unchanged.
-
-\textbf{Preregistration.} Hypotheses, metrics and decision rules were
-committed before the corresponding data
-(\texttt{docs/preregistration*.md}). Section 6 lists which results are
-preregistered, which are exploratory, and which preregistered
-predictions failed.
+\textbf{Preregistration.} We committed hypotheses, metrics and decision
+rules to version control before collecting each dataset. Section 6 lists
+every test, its verdict, and which analyses were exploratory.
 
 \section{3. Results}\label{results}
 
-\subsection{3.1 Behaviour}\label{behaviour}
+\subsection{3.1 The model builds a map}\label{the-model-builds-a-map}
 
-We screened eight models (Qwen3 1.7B--14B, Llama 3.2 3B, Gemma 3
-4B--27B) on fresh scenes (Fig. 1). None reached 0.75 on 4 objects. On 3
-objects, the smallest model to qualify was \textbf{Gemma 3 12B} (0.76
-{[}0.74, 0.77{]}; 0.68 on 4 objects; Gemma 3 27B: 0.77). ``Is Y closer
-to X than Z?'' was at chance for every model and was excluded. The
-object list does not help: removing it leaves Gemma 3 12B's accuracy
-unchanged (0.66 with and without). Written reasoning does help: on 60
-4-object questions, Qwen3-14B scored 0.98 with thinking enabled and 0.57
-without (different scoring methods; see Limitations).
+A linear probe at the object list reads each object's position. Accuracy
+is near zero up to layer 11, rises sharply at layers 12--13, and peaks
+at \textbf{layer 21 (R² = 0.74 {[}0.72, 0.75{]})}. All controls score
+0.00 (Fig. 2a).
 
-\begin{figure}
-\centering
-\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={Left: accuracy without written reasoning (dashed: preregistered gate). Qwen models put little probability on bare one-word answers (median \textless{} 0.02), so their accuracies are lower bounds. Right: standardised logistic coefficients of errors on chain depth and on how close the competing answers are.}]{figures/fig1_behaviour.png}
-\caption{Left: accuracy without written reasoning (dashed: preregistered
-gate). Qwen models put little probability on bare one-word answers
-(median \textless{} 0.02), so their accuracies are lower bounds. Right:
-standardised logistic coefficients of errors on chain depth and on how
-close the competing answers are.}
-\end{figure}
+Objects two steps from the root are read as well as one-step objects
+(0.74 vs 0.76). A baseline that knows only each object's own stated
+offset reaches 0.22 on them, so the model combines the sentences. It
+also computes something beyond a sum of offsets. A probe for distance to
+the root reaches \textbf{R² = 0.62 {[}0.56, 0.67{]}} on two-step
+objects, while the best additive baseline built from both stated offsets
+scores −0.05. The same coordinates can be read at the object's name
+inside a question and at the end of its own sentence.
 
-\subsection{3.2 Composed coordinates are
-decodable}\label{composed-coordinates-are-decodable}
+\subsection{3.2 The answers do not use the
+map}\label{the-answers-do-not-use-the-map}
 
-On 3,000 fresh scenes, R² at the list position is ≈ 0 up to layer 11,
-jumps at layers 12--13 and peaks at \textbf{layer 21 (0.74 {[}0.72,
-0.75{]})}; shuffled labels, layer 0 and the random-init model all give
-0.00 (Fig. 2a). Two-step objects are decoded as well as one-step objects
-(0.74 vs 0.76), while the stated-sentence baseline reaches only 0.22 on
-them. The code is per object: no probe reads all objects from the end of
-the list (R² ≤ 0.03), and activation distances track true distances only
-weakly (Spearman 0.19).
-
-The coordinates are also \emph{computed}, not merely the two stated
-offsets held side by side. For two-step objects, a probe for distance to
-the root reaches \textbf{R² = 0.62 {[}0.56, 0.67{]}} at layer 21,
-against −0.05 for the best additive baseline (exploratory). The same
-coordinates are decodable at the object's name inside a question
-(``Which object is farthest from X?'': 0.74 for two-step objects,
-distance 0.63) and, for two-step objects, at the end of the object's own
-sentence (0.76 at layer 24). The preregistered probing criteria for a
-map are met.
-
-\subsection{3.3 The answers do not read them where they are
-decodable}\label{the-answers-do-not-read-them-where-they-are-decodable}
+We tried to make the answers follow the map in four ways. None worked.
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Copying the readout positions moves no answer}
-  (preregistered). At the moved object's list position, joint agreement
-  is ≤ 0.01 at every layer of a 100-pair sweep, including layer 21 where
-  the probe peaks. On 390 new pairs it is \textbf{0.00 {[}0.00, 0.00{]}}
-  at the two best sweep layers, and the same holds at the end of the
-  list. The patch is not inert, but small: it shifts the base answer's
-  log-probability by at most 0.13 nats on average, against 3--7 nats for
-  the sentence patch (layers 6--24). Copying everything \emph{except}
-  the readout positions works as well as copying the whole description
-  (layer 21: 0.20 vs 0.25; exploratory).
+  \textbf{Copying.} Copying an object's list representation from a scene
+  where it sits elsewhere changes no answer: 0.00 {[}0.00, 0.00{]} on
+  390 pairs. Copying its name inside the question also gives 0.00.
 \item
-  \textbf{Nor do the other decodable sites.} Copying only the moved
-  object's name in the question gives 0.00 at every layer, although the
-  coordinates are decodable there (exploratory). Copying only the last
-  token of its sentence gives ≤ 0.01, while copying the rest of the
-  sentence matches the whole sentence (exploratory).
+  \textbf{Steering.} Moving the list representation along the probe's
+  (x, y) directions, over ±5 units, flips an answer in only 2\% of the
+  268 sweeps where geometry says an answer must flip.
 \item
-  \textbf{Steering along the probe directions fails} (preregistered).
-  Moving the list-position representation along the probe's (x, y)
-  directions at layer 21, over ±5 units, flips an answer in 2\% of the
-  268 sweeps where geometry says some answer must flip; predicted and
-  observed flip points are uncorrelated (r = 0.03), and all steered
-  states stay within the natural norm range.
+  \textbf{A learned 2-D subspace at the list.} DAS at the object list
+  reaches only 0.07 {[}0.05, 0.09{]}.
 \item
-  \textbf{A learned 2-D subspace at the list position fails}
-  (preregistered). DAS at layer 18 reaches an interchange accuracy of
-  \textbf{0.07 {[}0.05, 0.09{]}} (Fig. 3a, grey).
+  \textbf{Erasure.} We removed the probe-readable coordinates at every
+  token, at layer 14, 21 or 28 alone, or at all layers 12--30. After
+  erasure the probe's R² is at most 0.09 (down from up to 0.69). On 300
+  new scenes, erasing the map hurts questions about two-step objects no
+  more than erasing random directions of the same rank. The excess drop
+  ranges from −0.027 to −0.003, and no confidence interval rises above
+  0.001 (Fig. 3).
 \end{itemize}
 
-Where does the information go? Copying the moved object's
-\emph{sentence} gives 0.94 {[}0.91, 0.96{]} at layer 6, close to the
-whole-description control (0.95). Between layers 16 and 32 both lose
-their effect (layer 20: 0.18 and 0.23; layer 32: 0.01). Over the same
-layers, copying the question tokens gains it (0.01 at layer 16, 0.20 at
-layer 28, 0.78 at layer 32; exploratory). The final position alone
-carries it only at layers 46--48 (≥ 0.56). The information flows from
-the stated sentence to the question; the list and mention positions,
-where the coordinates are best decoded, are bypassed. Against the
-original preregistration, the P3 criterion for a map fails and the
-criterion for relational processing is met, so the overall verdict was
-\textbf{mixed}.
+The last test could fail simply because three-object scenes are easy to
+answer by chaining. We therefore repeated the erasure on 4--5-object
+scenes, where questions can need up to four chained relations. The model
+still had room to fail: it answered deep questions with accuracy 0.65,
+against about 0.36 for chance. Erasing the map again did not hurt deep
+questions more than random erasure. The largest effect, 0.023 {[}0.004,
+0.041{]} at layer 21, is a fifth of the preregistered threshold of 0.10.
+
+Where does the information go instead? Copying an object's whole
+\emph{sentence} moves almost all answers at layer 6 (0.94). This effect
+fades between layers 16 and 32, and over the same layers the question
+tokens take it over (0.78 by layer 32; Fig. 2b). The information flows
+from the stated sentences into the question and bypasses the object
+list.
 
 \begin{figure}
 \centering
-\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={(a) Probe R² of (x, y) at the list position by layer, with controls and the stated-sentence baseline. (b) Joint agreement after copying one site from the source scene (100 pairs). The subspace results are in Figure 3.}]{figures/fig2_mechanism.png}
-\caption{(a) Probe R² of (x, y) at the list position by layer, with
-controls and the stated-sentence baseline. (b) Joint agreement after
-copying one site from the source scene (100 pairs). The subspace results
-are in Figure 3.}
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={(a) Probe R² for (x, y) at the object list, by layer, with controls and the stated-sentence baseline. (b) Share of pairs in which every answer follows the copied site, by site and layer (100 pairs).}]{figures/fig2_mechanism.png}
+\caption{(a) Probe R² for (x, y) at the object list, by layer, with
+controls and the stated-sentence baseline. (b) Share of pairs in which
+every answer follows the copied site, by site and layer (100 pairs).}
 \end{figure}
 
-\subsection{3.4 A 2-D code at the stated sentence controls the
-answers}\label{a-2-d-code-at-the-stated-sentence-controls-the-answers}
+\begin{figure}
+\centering
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={Accuracy lost on questions about two-step objects when the map is erased, compared with erasing random directions of the same size (Gemma 3 12B, 300 new scenes).}]{figures/fig3_erasure.png}
+\caption{Accuracy lost on questions about two-step objects when the map
+is erased, compared with erasing random directions of the same size
+(Gemma 3 12B, 300 new scenes).}
+\end{figure}
 
-Because the sentence carries the information, we moved DAS to the
-sentence site. Exploratorily, at layer 14 (chosen after the sweep), a
-2-D subspace reached 0.81 {[}0.78, 0.83{]}. We then fixed the site,
-layer, k = 2, training procedure and decision rule in advance (ALL ≥
-0.70 and random ≤ 0.05; \texttt{docs/preregistration\_p4c.md}) and reran
-on fresh pairs (seeds 105/106).
+\subsection{3.3 What the answers use instead: a 2-D switch at each
+sentence}\label{what-the-answers-use-instead-a-2-d-switch-at-each-sentence}
+
+Since the sentence carries the information, we searched for a compact
+code there. In an exploratory run, a 2-D subspace at layer 14 of the
+moved object's sentence moved 0.81 of the affected answers. We then
+fixed the site, layer and decision rule in advance and reran on fresh
+scenes, adding Gemma 3 27B at the matching relative depth.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
@@ -406,466 +328,264 @@ on fresh pairs (seeds 105/106).
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Gemma 3 12B, layer 14 / 48
+Gemma 3 12B (layer 14)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Gemma 3 27B, layer 18 / 62
+Gemma 3 27B (layer 18)
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-DAS k = 2, all questions & \textbf{0.72 {[}0.68, 0.75{]}} & \textbf{0.83
-{[}0.80, 0.85{]}} \\
-random k = 2 & 0.00 {[}0.00, 0.01{]} & 0.00 {[}0.00, 0.01{]} \\
-further north / east & 0.94 / 0.90 & 0.94 / 0.84 \\
-direction & 0.60 {[}0.54, 0.65{]} & 0.81 {[}0.77, 0.85{]} \\
-closest / farthest & 0.38 / 0.33 & 0.43 / 0.38 \\
-verdict & confirmed & confirmed \\
+Learned 2-D code, all questions & \textbf{0.72 {[}0.68, 0.75{]}} &
+\textbf{0.83 {[}0.80, 0.85{]}} \\
+Random 2-D code & 0.00 & 0.00 \\
+Further north / further east & 0.94 / 0.90 & 0.94 / 0.84 \\
+Direction & 0.60 & 0.81 \\
+Closest / farthest & 0.38 / 0.33 & 0.43 / 0.38 \\
 \end{longtable}
 }
 
-The 27B layer was set by matched relative depth (14/48 × 62 ≈ 18), not
-searched. The drop from 0.81 to 0.72 is the expected shrinkage after a
-post-hoc choice of site and layer. The code is reliable for questions
-about one coordinate, weaker for direction, and weak for closest and
-farthest, which depend on all objects at once (Fig. 3a).
-
-Three follow-up analyses use only saved results (exploratory;
-\texttt{results/free/}):
+Both runs pass the preregistered rule. The code works best for
+one-coordinate questions, and worst for closest and farthest, which
+depend on every object at once. Three checks suggest it is a genuine
+part of the computation rather than an artefact of the method (Makelov
+et al., 2024).
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Stability.} The exploratory and confirmation subspaces were
-  trained on disjoint scenes. Their principal angles are 47.0° and 56.1°
-  (cosines 0.68 and 0.56). For random 2-D subspaces of the same 3,840-d
-  space, the largest cosine is at most 0.07 in 2,000 draws. Independent
-  runs find overlapping, though not identical, planes.
+  \emph{Stability.} Two independent trainings on disjoint data find
+  overlapping planes (principal angles 47° and 56°; random planes never
+  exceed a cosine of 0.07).
 \item
-  \textbf{Failures.} At α = 1 on the 150 interpolation pairs, the answer
-  follows the edit on 0.70 (12B) and 0.82 (27B) of affected questions.
-  Most failures leave the base answer in place (0.18 and 0.14) rather
-  than producing a third answer (0.11 and 0.04).
+  \emph{Competence.} The edit succeeds more often where the model itself
+  answers correctly (0.75 vs 0.48 in 12B).
 \item
-  \textbf{Competence.} The edit succeeds more often where the model
-  answers the moved scene correctly when reading it as text: 0.75 vs
-  0.48 (12B) and 0.85 vs 0.59 (27B). The code is tied to the computation
-  the model uses when it gets the answer right.
+  \emph{Write-in.} Setting the code from the stated offset, instead of
+  copying it from another run, still moves 0.27 of the answers, against
+  0.00 for a random subspace.
 \end{itemize}
 
-\begin{figure}
-\centering
-\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={(a) Interchange accuracy of a learned 2-D subspace by question type (95\% CIs; dashed: 0.7). Grey: list position, the preregistered readout site. Blue and orange: the moved object's sentence, exploratory and preregistered runs. Random 2-D subspaces give ≤ 0.04 for every type. (b) Share of affected questions whose answer equals the model's moved-layout answer (solid) or neither layout's answer (dotted), as the subspace is set to base + α(source − base).}]{figures/fig3_code.png}
-\caption{(a) Interchange accuracy of a learned 2-D subspace by question
-type (95\% CIs; dashed: 0.7). Grey: list position, the preregistered
-readout site. Blue and orange: the moved object's sentence, exploratory
-and preregistered runs. Random 2-D subspaces give ≤ 0.04 for every type.
-(b) Share of affected questions whose answer equals the model's
-moved-layout answer (solid) or neither layout's answer (dotted), as the
-subspace is set to base + α(source − base).}
-\end{figure}
-
-\subsection{3.5 The code is a switch, not a
-coordinate}\label{the-code-is-a-switch-not-a-coordinate}
-
-If the two dimensions encoded the object's position, setting them
-halfway should put the object halfway, and questions whose answer at
-that position differs from both stated layouts should get that
-in-between answer. They rarely do (preregistered rule: \emph{switch} if
-the upper 95\% bound of the in-between rate is below chance):
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Gemma 3 12B
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Gemma 3 27B
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-α = ½, in-between answer (n = 164) & \textbf{0.085 {[}0.041, 0.137{]}} &
-\textbf{0.055 {[}0.019, 0.096{]}} \\
-original-layout answer & 0.60 {[}0.51, 0.68{]} & 0.73 {[}0.64,
-0.81{]} \\
-moved-layout answer & 0.23 {[}0.16, 0.31{]} & 0.21 {[}0.14, 0.28{]} \\
-verdict (chance 0.141) & switch & switch \\
-\end{longtable}
-}
-
-The exploratory run gave the same picture (0.06 {[}0.02, 0.10{]}, n =
-150). The transition is sharp and the same in both models: on questions
-where the two layouts' answers differ, the share taking the moved-layout
-answer is 0.00 / 0.05 / 0.31 / 0.62 / 0.70 for α = 0, ¼, ½, ¾, 1 in 12B
-and 0.01 / 0.04 / 0.29 / 0.73 / 0.82 in 27B, while answers matching
-neither layout stay at 0.14 or below (Fig. 3b). The code selects between
-the stated values; it is not a metric dial.
-
-\subsection{3.6 A composed position is not what the answers
-take}\label{a-composed-position-is-not-what-the-answers-take}
-
-Two preregistered chain experiments ask where C's composed position
-lives when C is placed relative to M.
-
-\emph{Copying M's sentence (E2).} C follows M wherever the patch is
-effective (C follows 0.95 at layer 14, M 0.96), which met the
-preregistered criterion for lazy, relational processing. On a stricter
-question set, defined after the data (a dated deviation), C follows less
-than M from layer 16 (0.70 vs 0.92), giving a mixed verdict.
-
-\emph{Copying C's identical sentence (E3).} If C's sentence carried C's
-composed position and the answers read it there, copying it should move
-C without moving M. It does not. At layer 0, as required by design,
-follow\_T is 0.00. Over layers 2--40 it never exceeds \textbf{0.07
-{[}0.04, 0.09{]}} (layer 18), while control answers stay at ≥ 0.97 (369
-target and 625 control questions). The preregistered verdict is
-\textbf{not carried}. (A reported ``follows source'' column is ≈ 0.85
-already at layer 0, because base and source answers mostly agree on
-those questions; it is uninformative.)
+\textbf{It is a switch, not a dial.} If the two numbers were
+coordinates, setting them halfway between two layouts should move the
+object halfway. We tested this on questions whose answer at the halfway
+position differs from both stated layouts. The model rarely gives that
+in-between answer: \textbf{0.085 in 12B and 0.055 in 27B, below the
+0.141 expected by chance}. Instead it snaps to one of the two stated
+layouts (Fig. 4b). Consistent with this, the code does not change
+linearly with the stated distance: a linear fit explains it no better
+than for random directions (R² 0.31 vs a 95th percentile of 0.35).
 
 \begin{figure}
 \centering
-\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={E3: share of answers that place C at its moved position with M unmoved (blue) and share of control answers unchanged (grey), by the layer at which C's word-identical sentence is copied (Gemma 3 12B, 150 chains; 95\% CIs).}]{figures/fig4_transfer.png}
-\caption{E3: share of answers that place C at its moved position with M
-unmoved (blue) and share of control answers unchanged (grey), by the
-layer at which C's word-identical sentence is copied (Gemma 3 12B, 150
-chains; 95\% CIs).}
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={(a) Share of affected answers moved by a learned 2-D subspace, by question type. Grey: the object list. Blue and orange: the moved object's sentence, exploratory and preregistered runs. (b) As the subspace is set from the original value (α = 0) to the moved value (α = 1), answers switch abruptly from one stated layout to the other.}]{figures/fig4_code.png}
+\caption{(a) Share of affected answers moved by a learned 2-D subspace,
+by question type. Grey: the object list. Blue and orange: the moved
+object's sentence, exploratory and preregistered runs. (b) As the
+subspace is set from the original value (α = 0) to the moved value (α =
+1), answers switch abruptly from one stated layout to the other.}
 \end{figure}
 
-\subsection{3.7 Is the code genuine, and is the map used? (P5,
-preregistered)}\label{is-the-code-genuine-and-is-the-map-used-p5-preregistered}
+\subsection{3.4 Why the map is not used}\label{why-the-map-is-not-used}
 
-Three follow-ups on Gemma 3 12B, with rules fixed before the data
-(\texttt{docs/preregistration\_p5.md}).
+We now ask what the question reads, using chains R → M → C, where C is
+placed relative to M and M relative to the root R.
 
-\emph{Natural encoding (P5a).} For 600 new aligned pairs, we regress the
-change in the two P4c subspace coordinates at each token of the moved
-object's sentence on the change in its stated offset (one 2×2 map per
-token position from the sentence end; pair-grouped 5-fold CV). The fit
-reaches \textbf{R² = 0.31}, inside the range of 200 random 2-D subspaces
-(95th percentile 0.35, 99th 0.39). Random directions score this high
-because the number words themselves change between the two sentences.
-The preregistered verdict is \textbf{no linear encoding}: the code is
-not a linear coordinate of the stated offset.
+\textbf{The question reads each object's own sentence, never the list.}
+We blocked the question tokens from attending to one part of the prompt.
+Blocking the object list, where the map lives, changes accuracy by at
+most 0.018. Blocking C's own sentence costs questions about C and M
+\textbf{0.35}, and blocking M's sentence costs questions about M and R
+\textbf{0.41}. Nearly all of these effects come from layers 16--31.
 
-\emph{Write-in (P5b).} On the 300 P4c test pairs, instead of copying the
-source run's coordinates, we set them to base +
-\(W_j\,\Delta\mathrm{off}\) using the fitted maps. The copy edit
-reproduces the P4c result exactly (\textbf{0.72 {[}0.68, 0.75{]}}). The
-write-in moves \textbf{0.27 {[}0.22, 0.31{]}} of the affected answers;
-the same write-in through the random P4 control subspace moves
-\textbf{0.00}. The ratio, 0.37, gives the preregistered verdict
-\textbf{partial}. The write-in works for ``further east'' (0.65) far
-better than for ``further north'' (0.28) or direction (0.14). Values
-derived from the stated offset therefore act on the answers through this
-subspace, so it is not a purely dormant direction; but a linear map from
-the offset captures only part of what the copied values carry.
+\textbf{But it does not re-read the chain.} Questions about C and R need
+M's offset. Yet blocking M's sentence costs them only \textbf{0.027
+{[}0.017, 0.039{]}}. This rejects our preregistered hypothesis that the
+question re-reads every sentence in the chain.
 
-\emph{Erasing the map (P5c).} At each layer 12--30 we fit the P2 ridge
-probe on object-list activations of 2,000 new scenes and remove its
-directions by iterative nullspace projection (Ravfogel et al., 2020)
-until the probe's held-out R² falls below 0.1. That takes rank 2--10 and
-leaves R² ≤ 0.09 at every layer (from up to 0.69). We then erase this
-basis at every token position, at layer 14, 21 or 28, or at all layers
-12--30, and compare with random bases of the same rank. On 300 new
-chains (5,320 questions), erasing the map never hurts questions that
-involve the two-step object more than random erasure does. The excess
-drop is −0.003, −0.022, −0.011 and −0.027 for the four configurations;
-the largest upper CI bound is 0.001. Stated-only questions behave the
-same way. The preregistered verdict is \textbf{map not used (in this
-subspace)}.
+\textbf{The answers use the chain only partly.} If M's offset reaches
+the question, it must come through C's sentence. So we copied C's
+sentence, at every layer, from a scene where M (and therefore C) had
+moved. This moved only \textbf{0.13 {[}0.09, 0.17{]}} of the answers. An
+exploratory comparison shows why. We built pairs in which C ends up at
+the same new position in two ways: either C's own sentence changes, or
+only M's sentence changes. The geometry is identical, so a model that
+fully combines the chain should update its answers equally often. It
+does not. On questions about C and R, the model updates correctly in
+\textbf{0.39} of cases when C's own sentence changes, but in only
+\textbf{0.21} when only M's sentence changes. In most of the second kind
+of case (72\%), it does not change its answer at all. The answers lean
+on each object's own sentence and give the parent's offset about half
+its weight.
 
-\emph{When chaining is hard (P6).} Three-object scenes need at most two
-chained relations, so the map might be unused only because the task is
-easy. P6 repeats the erasure on 4--5-object scenes
-(\texttt{docs/preregistration\_p6.md}). The INLP fit (2,000 scenes)
-takes rank 2--8 and leaves R² ≤ 0.095 at every layer, from up to 0.60.
-Questions are grouped by the hop of the deepest object they involve. On
-300 new scenes (7,200 questions), clean accuracy is 0.82 at depth 1,
-0.69 at depth 2, 0.65 at depth 3 and 0.66 at depth 4, against chance ≈
-0.36, so deep questions have headroom (0.29 above chance). Erasing the
-map does not hurt deep questions more than random erasure: the excess
-drop is −0.005, 0.023, 0.001 and −0.031 at layers 14, 21, 28 and 12--30.
-The only reliably positive value, 0.023 {[}0.004, 0.041{]} at layer 21,
-is a fifth of the preregistered threshold of 0.10, and erasing at every
-layer 12--30 again hurts less than random erasure. The preregistered
-verdict is \textbf{still not used}.
+\subsection{3.5 The map would have answered
+better}\label{the-map-would-have-answered-better}
 
-\subsection{3.8 What the question reads (P7,
-preregistered)}\label{what-the-question-reads-p7-preregistered}
+The map combines the chain correctly (§3.1), while the answers do not.
+So answering from the map should beat the model, but only on questions
+that need the chain. We decoded every object's position with the
+layer-21 probe, answered each question geometrically from the decoded
+positions, and compared these answers with the model's own on 300 new
+chains (5,350 questions).
 
-To find where the answers take positions from, we block attention from
-the question tokens to one span of the prompt. The question tokens are
-everything after the object list. We block either in all 48 layers or in
-one third of them, on 300 new chains R → M → C (4,842 questions;
-\texttt{docs/preregistration\_p7.md}). Questions fall into three
-classes: - \textbf{CR} involve C and R, so they need C's composed
-position (clean accuracy 0.70); - \textbf{CM} involve only C and its
-parent (0.96); - \textbf{MR} do not involve C (0.90).
+The map wins exactly where expected (Fig. 5). On questions about C and R
+it scores \textbf{0.80 vs 0.73 for the model (difference +0.069
+{[}+0.042, +0.094{]})}. On questions that need no chaining, the two tie
+(0.91 vs 0.89 and 0.90 vs 0.90). Layer 24 shows the same pattern
+(+0.056). The advantage depends on how well the probe reads the map: it
+shrinks at layer 28 (+0.010) and reverses at layer 18, where the probe
+is weakest.
 
-\emph{The object list is not read.} Blocking it changes accuracy by at
-most 0.018 in any class or layer window. The answers never need the
-place where the map is decodable.
+\begin{figure}
+\centering
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={Accuracy of the model's own answers and of answers read off its unused map (layer 21), by question type.}]{figures/fig5_map_vs_model.png}
+\caption{Accuracy of the model's own answers and of answers read off its
+unused map (layer 21), by question type.}
+\end{figure}
 
-\emph{Each object's own sentence is read, in layers 16--31.} Blocking
-C's sentence costs CM questions \textbf{0.351 {[}0.317, 0.384{]}} and CR
-questions 0.133. Blocking M's sentence costs MR questions \textbf{0.410
-{[}0.380, 0.443{]}}. Nearly all of each effect comes from layers 16--31
-(0.259 and 0.327). The knockout is therefore effective and selective.
-Blocking C's sentence even helps MR questions slightly (−0.065), as if
-it competes with them.
-
-\emph{The question does not re-read the chain.} Blocking M's sentence
-costs CR questions only \textbf{0.027 {[}0.017, 0.039{]}}, although
-these need M's offset. The preregistered verdict is \textbf{composed
-position available without M's sentence}. This rejects our hypothesis
-that the question re-reads the chain of relations.
-
-The list is not read, and C's own sentence is. So whatever M-dependent
-information reaches the question must arrive through C's sentence
-tokens, which can themselves attend to M's sentence, or must be small.
-
-\subsection{3.9 How much of the chain do the answers use? (P8,
-preregistered; P8b,
-exploratory)}\label{how-much-of-the-chain-do-the-answers-use-p8-preregistered-p8b-exploratory}
-
-E3 copied C's sentence at a single layer, and the copy could have been
-overwritten by later layers that re-read M's unchanged sentence. P8
-(\texttt{docs/preregistration\_p8.md}) closes that loophole. On 150 new
-pairs, it copies C's word-identical sentence from the run where M (and
-with it C) moved, at \textbf{every layer from L to the last}. Even a
-complete copy from L = 0 moves only \textbf{0.13 {[}0.09, 0.17{]}} of
-the target answers, with controls stable at 0.96. The effect stays near
-that level up to L = 16, falls to 0.02 by L = 24 and to 0.00 from L =
-32. The copy only matters before the question reads C's sentence,
-consistent with P7's layers 16--31. The preregistered verdict is
-\textbf{partial}: C's sentence carries only a small part of C's composed
-position.
-
-An exploratory analysis of the same pairs, added after the data,
-explains why (\texttt{scripts/p8\_behavior.py}). In each pair, C ends up
-at the same new position in two scenes. In the source only M's sentence
-changed; in the target only C's own sentence changed. On questions about
-C and R alone, the geometric change is therefore identical. The model
-updates to the correct new answer in \textbf{0.39 {[}0.32, 0.45{]}} of
-these questions when C's own sentence changes, but in only \textbf{0.21
-{[}0.15, 0.26{]}} when only M's sentence changes (n = 290); 72\% of its
-answers do not change at all. The answers use the parent's offset only
-partially. Unsurprisingly, the knockout and transfer tests find little
-of it to remove. By contrast, the probes read two-step positions as
-accurately as one-step ones (§3.2): the unused map composes the chain,
-and the answers do not.
-
-\subsection{3.10 Would the model's own map have answered better? (P9,
-preregistered)}\label{would-the-models-own-map-have-answered-better-p9-preregistered}
-
-If the map composes the chain and the answers do not, then answering
-from the map should beat the model, but only where composition is needed
-(\texttt{docs/preregistration\_p9.md}). - \textbf{Decoding.} We fit the
-P2 probe at the object-list positions on 2,000 new scenes and decode
-every object's position on 300 new chains (5,350 questions). -
-\textbf{Map answers.} Each question is answered geometrically from the
-decoded positions. - \textbf{Comparison.} These answers are compared
-with the model's own.
-
-At layer 21 (probe R² 0.71), the map is more accurate on questions that
-involve C and R: \textbf{0.80 vs 0.73, difference +0.069 {[}+0.042,
-+0.094{]}}. On questions that need no composition it ties the model: C
-and M alone, 0.91 vs 0.89 (+0.019 {[}−0.009, +0.047{]}); M and R, 0.90
-vs 0.90. The preregistered verdict is \textbf{the map would have
-answered better}.
-
-Layer 24 shows the same pattern (+0.056 {[}+0.029, +0.082{]} on CR, ties
-elsewhere). The advantage fades where the probe is weaker: at layer 18
-(R² 0.56) the map trails the model on every class, and at layer 28 (R²
-0.65) the CR difference is +0.010. The map and the model agree on only
-0.67 of CR answers at layer 21, against 0.82 on the other classes.
-
-The model therefore holds, in a representation its answers never read, a
-more accurate answer to exactly the questions where its own answers cut
-corners. A caveat stated in advance applies: the read-out is a linear
-probe we fitted, so this shows the information is present and linearly
-usable, not that the model could use it without further computation.
-
-\subsection{3.11 Does attending to the map help? (P10,
-preregistered)}\label{does-attending-to-the-map-help-p10-preregistered}
-
-If the map is usable as it is, pushing the question to look at it should
-improve chain answers (\texttt{docs/preregistration\_p10.md}). -
-\textbf{Boost.} In attention layers 16--31 we add +b (b = 1, 2, 4, 8) to
-the attention logits from every query after the object list to the three
-object-name tokens in the list, where the map is decoded. -
-\textbf{Control.} The same boost is applied to the list token just
-before each name. - \textbf{Test.} 300 new chains (5,334 questions).
-
-No boost improves CR questions beyond the control. The contrast is
-−0.005, −0.010, +0.009 and +0.018, and no interval is clear of the 0.03
-bar. The preregistered verdict is \textbf{no benefit}.
-
-Small boosts leave CR unchanged. Large ones hurt every class about
-equally for names and control (−0.25 to −0.55 at b = 8), so they mainly
-disrupt attention. The specific effect of the names falls on questions
-about C and its parent: −0.049 {[}−0.065, −0.033{]} beyond the control
-at b = 2, and −0.136 at b = 4. Attending to the map draws the question
-away from the sentence it normally reads, without giving it a better
-answer. The information that a linear probe reads off the map (§3.10) is
-therefore not usable by the answer pathway through attention alone.
-Whether the model can \emph{learn} to use it, for example with a light
-fine-tune, is left open.
+\textbf{Pointing attention at the map does not help.} If the map were
+usable as it is, pushing the question to attend to it should improve
+chain answers. We added a bias of +1 to +8 to the attention from the
+question to the object names in the list (layers 16--31). A control
+applied the same bias to the token just before each name. No bias
+improved chain questions beyond the control. Strong biases hurt every
+question type. The one effect specific to the map was harmful: it
+lowered accuracy on questions about C and M by 0.049 (b = 2) and 0.136
+(b = 4) beyond the control. Attending to the map distracts the question
+from the sentence it normally reads, without giving it a better answer.
 
 \section{4. Discussion}\label{discussion}
 
-\textbf{What we found.} Gemma 3 12B (and 27B) composes per-object
-coordinates, including positions and distances that require combining
-sentences. These coordinates are linearly decodable at every place we
-looked: the object list, the object's name in the question, and the end
-of its sentence. None of these representations is what the answers read.
-The answers depend on a compact code over the sentence that
-\emph{states} an object's position, and this code behaves like a
-selector between stated values: it moves answers to the stated
-alternative, rarely to anything in between. When an object's position
-must be inferred, the question reads that object's own sentence and
-never the object list (P7). The answers use the parent's offset only
-partially (P8, P8b). The model's internal map composes the chain more
-faithfully than its answers do.
+\textbf{Summary.} Gemma 3 builds an accurate map of the scene, combining
+sentences and even computing distances. Its answers take a different
+route. Each sentence is condensed into a compact, switch-like code, and
+the question reads the codes of the objects it names in layers 16--31.
+This route uses the chain of relations only partly. The map, built at
+the object list, sits off that route. It can be erased without cost, and
+it would answer chain questions more accurately than the model does.
+This is a spatial instance of a gap reported for other kinds of world
+state: a faithful internal state paired with an unfaithful read-out
+(Feng, Russell \& Steinhardt, 2024).
 
-\textbf{A filing card, not a map.} A useful summary is that the model
-keeps something like a filing card per sentence, a low-dimensional code
-for what that sentence stated. The question reads each named object's
-card in layers 16--31 (P7). A dependent object's card carries only part
-of its parent's offset, so answers about inferred positions lean on the
-object's own stated relation (P8b). It also builds a map-like code for
-every object, but in this task the map is decodable and not causally
-used. Because our moved objects are leaves, the 2-D code cannot be
-distinguished from a code for the object's stated offset; the switch
-behaviour favours the offset reading.
+\textbf{Decodability is not use.} Our probes pass every control we know
+of, including a nonlinear target, yet they sit off the causal path.
+Claims about ``world models'' in language models need an intervention on
+the decoded representation, and ideally an erasure with a random control
+(cf.~Hewitt \& Liang, 2019; Vafa et al., 2024). The contrast with
+Tehenan et al.~(2025) fits this view. They steer answers along
+\emph{relation} directions, and relation codes do steer answers in our
+model too; coordinate codes do not. The same point runs through the old
+debate on mental imagery, which was about whether depictive images do
+work in reasoning, not whether they exist (Kosslyn et al., 1978;
+Pylyshyn, 2002).
 
-\textbf{Decodability bounds use from above.} Our probes beat every
-control, including a nonlinear target that rules out sentence copying,
-and still sit off the causal path. Probing evidence for ``world models''
-and ``maps'' should be paired with an intervention at the decoded site
-(cf.~Hewitt \& Liang, 2019; Vafa et al., 2024; An et al., 2026). The
-contrast with Tehenan et al.~(2025), who steer answers along relation
-directions, fits the same picture: relation codes steer, coordinate
-codes did not. ``Imagining'' is likewise a causal claim. The imagery
-debate concerned whether depictive representations do work in reasoning,
-not whether they exist (Kosslyn et al., 1978; Pylyshyn, 2002).
-
-\textbf{Why build the map?} We see three possibilities. (i)
-\emph{Redundancy}: the map is one of several copies, and when the copies
-disagree, as in our patches, the stated sentences win. (ii)
-\emph{By-product}: representations that track positions help next-token
-prediction in general and are decodable here without being needed. (iii)
-\emph{Other uses}: the map serves questions or tasks we did not ask,
-such as describing the scene or continuing the story. P5c and P6 speak
-against (i) in its linear form, and P6 against the view that the map is
-held in reserve for long chains. Erasing every linearly decodable copy,
-at every position and across layers 12--30, leaves the answers as intact
-as a random erasure does. A backup the model falls back on would have to
-live outside that subspace or be nonlinear. P7 adds the mechanism: the
-answer pathway reads the objects' own sentences and never reads the
-list. The map at the list is built off the path the answers take. P8b
-adds a cost: the map composes the chain, while the answers under-use the
-parent's offset. P9 measures that cost: read linearly, the map answers
-chain questions 7 points more accurately than the model does. P10 shows
-the cost is not a matter of where the question looks. Pointing its
-attention at the map does not help, so the map is in a form the answer
-pathway cannot use directly. This resembles the gap between faithful
-internal state and unfaithful decoding reported for propositional probes
-(Feng, Russell \& Steinhardt, 2024). (ii) and (iii) remain. P6 lengthens
-the chains but keeps the question types, all of which can be answered by
-chaining. Questions that are hard to answer without a layout
-(collinearity, containment) would test (iii) more sharply.
+\textbf{Why build a map at all?} Our tests rule out one explanation: the
+map is not a backup that the model falls back on, at least not in its
+linear form. Erasing it everywhere costs nothing, even when chains are
+long. Two explanations remain. The map may be a by-product of how the
+model processes text in general. Or it may serve uses we did not test,
+such as describing a scene. Our question types can all be answered by
+chaining; questions that are hard to answer without a layout, such as
+collinearity or containment, would test the second explanation. Since
+attention alone cannot connect the map to the answers, a natural next
+step is to ask whether light fine-tuning can.
 
 \section{5. Limitations}\label{limitations}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Scope.} Two models of one family (Gemma 3); 3-object scenes;
-  five question types; fixed sentence templates and integer grids. Other
-  families did not pass the behaviour gate, which limits what we can say
-  about them.
+  \textbf{Scope.} Two models of one family, small scenes, five question
+  types, fixed templates and integer grids. Other model families failed
+  the behaviour test.
 \item
-  \textbf{DAS illusions.} A learned subspace can move behaviour through
-  a direction the model does not naturally use (Makelov et al., 2024).
-  Disjoint-data stability, the random control, the link to model
-  competence, and the sentence-site location argue against a pure
-  illusion, and so does P5b: values written from a fitted linear map of
-  the offset move 0.27 of the answers (random subspace 0.00). But P5a
-  finds no linear encoding, and the write-in recovers only 37\% of the
-  copy edit, so part of what the copied values carry is not captured by
-  a linear reading of the stated offset.
+  \textbf{Linear erasure.} We removed only the linear subspace the list
+  probe reads. Nonlinear or differently placed information may survive,
+  so ``not used'' means not used in that subspace. The erasure,
+  attention and map-answer tests were run on 12B only.
 \item
-  \textbf{E3 and redundancy.} A null transfer from C's sentence is
-  compatible with the composed position being present there but
-  overridden by recomputation from M's unchanged sentence. ``Not
-  carried'' means not decisive, not absent.
+  \textbf{Probe-based answers.} The map's answers come from a probe we
+  trained on the true positions. They show that the information is
+  present and easy to read, not that the model could use it without
+  extra computation. The advantage also depends on the layer.
 \item
-  \textbf{Erasure scope.} P5c removes the linear subspace that the
-  list-position probe reads. Information coded differently at other
-  positions, or nonlinearly, is not removed; ``not used'' means not used
-  in that subspace. The P5 and P6 tests were run on 12B only.
+  \textbf{Subspace methods.} The write-in recovers only 37\% of the copy
+  edit, so a linear reading of the stated offset captures only part of
+  the code.
 \item
-  \textbf{Leaf-only moves.} Moving a leaf changes its sentence and its
-  position together, so the sentence-site experiments locate the
-  information but do not identify its format.
+  \textbf{Exploratory analyses.} The distance probe, the 0.39 vs 0.21
+  comparison and the stability, failure and competence analyses were not
+  preregistered.
 \item
-  \textbf{Other.} The Qwen3 thinking comparison mixes two scoring
-  methods and covers 60 questions. Small question types (closest,
-  farthest) have wide intervals.
+  \textbf{Small classes.} Closest and farthest questions have wide
+  intervals.
 \end{itemize}
 
-\section{6. Preregistration and
-deviations}\label{preregistration-and-deviations}
+\section{6. Preregistration}\label{preregistration}
 
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Preregistered, as planned} (\texttt{docs/preregistration.md}):
-  the behaviour gate; P2 probing criteria (met); P3 patching criteria
-  (map criterion failed; relational criterion met); the probe-direction
-  slider (failed, 2\% flips); DAS at the list position (failed, 0.07).
-  Overall E1 verdict: mixed. Clarifications are dated in the file: one
-  before any model data, two after the behaviour screen but before any
-  probe or patching result. Rescoring after a code review changed the
-  model the unchanged rule selected, from Gemma 3 27B to Gemma 3 12B.
-\item
-  \textbf{Preregistered follow-ups}
-  (\texttt{docs/preregistration\_e2.md}, \texttt{\_e3.md},
-  \texttt{\_p4c.md}): E2 (lazy; mixed on a stricter set defined after
-  the data, a dated deviation); P4c confirmation and 27B replication
-  (both confirmed under ALL ≥ 0.70, random ≤ 0.05; the original per-type
-  ≥ 0.7 criterion, reported only, is not met); halfway test (switch in
-  both models); E3 (not carried). P5
-  (\texttt{docs/preregistration\_p5.md}, Gemma 3 12B): natural encoding
-  (no linear encoding), write-in (partial), erasure (map not used in
-  this subspace). P6 (\texttt{docs/preregistration\_p6.md}, 12B, 4--5
-  objects): still not used. P7 (\texttt{docs/preregistration\_p7.md},
-  attention knockout): composed position available without M's sentence
-  (the re-reading hypothesis rejected); list not read. P8
-  (\texttt{docs/preregistration\_p8.md}, multi-layer transfer): partial
-  (0.13 at most). P9 (\texttt{docs/preregistration\_p9.md}): the map
-  would have answered better. P10
-  (\texttt{docs/preregistration\_p10.md}, attention boost): no benefit.
-  Deviation in P7: a classification bug dropped direction questions
-  about C and M alone before scoring, so P7's CM class contains only
-  further-north/east questions; CR and MR, on which the verdicts rest,
-  are unaffected (noted in \texttt{results/RESULTS.md}).
-\item
-  \textbf{Exploratory}: the distance, sentence-end and question-mention
-  probes; the necessity, sentence-part, question-token and mention
-  patches; DAS at the sentence site at layer 14 (the choice that P4c
-  then confirmed); the first interpolation run; the stability, failure
-  and competence analyses; P8b, the comparison of parent-sentence and
-  own-sentence changes.
-\end{itemize}
+All rules are in \texttt{docs/preregistration*.md}, committed before the
+corresponding data.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Test
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Prediction
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Result
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Verdict
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Behaviour gate & a model solves the task without reasoning & Gemma 3 12B
+on 3 objects & met \\
+Probes (P2) & coordinates readable, controls fail & R² 0.74 & met \\
+Patching at the list (P3) & copying the map moves answers & 0.00 &
+failed \\
+Probe steering (P4) & answers follow the probe directions & 2\% of
+sweeps & failed \\
+DAS at the list (P4) & 2-D subspace controls answers (≥ 0.7) & 0.07 &
+failed \\
+DAS at the sentence (P4c) & ≥ 0.70, random ≤ 0.05 (12B, 27B) & 0.72,
+0.83 & confirmed \\
+Halfway test & in-between answers below chance → switch & 0.085, 0.055
+vs 0.141 & switch \\
+Chain transfer, one layer (E3) & C's sentence carries its position & ≤
+0.07 & not carried \\
+Natural encoding (P5a) & code is linear in the offset & R² 0.31 vs null
+0.35 & no linear encoding \\
+Write-in (P5b) & ≥ 50\% of the copy edit & 37\% & partial \\
+Erasure, 3 objects (P5c) & erasing hurts beyond random & ≤ 0 & not
+used \\
+Erasure, 4--5 objects (P6) & erasing hurts deep questions & ≤ 0.023 &
+still not used \\
+Attention knockout (P7) & question re-reads the chain & 0.027 &
+rejected; list not read \\
+Multi-layer transfer (P8) & C's sentence carries its position & 0.13 &
+partial \\
+Map answers (P9) & map beats model on chain questions & 0.80 vs 0.73 &
+map better \\
+Attention boost (P10) & attending to the map helps & no gain & no
+benefit \\
+\end{longtable}
+}
+
+\textbf{Deviations.} A code review changed which model the unchanged
+selection rule picked, from Gemma 3 27B to 12B. One chain experiment
+(E2) also used a stricter question set defined after the data. In the
+attention-knockout test, a classification bug dropped direction
+questions about C and M before scoring. The verdicts rest on the other
+classes, which were unaffected. Each deviation is dated in
+\texttt{results/RESULTS.md}.
 
 \section{Code and data}\label{code-and-data}
 
