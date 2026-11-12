@@ -25,4 +25,4 @@ Updated summary: the model composes an accurate map at the object list. Its answ
 
 A bug and a deviation, disclosed: in P7, a classification bug dropped direction questions about C and M alone before scoring. The CM class therefore contains only further-north/east questions. CR and MR, on which the verdicts rest, are unaffected.
 
-Part 3 (plain-language write-up): [link]. Paper and code: coming soon.
+Part 3 (plain-language write-up): [link]. Code, preregistrations and results: https://github.com/ccgomezn/geometry-llm. Paper: coming soon.
