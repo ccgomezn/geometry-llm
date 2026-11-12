@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import re
-from typing import Callable, Sequence
+from contextlib import nullcontext
+from typing import Callable, ContextManager, Sequence
 
 import torch
 
@@ -72,9 +73,11 @@ def _rows(m: LoadedModel, items: Sequence[tuple[PromptSpec, Question]]):
 
 
 def score(m: LoadedModel, items: Sequence[tuple[PromptSpec, Question]], edit: Edit | None = None,
-          batch_size: int = 16) -> list[dict[str, float]]:
+          batch_size: int = 16,
+          batch_ctx: Callable[[list[int]], ContextManager] | None = None) -> list[dict[str, float]]:
     """Log-probability of each candidate (summed over tokens, log-sum-exp over its variants; see
-    candidate_sequences). Rows are right-padded so prompt positions align for edits."""
+    candidate_sequences). Rows are right-padded so prompt positions align for edits. `batch_ctx(row_items)`, if
+    given, is entered around each batch's forward pass (e.g. to register PyTorch hooks such as attention masks)."""
     rows, cand_seqs = _rows(m, items)
     next_lp: list[dict[tuple, dict[int, float]]] = [dict() for _ in items]
     pad = m.tok.pad_token_id if m.tok.pad_token_id is not None else m.tok.eos_token_id
@@ -92,7 +95,8 @@ def score(m: LoadedModel, items: Sequence[tuple[PromptSpec, Question]], edit: Ed
             last[j] = len(r) - 1
             C[j, :len(nxt)] = torch.tensor(nxt)
         row_items = [r[0] for r in batch]
-        with torch.no_grad(), m.lm.trace({"input_ids": ids, "attention_mask": am}):
+        with (batch_ctx(row_items) if batch_ctx else nullcontext()), torch.no_grad(), \
+                m.lm.trace({"input_ids": ids, "attention_mask": am}):
             if edit is not None:
                 edit(m, row_items)
             logits = m.lm.output.logits

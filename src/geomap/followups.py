@@ -6,6 +6,9 @@ P5c: iterative nullspace projection of the probe-readable coordinates, erased at
 
 from __future__ import annotations
 
+import functools
+from contextlib import contextmanager
+
 import numpy as np
 import pandas as pd
 import torch
@@ -230,3 +233,91 @@ def verdict_hard(summary: pd.DataFrame, r2_after: float, headroom: float, used: 
     if (deep <= none).all() and r2_after <= r2_max:
         return "still not used"
     return "unclear"
+
+
+# ---------- P7 ----------
+
+def attention_knockout(m: LoadedModel, blocks: list[list[tuple[int, int, int]]], layers):
+    """batch_ctx for score(): in the given attention layers (0-based), item i's query positions >= q_from may not
+    attend to key positions in [k_lo, k_hi), for every (q_from, k_lo, k_hi) in blocks[i]. All else unchanged."""
+    decoder = functools.reduce(getattr, m.layers_path.split("."), m.hf)
+
+    @contextmanager
+    def ctx(row_items: list[int]):
+        def pre_hook(mod, args, kwargs):
+            hs = kwargs["hidden_states"] if "hidden_states" in kwargs else args[0]
+            B, T = hs.shape[:2]
+            block = torch.zeros(B, 1, T, T, dtype=torch.bool, device=hs.device)
+            for j, i in enumerate(row_items):
+                for q_from, k_lo, k_hi in blocks[i]:
+                    block[j, 0, q_from:, k_lo:k_hi] = True
+            if not block.any():
+                return args, kwargs
+            am = kwargs.get("attention_mask")
+            if am is None:  # SDPA's causal shortcut: build the causal mask explicitly
+                am = torch.ones(T, T, dtype=torch.bool, device=hs.device).tril()[None, None].expand(B, 1, T, T)
+            am = am.expand(B, 1, T, am.shape[-1]).clone()
+            if am.dtype == torch.bool:
+                am &= ~block[..., :am.shape[-1]]
+            else:
+                am = am.masked_fill(block[..., :am.shape[-1]], torch.finfo(am.dtype).min)
+            kwargs["attention_mask"] = am
+            return args, kwargs
+
+        handles = [decoder[l].self_attn.register_forward_pre_hook(pre_hook, with_kwargs=True) for l in layers]
+        try:
+            yield
+        finally:
+            for h in handles:
+                h.remove()
+
+    return ctx
+
+
+def p7_spans(spec, child: str, mid: str) -> dict[str, tuple[int, int]]:
+    """Key spans: the object list (end of the last sentence to the end of the list), C's and M's sentences."""
+    return {"list": (max(e for _, e in spec.relation_spans.values()), spec.eol_pos + 1),
+            "own": spec.relation_spans[child], "parent": spec.relation_spans[mid]}
+
+
+def p7_class(q: Question, root: str, mid: str, child: str) -> str | None:
+    """CR: involves C and R; CM: only C and M; MR: no C (only M and R)."""
+    inv = set(q.args) | set(q.candidates)
+    if {child, root} <= inv:
+        return "CR"
+    if inv == {child, mid}:
+        return "CM"
+    if child not in inv:
+        return "MR"
+    return None
+
+
+def knockout_summary(df: pd.DataFrame, n_boot: int = 1000, seed: int = 0) -> pd.DataFrame:
+    """Per (target, window, class): clean and knocked-out accuracy, drop with a scene-bootstrap 95% CI.
+    df: one row per (scene, qi, target, window) with `correct`; the clean run has target '-'."""
+    clean = df[df.target == "-"].groupby(["scene", "qi"]).correct.first()
+    rows = []
+    for (t, w, c), g in df[df.target != "-"].groupby(["target", "window", "cls"]):
+        g = g.set_index(["scene", "qi"])
+        d = (clean.reindex(g.index) - g.correct).reset_index(name="d")
+        est, lo, hi = bootstrap_ci(d.d, groups=d.scene, n_boot=n_boot, seed=seed)
+        rows.append(dict(target=t, window=w, cls=c, n=len(g), clean=clean.reindex(g.index).mean(),
+                         knocked=g.correct.mean(), acc_drop=est, acc_drop_lo=lo, acc_drop_hi=hi))
+    return pd.DataFrame(rows)
+
+
+def verdict_p7(summary: pd.DataFrame, effective: float = 0.15, chain: float = 0.15, gap: float = 0.10,
+               stored: float = 0.05, list_max: float = 0.03) -> tuple[str, str]:
+    """docs/preregistration_p7.md, on the all-layer knockout. Returns (main verdict, list verdict)."""
+    a = summary[summary.window == "all"].set_index(["target", "cls"]).acc_drop
+    get = lambda t, c: a.get((t, c), np.nan)
+    if not (get("own", "CM") >= effective and get("parent", "MR") >= effective):
+        main = "uninformative"
+    elif get("parent", "CR") >= chain and get("parent", "CR") - get("parent", "CM") >= gap:
+        main = "chaining at question time"
+    elif get("parent", "CR") <= stored:
+        main = "composed position available without M's sentence"
+    else:
+        main = "unclear"
+    lst = a[a.index.get_level_values(0) == "list"]
+    return main, ("list not read" if len(lst) and (lst <= list_max).all() else "list read")

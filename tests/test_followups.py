@@ -201,3 +201,85 @@ def test_verdict_hard():
     both = erase_summary(_group_df({"shallow": (0.30, 0.05), "middle": (0.3, 0.05), "deep": (0.30, 0.05)}),
                          n_boot=20, group="group")
     assert verdict_hard(both, r2_after=0.05, headroom=0.3) == "unclear"  # deep not worse hit than shallow
+
+
+# ---------- P7 ----------
+
+def _items(m, pairs, n=2):
+    from geomap.prompts import build_prompt
+    base, _, _, qs = pairs[0]
+    return base, [(build_prompt(base, q, m.tok, m.family), q) for q in qs[:n]]
+
+
+def test_knockout_without_blocks_matches_plain_scoring(m, pairs):
+    from geomap.followups import attention_knockout
+    _, items = _items(m, pairs)
+    a = score(m, items)
+    b = score(m, items, batch_ctx=attention_knockout(m, [[] for _ in items], layers=[0, 1]))
+    for x, y in zip(a, b):
+        assert all(abs(x[k] - y[k]) < 1e-5 for k in x)
+
+
+def test_knockout_seals_a_span(m, pairs):
+    """If no later position may attend to span S (all layers), the words inside S cannot change the answer."""
+    from geomap.followups import attention_knockout
+    base, items = _items(m, pairs)
+    name = base.relations[0].subj
+    lo, hi = items[0][0].relation_spans[name]
+    blocks = [[(hi, lo, hi)] for _ in items]
+    ctx = attention_knockout(m, blocks, layers=[0, 1])
+    sealed = score(m, items, batch_ctx=ctx)
+    changed = []
+    for spec, q in items:
+        ids = list(spec.input_ids)
+        ids[lo:hi] = [(t + 7) % 1000 + 10 for t in ids[lo:hi]]
+        changed.append((type(spec)(**{**spec.__dict__, "input_ids": ids}), q))
+    sealed2 = score(m, changed, batch_ctx=ctx)
+    for x, y in zip(sealed, sealed2):
+        assert all(abs(x[k] - y[k]) < 1e-4 for k in x)
+    open_ = score(m, changed)  # without the knockout the change is visible
+    assert any(abs(x[k] - y[k]) > 1e-4 for x, y in zip(sealed, open_) for k in x)
+
+
+def test_p7_spans_and_classes(m):
+    from geomap.followups import chain_items, p7_class, p7_spans
+    from geomap.prompts import build_prompt
+    s, mid, child, qs = chain_items(m, 1, seed=9, exclude_qtypes=("closer_than",))[0]
+    root = s.root
+    spec = build_prompt(s, qs[0][0], m.tok, m.family)
+    sp = p7_spans(spec, child, mid)
+    assert sp["own"] == spec.relation_spans[child] and sp["parent"] == spec.relation_spans[mid]
+    assert sp["list"][0] == max(e for _, e in spec.relation_spans.values()) and sp["list"][1] == spec.eol_pos + 1
+    for q, _ in qs:
+        inv = set(q.args) | set(q.candidates)
+        exp = "CR" if {child, root} <= inv else "CM" if inv == {child, mid} else "MR" if child not in inv else None
+        assert p7_class(q, root, mid, child) == exp
+
+
+def _ko_df(drops, n=40):
+    """drops: {(target, cls): drop} at window 'all'; clean accuracy 1."""
+    recs = []
+    classes = sorted({c for _, c in drops})
+    for s in range(n):
+        for qi, c in enumerate(classes):
+            recs.append(dict(scene=s, qi=qi, cls=c, target="-", window="-", correct=1.0))
+            for (t, cc), d in drops.items():
+                if cc == c:
+                    recs.append(dict(scene=s, qi=qi, cls=c, target=t, window="all", correct=float(s >= d * n)))
+    return pd.DataFrame(recs)
+
+
+def test_knockout_summary_and_verdict():
+    from geomap.followups import knockout_summary, verdict_p7
+    base = {("own", "CM"): 0.4, ("parent", "MR"): 0.4, ("list", "CR"): 0.0, ("list", "CM"): 0.0, ("list", "MR"): 0.0,
+            ("own", "CR"): 0.3, ("own", "MR"): 0.0, ("parent", "CM"): 0.05}
+    s = knockout_summary(_ko_df({**base, ("parent", "CR"): 0.35}), n_boot=20)
+    row = s[(s.target == "parent") & (s.cls == "CR") & (s.window == "all")].iloc[0]
+    assert abs(row.acc_drop - 0.35) < 1e-9
+    assert verdict_p7(s) == ("chaining at question time", "list not read")
+    s2 = knockout_summary(_ko_df({**base, ("parent", "CR"): 0.025}), n_boot=20)
+    assert verdict_p7(s2)[0] == "composed position available without M's sentence"
+    s3 = knockout_summary(_ko_df({**base, ("parent", "CR"): 0.35, ("own", "CM"): 0.05}), n_boot=20)
+    assert verdict_p7(s3)[0] == "uninformative"
+    s4 = knockout_summary(_ko_df({**base, ("parent", "CR"): 0.35, ("list", "CR"): 0.10}), n_boot=20)
+    assert verdict_p7(s4)[1] == "list read"
