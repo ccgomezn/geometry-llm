@@ -937,3 +937,35 @@ Decision rules: docs/preregistration_p4c.md (P4c) and docs/preregistration_e3.md
 | verdict (upper CI < 0.141) | **switch** | **switch** |
 
 - **E3 (gemma3-12b):** follow_T ≤ 0.07 at every layer ≥ 1 → **not carried**. The "follows source" column is ≈ 0.85 already at layer 0 (base and source answers mostly agree on those questions), so it is not informative.
+
+## 2026-11-11 23:44 · P5a/P5b natural encoding and write-in (gemma3-12b) — preregistered
+Model **gemma3-12b**, the preregistered P4c subspace (layer 14, moved object's sentence).
+
+**P5a, natural encoding.** Change in the 2 subspace coordinates predicted linearly from the change in the stated offset (one 2×2 map per token from the sentence end), 600 new pairs, pair-grouped 5-fold CV: **R² = 0.31**. Random 2-D subspaces (200): 95th percentile 0.35, 99th 0.39, max 0.42. Preregistered verdict: **no linear encoding**.
+
+**P5b, write-in.** On the 300 P4c test pairs, interchange accuracy (ALL question types):
+
+| edit | ALL | 95% CI |
+|---|---|---|
+| copy (P4c edit) | 0.72 | [0.68, 0.75] |
+| write-in | 0.27 | [0.22, 0.31] |
+| write-in, random subspace | 0.00 | [0.00, 0.01] |
+
+Write-in / copy = 0.37. Preregistered verdict: **partial**.
+Rules: docs/preregistration_p5.md.
+
+## 2026-11-12 00:08 · P5c erase the map (gemma3-12b) — preregistered
+Model **gemma3-12b**. INLP basis fitted per layer at the object-list positions (2000 scenes); erased at every token position. Rank per layer 0–10; probe R² before 0.01–0.69, after ≤ 0.088. Test: 300 new chains, 5320 questions.
+
+| erased at | questions | clean acc | drop (probe basis) | drop (random basis) | excess drop [95% CI] | n |
+|---|---|---|---|---|---|---|
+| L14 | stated only | 0.91 | 0.003 | -0.002 | 0.006 [-0.005, 0.016] | 1266 |
+| L14 | composed (involve C) | 0.77 | -0.004 | -0.001 | -0.003 [-0.008, 0.001] | 4054 |
+| L21 | stated only | 0.91 | 0.058 | 0.087 | -0.028 [-0.052, -0.004] | 1266 |
+| L21 | composed (involve C) | 0.77 | 0.010 | 0.031 | -0.022 [-0.032, -0.012] | 4054 |
+| L28 | stated only | 0.91 | 0.036 | 0.028 | 0.008 [-0.005, 0.020] | 1266 |
+| L28 | composed (involve C) | 0.77 | 0.007 | 0.017 | -0.011 [-0.018, -0.002] | 4054 |
+| window 12-30 | stated only | 0.91 | 0.171 | 0.237 | -0.066 [-0.094, -0.036] | 1266 |
+| window 12-30 | composed (involve C) | 0.77 | 0.069 | 0.095 | -0.027 [-0.042, -0.012] | 4054 |
+
+Preregistered verdict: **map not used (in this subspace)**. Rules: docs/preregistration_p5.md.
