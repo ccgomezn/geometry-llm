@@ -1013,3 +1013,35 @@ Accuracy drop (clean − knocked out), with scene-bootstrap 95% CIs:
 | parent | 32-47 | 0.001 [-0.004, 0.006] | -0.004 [-0.008, 0.000] | 0.009 [-0.003, 0.021] |
 
 Preregistered verdicts: **composed position available without M's sentence**; **list not read**. Rules: docs/preregistration_p7.md.
+
+## 2026-11-12 20:44 · P8 multi-layer transfer of the dependent's sentence (gemma3-12b) — preregistered
+Model **gemma3-12b**, 150 new chain pairs (R → M → C). Only M's sentence differs between base and source; C's word-identical sentence is copied from the source run at **every layer from L to the last** (0 = embeddings). *Follows target* = answer equals the model's answer on a scene with C at its moved position and M unmoved. L = 48 copies only final outputs, which nothing downstream reads (a null).
+
+| copied from layer L onward | follows target | follows source (M moved too) | controls stable | target Qs | control Qs |
+|---|---|---|---|---|---|
+| 0 | 0.13 [0.09, 0.17] | 0.90 | 0.96 [0.94, 0.97] | 374 | 606 |
+| 4 | 0.12 [0.09, 0.16] | 0.91 | 0.96 [0.94, 0.97] | 374 | 606 |
+| 8 | 0.12 [0.08, 0.16] | 0.91 | 0.96 [0.94, 0.97] | 374 | 606 |
+| 12 | 0.12 [0.08, 0.16] | 0.91 | 0.96 [0.94, 0.97] | 374 | 606 |
+| 16 | 0.12 [0.09, 0.16] | 0.90 | 0.96 [0.93, 0.97] | 374 | 606 |
+| 20 | 0.09 [0.06, 0.12] | 0.87 | 0.98 [0.96, 0.99] | 374 | 606 |
+| 24 | 0.02 [0.01, 0.04] | 0.86 | 0.99 [0.98, 1.00] | 374 | 606 |
+| 28 | 0.02 [0.01, 0.03] | 0.87 | 1.00 [0.99, 1.00] | 374 | 606 |
+| 32 | 0.00 [0.00, 0.01] | 0.89 | 1.00 [0.99, 1.00] | 374 | 606 |
+| 36 | 0.00 [0.00, 0.01] | 0.89 | 1.00 [0.99, 1.00] | 374 | 606 |
+| 40 | 0.00 [0.00, 0.01] | 0.89 | 1.00 [0.99, 1.00] | 374 | 606 |
+| 44 | 0.00 [0.00, 0.00] | 0.89 | 1.00 [0.99, 1.00] | 374 | 606 |
+| 48 | 0.00 [0.00, 0.00] | 0.88 | 1.00 [0.99, 1.00] | 374 | 606 |
+
+Preregistered verdict: **partial**. Rules: docs/preregistration_p8.md.
+
+## 2026-11-12 21:46 · P8b does the model use M's offset for C at all? (gemma3-12b) — exploratory
+Exploratory (added after P8's data). Model **gemma3-12b**, the 150 P8 chain pairs (R → M → C), clean answers only. In the *source* only M's sentence changed (M and C moved); in the *target* only C's own sentence changed (M unmoved); C sits at the same new position in both. On questions whose geometric answer changes when C moves, the share where the model moves to the correct new answer:
+
+| questions | n | when C's own sentence changes | when only M's sentence changes | answer unchanged (M changed) |
+|---|---|---|---|---|
+| C&M only | 53 | 0.89 [0.78, 0.98] | 0.02 [0.00, 0.06] | 0.96 |
+| C&R only | 290 | 0.39 [0.32, 0.45] | 0.21 [0.15, 0.26] | 0.72 |
+| all three | 337 | 0.33 [0.27, 0.38] | 0.06 [0.03, 0.08] | 0.91 |
+
+For C&R-only questions the geometric change is identical in both scenes, so a model that composes C's position from the chain should update equally often in both columns.
