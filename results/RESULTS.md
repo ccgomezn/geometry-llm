@@ -1035,13 +1035,24 @@ Model **gemma3-12b**, 150 new chain pairs (R → M → C). Only M's sentence dif
 
 Preregistered verdict: **partial**. Rules: docs/preregistration_p8.md.
 
-## 2026-11-12 21:46 · P8b does the model use M's offset for C at all? (gemma3-12b) — exploratory
+
+## 2026-11-12 21:53 · P8b does the model use M's offset for C at all? (gemma3-12b) — exploratory
 Exploratory (added after P8's data). Model **gemma3-12b**, the 150 P8 chain pairs (R → M → C), clean answers only. In the *source* only M's sentence changed (M and C moved); in the *target* only C's own sentence changed (M unmoved); C sits at the same new position in both. On questions whose geometric answer changes when C moves, the share where the model moves to the correct new answer:
 
 | questions | n | when C's own sentence changes | when only M's sentence changes | answer unchanged (M changed) |
 |---|---|---|---|---|
-| C&M only | 53 | 0.89 [0.78, 0.98] | 0.02 [0.00, 0.06] | 0.96 |
+| C&M only | 153 | 0.66 [0.58, 0.73] | 0.06 [0.03, 0.10] | 0.88 |
 | C&R only | 290 | 0.39 [0.32, 0.45] | 0.21 [0.15, 0.26] | 0.72 |
-| all three | 337 | 0.33 [0.27, 0.38] | 0.06 [0.03, 0.08] | 0.91 |
+| all three | 237 | 0.24 [0.18, 0.29] | 0.05 [0.02, 0.08] | 0.93 |
 
 For C&R-only questions the geometric change is identical in both scenes, so a model that composes C's position from the chain should update equally often in both columns.
+
+### Note on P7 question classes (added by hand, 2026-11-13)
+
+A bug in `p7_class` counted the compass words offered by direction questions as if they were objects. Direction
+questions about C and M alone therefore got no class and were dropped before scoring, so P7's **CM** class contains only
+the further-north / further-east questions about C and M (744). CR (questions involving C and R) and MR (questions not
+involving C) were classified correctly, and the preregistered verdicts rest on CR and on the effectiveness checks, which
+are unchanged. Fixed in `src/geomap/followups.py` (only object names count), with a regression test. The exploratory P8b
+analysis had the same issue in its "all three" group; it was rerun after the fix (entry above), and its key C&R-only
+row is unchanged.

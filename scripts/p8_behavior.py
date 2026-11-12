@@ -23,7 +23,7 @@ from geomap.transfer import make_transfer_pairs
 
 
 def cls(q, root, mid, child):
-    inv = set(q.args) | set(q.candidates)
+    inv = (set(q.args) | set(q.candidates)) & {root, mid, child}  # objects only, never compass words
     if child in inv and root in inv and mid not in inv:
         return "C&R only"
     if inv == {child, mid}:

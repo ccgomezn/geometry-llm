@@ -281,8 +281,9 @@ def p7_spans(spec, child: str, mid: str) -> dict[str, tuple[int, int]]:
 
 
 def p7_class(q: Question, root: str, mid: str, child: str) -> str | None:
-    """CR: involves C and R; CM: only C and M; MR: no C (only M and R)."""
-    inv = set(q.args) | set(q.candidates)
+    """CR: involves C and R; CM: only C and M; MR: no C (only M and R). Only object names count: direction questions
+    offer compass words as candidates."""
+    inv = (set(q.args) | set(q.candidates)) & {root, mid, child}
     if {child, root} <= inv:
         return "CR"
     if inv == {child, mid}:
@@ -321,3 +322,42 @@ def verdict_p7(summary: pd.DataFrame, effective: float = 0.15, chain: float = 0.
         main = "unclear"
     lst = a[a.index.get_level_values(0) == "list"]
     return main, ("list not read" if len(lst) and (lst <= list_max).all() else "list read")
+
+
+# ---------- P9 ----------
+
+def decoded_coords(probe, acts: np.ndarray, scenes, idx) -> list[dict[str, tuple[float, float]]]:
+    """Each object's scene-centred (x, y) read from its list activation by the probe; one dict per scene in idx.
+    Question answers depend only on relative positions, so centring loses nothing."""
+    from geomap.probes import centered_xy
+    X, _, meta = centered_xy(acts, scenes, idx)
+    P = probe.predict(X)
+    out = {i: {} for i in idx}
+    for (sc, name), xy in zip(meta[["scene", "name"]].itertuples(index=False), P):
+        out[sc][name] = (float(xy[0]), float(xy[1]))
+    return [out[i] for i in idx]
+
+
+def compare_answers(df: pd.DataFrame, n_boot: int = 1000, seed: int = 0) -> pd.DataFrame:
+    """Per class: model and map accuracy and their difference (map − model) with a scene-bootstrap 95% CI.
+    df: one row per question with scene, cls, model_correct, map_correct (and optionally model_ans, map_ans)."""
+    rows = []
+    for c, g in df.groupby("cls"):
+        d = g.map_correct - g.model_correct
+        est, lo, hi = bootstrap_ci(d, groups=g.scene, n_boot=n_boot, seed=seed)
+        row = dict(cls=c, n=len(g), acc_model=g.model_correct.mean(), acc_map=g.map_correct.mean(),
+                   map_minus_model=est, map_minus_model_lo=lo, map_minus_model_hi=hi)
+        if {"model_ans", "map_ans"} <= set(g.columns):
+            row["agreement"] = float((g.model_ans == g.map_ans).mean())
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def verdict_p9(summary: pd.DataFrame, cls: str = "CR", margin: float = 0.05) -> str:
+    """docs/preregistration_p9.md, on CR questions."""
+    r = summary.set_index("cls").loc[cls]
+    if r.map_minus_model >= margin and r.map_minus_model_lo > 0:
+        return "the map would have answered better"
+    if -r.map_minus_model >= margin and r.map_minus_model_hi < 0:
+        return "the model answers better"
+    return "comparable"

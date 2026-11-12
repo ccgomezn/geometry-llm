@@ -251,9 +251,19 @@ def test_p7_spans_and_classes(m):
     assert sp["own"] == spec.relation_spans[child] and sp["parent"] == spec.relation_spans[mid]
     assert sp["list"][0] == max(e for _, e in spec.relation_spans.values()) and sp["list"][1] == spec.eol_pos + 1
     for q, _ in qs:
-        inv = set(q.args) | set(q.candidates)
-        exp = "CR" if {child, root} <= inv else "CM" if inv == {child, mid} else "MR" if child not in inv else None
+        inv = (set(q.args) | set(q.candidates)) & {root, mid, child}  # objects only, never compass words
+        exp = "CR" if {child, root} <= inv else "CM" if inv == {child, mid} else "MR"
         assert p7_class(q, root, mid, child) == exp
+
+
+def test_p7_class_direction_questions_use_objects_not_compass_words():
+    from geomap.followups import p7_class
+    from geomap.questions import QType, make_question
+    names = ("C", "M", "R")
+    q = make_question(QType.DIRECTION, ("C", "M"), names)
+    assert p7_class(q, "R", "M", "C") == "CM"
+    assert p7_class(make_question(QType.DIRECTION, ("C", "R"), names), "R", "M", "C") == "CR"
+    assert p7_class(make_question(QType.DIRECTION, ("M", "R"), names), "R", "M", "C") == "MR"
 
 
 def _ko_df(drops, n=40):
@@ -283,3 +293,46 @@ def test_knockout_summary_and_verdict():
     assert verdict_p7(s3)[0] == "uninformative"
     s4 = knockout_summary(_ko_df({**base, ("parent", "CR"): 0.35, ("list", "CR"): 0.10}), n_boot=20)
     assert verdict_p7(s4)[1] == "list read"
+
+
+# ---------- P9 ----------
+
+def test_decoded_coords_recover_linear_map_and_answer_correctly():
+    from geomap.followups import decoded_coords
+    from geomap.probes import GroupRidge, centered_xy
+    from geomap.questions import all_questions, answer_for
+    from geomap.scenes import generate_scene
+    rng = np.random.default_rng(0)
+    names = ["Anna", "Ben", "Carl", "Emma", "Henry", "Jack"]
+    scenes = [generate_scene(rng, names, 3) for _ in range(200)]
+    d = 16
+    W = rng.standard_normal((2, d))
+    acts = np.full((len(scenes), 6, d), np.nan)
+    for i, s in enumerate(scenes):
+        for k, n in enumerate(s.names):
+            acts[i, k] = np.asarray(s.coords[n], float) @ W + 0.5  # linear code of the position, plus an offset
+    X, Y, meta = centered_xy(acts, scenes, np.arange(150))
+    probe = GroupRidge().fit(X, Y, meta.scene.values)
+    dec = decoded_coords(probe, acts, scenes, np.arange(150, 200))
+    assert len(dec) == 50
+    for s, c in zip(scenes[150:], dec):
+        assert set(c) == set(s.names)
+        for q in all_questions(s):
+            assert answer_for(q, c) == answer_for(q, s.coords)
+
+
+def test_compare_and_verdict_p9():
+    from geomap.followups import compare_answers, verdict_p9
+    recs = []
+    for s in range(40):
+        for qi, (cls, mod, mp) in enumerate([("CR", s < 28, s < 36), ("CM", True, True), ("MR", s < 36, s < 36)]):
+            recs.append(dict(scene=s, qi=qi, cls=cls, model_correct=float(mod), map_correct=float(mp)))
+    df = pd.DataFrame(recs)
+    out = compare_answers(df, n_boot=50)
+    row = out.set_index("cls").loc["CR"]
+    assert abs(row.acc_model - 0.7) < 1e-9 and abs(row.acc_map - 0.9) < 1e-9 and abs(row.map_minus_model - 0.2) < 1e-9
+    assert verdict_p9(out) == "the map would have answered better"
+    df2 = df.assign(map_correct=df.model_correct)
+    assert verdict_p9(compare_answers(df2, n_boot=50)) == "comparable"
+    df3 = df.assign(map_correct=np.where(df.cls == "CR", 0.0, df.map_correct))
+    assert verdict_p9(compare_answers(df3, n_boot=50)) == "the model answers better"
