@@ -1,0 +1,146 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Medium copy</title><style>
+:root{--bg:#fff;--ink:#222;--muted:#666;--accent:#2a78d6;--note:#fff3c4}
+@media (prefers-color-scheme:dark){:root{--bg:#16181c;--ink:#e8e8e8;--muted:#9aa;--accent:#3987e5;--note:#4a4020}}
+body{background:var(--bg);color:var(--ink);font:18px/1.6 Georgia,serif;max-width:700px;margin:0 auto;padding:16px}
+.bar{font:15px/1.5 system-ui,sans-serif;border:1px solid var(--muted);border-radius:8px;padding:12px 16px;margin:16px 0 32px}
+.bar ol{margin:6px 0 0;padding-left:20px} .bar ul{margin:4px 0;font-size:13px}
+button{font:600 15px system-ui;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+#ok{margin-left:10px;color:var(--muted)} article p > strong:only-child{background:var(--note)}
+</style></head><body>
+<div class="bar"><button id="copy">Copy article</button><span id="ok"></span>
+<ol><li>Click <b>Copy article</b>, open a new Medium story, click in the title, paste.</li>
+<li>At each highlighted line: delete it, click the <b>+</b> on the empty line, upload the named file, and paste the
+italic line under it as the caption. For the CodePen line: paste the link alone on the line and press Enter.</li>
+<li>Check the headings: Medium has two sizes; select a heading and use the big or small <b>T</b> if needed.</li></ol>
+Files to upload, in order (in the repo folder):<ul><li><code>paper/figures/blog_5_deleted.png</code></li><li><code>paper/figures/blog_6_nothing_happened.png</code></li></ul></div>
+<article id="post"><h1
+id="i-found-the-map-inside-the-ai.-then-i-deleted-it-and-nothing-happened.">I
+Found the Map Inside the AI. Then I Deleted It, and Nothing
+Happened.</h1>
+<p><em>Part 2 of an experiment on whether language models “picture” a
+scene they only read about.</em></p>
+<p>In <a
+href="https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea">Part
+1</a>, I gave an AI model (Gemma 3, an open model from Google) small
+scenes described only in words: <em>“Ana is 3 units north of Bo. Cy is 2
+units east of Ana.”</em> Then I looked inside it while it answered
+questions like “who is farthest from Bo?”</p>
+<p>Two things came out of that.</p>
+<ul>
+<li><strong>It works out a map.</strong> From the model’s internal
+numbers, I could read where every object is, even objects like Cy whose
+position nobody stated. You have to combine two sentences to get it, and
+the model does.</li>
+<li><strong>Its answers run on something else.</strong> What actually
+moves the answers is a small code, two numbers, sitting on each
+sentence. Edit those two numbers and the model answers as if the object
+had moved. Set them halfway between two positions, and the model doesn’t
+put the object halfway. It snaps to one or the other, like a
+switch.</li>
+</ul>
+<p>That left an obvious question: <strong>if the answers don’t use the
+map, why is it there? Is it really not used?</strong></p>
+<p>So I tried the most direct test I could think of. I deleted it.</p>
+<h2 id="deleting-the-map">Deleting the map</h2>
+<p>The map lives in a handful of directions inside the model’s
+activations. Those are the directions a simple decoder uses to read each
+object’s coordinates. You can find those directions and remove them,
+then check that the decoder can’t read the positions anymore. I did that
+at every layer where the map shows up, and at every word of the prompt,
+not just one spot.</p>
+<p>It worked. Before erasing, the coordinates could be read out well (up
+to 0.69 on a 0-to-1 scale). After erasing, they can’t (at most
+0.09).</p>
+<p><strong>[ IMAGE 1: upload paper/figures/blog_5_deleted.png
+]</strong></p>
+<p><em>Readability of each object’s position, before and after erasing
+it, at every layer.</em></p>
+<p>Then I asked the model 5,320 questions about 300 new scenes and
+compared its answers with and without the map. As a control, I also
+erased random directions of exactly the same size. If the map mattered,
+deleting it should hurt, especially on questions about positions the
+model had to work out, and it should hurt more than deleting random
+directions.</p>
+<p>It didn’t. Deleting the map cost <strong>no more accuracy than
+deleting random directions</strong>, and a bit less, at every place I
+tried. Even when I deleted it at all 19 layers at once, the model lost
+7% of its answers to the map erasure and 10% to the random one.</p>
+<p><strong>[ IMAGE 2: upload paper/figures/blog_6_nothing_happened.png
+]</strong></p>
+<p><em>Accuracy lost after erasing the map versus erasing random
+directions of the same size.</em></p>
+<p>The model builds a map of the scene, and you can take it out without
+its answers noticing.</p>
+<h2 id="two-more-surprises-about-the-code-it-does-use">Two more
+surprises about the code it does use</h2>
+<p>While I was at it, I tested the small “two-number code” from Part 1
+more carefully.</p>
+<p><strong>It isn’t a coordinate.</strong> If those two numbers were x
+and y, they would change smoothly with the sentence: “2 units north” a
+little, “4 units north” twice as much. They don’t. A straight-line fit
+from the sentence’s distances to the two numbers works no better than
+for random directions. This fits the switch from Part 1. The code
+behaves more like a category (“north-ish, east-ish”) than a ruler.</p>
+<p><strong>But it’s real.</strong> A fair criticism of this kind of edit
+is that it might work through a back door: you find <em>some</em> two
+numbers that change the answer without them meaning anything to the
+model. So instead of copying the two numbers from another run, I wrote
+them in myself, computed only from what the sentence says. That still
+moved 27% of the answers, against 0% for the same procedure on random
+directions. Values the model would produce from the sentence act on the
+answers through this code. It’s a genuine part of how the model answers,
+even if a simple straight-line reading only captures part of it.</p>
+<h2 id="so-why-build-a-map-at-all">So why build a map at all?</h2>
+<p>Honestly, I don’t know yet. Here are three candidates.</p>
+<ol type="1">
+<li><strong>It comes for free.</strong> Inside the model, information is
+constantly mixed and added together. If each sentence leaves a trace of
+its direction, and the model gathers those traces at each object’s name,
+the sum can look like a coordinate to a decoder. That would be a map
+nobody built on purpose. It isn’t the whole story, since the model also
+encodes distances, which you can’t get by adding, but it’s probably part
+of it.</li>
+<li><strong>My questions were too easy to need it.</strong> Everything I
+asked can be answered by chaining sentences: north of Bo, then east of
+that. With three objects, chaining is cheap and reliable. A map would
+pay off where chaining breaks down: many objects, long chains, questions
+about the whole layout.</li>
+<li><strong>It’s for other jobs.</strong> Describing the scene,
+continuing a story, things I didn’t test.</li>
+</ol>
+<p>The second one is the hopeful one, and it’s testable. If I make the
+scenes harder and erasing the map <em>starts</em> to hurt, that would
+show when a model starts relying on a mental map. That’s the next
+experiment.</p>
+<h2 id="what-this-does-and-doesnt-show">What this does and doesn’t
+show</h2>
+<ul>
+<li><strong>It shows</strong> that in this task, the map the model
+computes can be read, can be deleted, and isn’t what the answers depend
+on.</li>
+<li><strong>It doesn’t show</strong> that language models never use
+maps. I erased the <em>straight-line</em> (linear) version that decoders
+read; a more tangled version could still exist. And this is one model
+family on one kind of puzzle.</li>
+</ul>
+<p>There’s also a broader lesson. A lot of AI research finds something
+inside a model with a decoder and concludes the model “has” it, and
+implicitly, uses it. Here the decoder found a real map, and the model
+didn’t need it. <strong>Being able to read something out of a model
+isn’t the same as the model using it.</strong></p>
+<h2 id="how-i-kept-myself-honest">How I kept myself honest</h2>
+<p>Every test in this post was written down, including what would count
+as success or failure, before any data existed. Some predictions failed
+along the way, and they are reported as failures. The code and the full
+write-up will be released with the paper.</p>
+<p><em>Part 1, with an interactive demo where you can move an object
+inside the model yourself: <a
+href="https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea">The
+AI Worked Out Where Things Are, Even When Nobody Told It</a>.</em></p>
+</article>
+<script>
+document.getElementById('copy').onclick=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('post'));
+const s=getSelection();s.removeAllRanges();s.addRange(r);const ok=document.execCommand('copy');s.removeAllRanges();
+document.getElementById('ok').textContent=ok?'Copied. Paste into Medium.':'Select the article text and press Cmd+C.';};
+</script></body></html>

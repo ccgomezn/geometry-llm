@@ -85,3 +85,7 @@ The next experiment is designed to tell these apart: erase the map wherever the 
 - **Seeing.** What changes when the same model is shown an actual image.
 
 *Code, preregistration and results will be released with the paper.*
+
+---
+
+*Part 2: [I Found the Map Inside the AI. Then I Deleted It, and Nothing Happened.](PART-2-LINK)*

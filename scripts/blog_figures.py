@@ -144,8 +144,53 @@ def fig4():
     save(fig, "blog_4_not_used.png")
 
 
+def fig5():
+    """Part 2: the erasure removed the readable map at every layer."""
+    f = pd.read_csv(ROOT / "results/p5/gemma3-12b_p5c_inlp.csv").sort_values("layer")
+    fig, ax = plt.subplots(figsize=(7, 3.9))
+    fig.subplots_adjust(left=0.11, right=0.80, top=0.76, bottom=0.15)
+    for col, c, lab in [("r2_before", BLUE, "before\nerasing"), ("r2_after", GRAY, "after\nerasing")]:
+        ax.plot(f.layer, f[col].clip(lower=0), color=c, lw=2, marker="o", ms=4)
+        ax.text(f.layer.iloc[-1] + 0.5, max(f[col].iloc[-1], 0.04), lab, va="center", fontsize=11, color=INK)
+    ax.set_ylim(0, 1)
+    ax.set_xlim(12, 30)
+    ax.set_xlabel("layer (of 48)")
+    ax.set_ylabel("how well the map can be read")
+    title(fig, "We deleted the map",
+          "Gemma 3 12B; readability of each object's (x, y), before and after erasing it")
+    save(fig, "blog_5_deleted.png")
+
+
+def fig6():
+    """Part 2: erasing the map costs no more accuracy than erasing random directions."""
+    s = pd.read_csv(ROOT / "results/p5/gemma3-12b_p5c_summary.csv")
+    s = s[s.composed]
+    order = [("L14", "layer 14"), ("L21", "layer 21"), ("L28", "layer 28"), ("window 12-30", "layers\n12–30")]
+    fig, ax = plt.subplots(figsize=(7, 4.2))
+    fig.subplots_adjust(left=0.10, right=0.97, top=0.74, bottom=0.17)
+    w = 0.34
+    for i, (cfg, lab) in enumerate(order):
+        r = s[s.config == cfg].iloc[0]
+        for dx, v, c, name in [(-w / 2 - 0.02, r.drop_probe, BLUE, "Erase the map"),
+                               (w / 2 + 0.02, r.drop_random, GRAY, "Erase random directions (same size)")]:
+            ax.bar(i + dx, max(v, 0.0015), w, color=c, label=name if i == 0 else None)
+            ax.text(i + dx, max(v, 0) + 0.004, pct(v) if abs(v) >= 0.005 else "0%", ha="center", fontsize=11)
+    ax.set_xticks(range(len(order)), [o[1] for o in order])
+    ax.tick_params(axis="x", length=0, labelcolor=INK)
+    ax.set_ylim(0, 0.15)
+    ax.set_yticks([0, 0.05, 0.10, 0.15])
+    ax.yaxis.set_major_formatter(lambda v, _: pct(v))
+    ax.set_xlabel("where it was erased")
+    ax.legend(loc="lower left", frameon=False, fontsize=10, bbox_to_anchor=(0.0, 1.0), ncol=2)
+    title(fig, "...and the answers didn't notice",
+          "Accuracy lost on questions about worked-out positions (300 new scenes)")
+    save(fig, "blog_6_nothing_happened.png")
+
+
 if __name__ == "__main__":
     fig1()
     fig2()
     fig3()
     fig4()
+    fig5()
+    fig6()
