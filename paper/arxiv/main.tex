@@ -145,7 +145,8 @@ that object about half as often as when the object's own sentence moves
 it the same distance. The decodable map composes the chain, and the
 answers do not. In a preregistered test, answering geometrically from
 the decoded map beats the model on questions that need the chain (0.80
-vs 0.73), and ties it on the others. The 2-D code is not a linear
+vs 0.73), and ties it on the others. Pushing the question to attend to
+the map does not recover that advantage. The 2-D code is not a linear
 function of the stated offset, yet values written from a fitted linear
 map still move 0.27 of the answers (random 0.00).
 \end{abstract}
@@ -692,6 +693,32 @@ corners. A caveat stated in advance applies: the read-out is a linear
 probe we fitted, so this shows the information is present and linearly
 usable, not that the model could use it without further computation.
 
+\subsection{3.11 Does attending to the map help? (P10,
+preregistered)}\label{does-attending-to-the-map-help-p10-preregistered}
+
+If the map is usable as it is, pushing the question to look at it should
+improve chain answers (\texttt{docs/preregistration\_p10.md}). -
+\textbf{Boost.} In attention layers 16--31 we add +b (b = 1, 2, 4, 8) to
+the attention logits from every query after the object list to the three
+object-name tokens in the list, where the map is decoded. -
+\textbf{Control.} The same boost is applied to the list token just
+before each name. - \textbf{Test.} 300 new chains (5,334 questions).
+
+No boost improves CR questions beyond the control. The contrast is
+−0.005, −0.010, +0.009 and +0.018, and no interval is clear of the 0.03
+bar. The preregistered verdict is \textbf{no benefit}.
+
+Small boosts leave CR unchanged. Large ones hurt every class about
+equally for names and control (−0.25 to −0.55 at b = 8), so they mainly
+disrupt attention. The specific effect of the names falls on questions
+about C and its parent: −0.049 {[}−0.065, −0.033{]} beyond the control
+at b = 2, and −0.136 at b = 4. Attending to the map draws the question
+away from the sentence it normally reads, without giving it a better
+answer. The information that a linear probe reads off the map (§3.10) is
+therefore not usable by the answer pathway through attention alone.
+Whether the model can \emph{learn} to use it, for example with a light
+fine-tune, is left open.
+
 \section{4. Discussion}\label{discussion}
 
 \textbf{What we found.} Gemma 3 12B (and 27B) composes per-object
@@ -746,13 +773,15 @@ answer pathway reads the objects' own sentences and never reads the
 list. The map at the list is built off the path the answers take. P8b
 adds a cost: the map composes the chain, while the answers under-use the
 parent's offset. P9 measures that cost: read linearly, the map answers
-chain questions 7 points more accurately than the model does. This
-resembles the gap between faithful internal state and unfaithful
-decoding reported for propositional probes (Feng, Russell \& Steinhardt,
-2024). (ii) and (iii) remain. P6 lengthens the chains but keeps the
-question types, all of which can be answered by chaining. Questions that
-are hard to answer without a layout (collinearity, containment) would
-test (iii) more sharply.
+chain questions 7 points more accurately than the model does. P10 shows
+the cost is not a matter of where the question looks. Pointing its
+attention at the map does not help, so the map is in a form the answer
+pathway cannot use directly. This resembles the gap between faithful
+internal state and unfaithful decoding reported for propositional probes
+(Feng, Russell \& Steinhardt, 2024). (ii) and (iii) remain. P6 lengthens
+the chains but keeps the question types, all of which can be answered by
+chaining. Questions that are hard to answer without a layout
+(collinearity, containment) would test (iii) more sharply.
 
 \section{5. Limitations}\label{limitations}
 
@@ -823,11 +852,12 @@ deviations}\label{preregistration-and-deviations}
   (the re-reading hypothesis rejected); list not read. P8
   (\texttt{docs/preregistration\_p8.md}, multi-layer transfer): partial
   (0.13 at most). P9 (\texttt{docs/preregistration\_p9.md}): the map
-  would have answered better. Deviation in P7: a classification bug
-  dropped direction questions about C and M alone before scoring, so
-  P7's CM class contains only further-north/east questions; CR and MR,
-  on which the verdicts rest, are unaffected (noted in
-  \texttt{results/RESULTS.md}).
+  would have answered better. P10
+  (\texttt{docs/preregistration\_p10.md}, attention boost): no benefit.
+  Deviation in P7: a classification bug dropped direction questions
+  about C and M alone before scoring, so P7's CM class contains only
+  further-north/east questions; CR and MR, on which the verdicts rest,
+  are unaffected (noted in \texttt{results/RESULTS.md}).
 \item
   \textbf{Exploratory}: the distance, sentence-end and question-mention
   probes; the necessity, sentence-part, question-token and mention

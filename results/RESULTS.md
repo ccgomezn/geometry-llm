@@ -1076,3 +1076,23 @@ Model **gemma3-12b**. Linear probes for scene-centred (x, y) at the object-list 
 | 28 (0.65) | MR | 1292 | 0.90 | 0.87 | -0.026 [-0.057, +0.002] | 0.81 |
 
 Preregistered verdict (layer 21, CR questions): **the map would have answered better**. Rules: docs/preregistration_p9.md.
+
+## 2026-11-12 21:45 · P10 attention boost toward the map (gemma3-12b) — preregistered
+Model **gemma3-12b**, 300 new chains R → M → C, 5334 questions. In attention layers 16–31, +b is added to the attention logits from every query after the object list to the three object-name tokens in the list (*names*, where the map is decoded), or to the list token just before each name (*control*). Accuracy change vs clean; contrast = Δ(names) − Δ(control) with a scene-bootstrap 95% CI.
+
+| boost b | questions | clean | Δ names | Δ control | contrast [95% CI] | n |
+|---|---|---|---|---|---|---|
+| +1 | CM | 0.90 | -0.016 | -0.007 | -0.009 [-0.018, +0.000] | 1254 |
+| +1 | CR | 0.71 | -0.004 | +0.001 | -0.005 [-0.013, +0.002] | 2804 |
+| +1 | MR | 0.89 | -0.007 | -0.007 | +0.000 [-0.012, +0.011] | 1276 |
+| +2 | CM | 0.90 | -0.065 | -0.015 | -0.049 [-0.065, -0.033] | 1254 |
+| +2 | CR | 0.71 | -0.017 | -0.007 | -0.010 [-0.021, +0.001] | 2804 |
+| +2 | MR | 0.89 | -0.009 | -0.023 | +0.014 [-0.002, +0.031] | 1276 |
+| +4 | CM | 0.90 | -0.262 | -0.127 | -0.136 [-0.167, -0.106] | 1254 |
+| +4 | CR | 0.71 | -0.083 | -0.091 | +0.009 [-0.010, +0.027] | 2804 |
+| +4 | MR | 0.89 | -0.123 | -0.099 | -0.024 [-0.051, +0.002] | 1276 |
+| +8 | CM | 0.90 | -0.555 | -0.534 | -0.021 [-0.049, +0.009] | 1254 |
+| +8 | CR | 0.71 | -0.253 | -0.271 | +0.018 [-0.003, +0.039] | 2804 |
+| +8 | MR | 0.89 | -0.493 | -0.492 | -0.001 [-0.037, +0.035] | 1276 |
+
+Preregistered verdict (CR): **no benefit**. Rules: docs/preregistration_p10.md.
