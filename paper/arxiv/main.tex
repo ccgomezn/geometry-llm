@@ -135,9 +135,10 @@ stated ones (0.085 and 0.055 vs chance 0.141). Composed positions are
 decodable but are not the variable the answers read: erasing the
 linearly decodable coordinates at every token and layer 12--30 (probe R²
 ≤ 0.09 after erasure) costs no more accuracy than erasing random
-directions of the same rank. The 2-D code is not a linear function of
-the stated offset, yet values written from a fitted linear map still
-move 0.27 of the answers (random 0.00).
+directions of the same rank, on 3-object scenes and on 4--5-object
+scenes where questions require chaining up to four relations. The 2-D
+code is not a linear function of the stated offset, yet values written
+from a fitted linear map still move 0.27 of the answers (random 0.00).
 \end{abstract}
 
 \section{1. Introduction}\label{introduction}
@@ -181,9 +182,10 @@ contributions:
   as a coordinate: halfway settings snap, and a composed position copied
   from a word-identical sentence is not used (both preregistered).
 \item
-  A preregistered erasure test: removing the decodable coordinates
+  Preregistered erasure tests: removing the decodable coordinates
   everywhere does not hurt answers about inferred positions more than a
-  random erasure, and a write-in test that bears on the
+  random erasure, on 3-object scenes or on 4--5-object scenes that need
+  chains of up to four relations; and a write-in test that bears on the
   subspace-illusion critique.
 \end{itemize}
 
@@ -565,6 +567,22 @@ the largest upper CI bound is 0.001. Stated-only questions behave the
 same way. The preregistered verdict is \textbf{map not used (in this
 subspace)}.
 
+\emph{When chaining is hard (P6).} Three-object scenes need at most two
+chained relations, so the map might be unused only because the task is
+easy. P6 repeats the erasure on 4--5-object scenes
+(\texttt{docs/preregistration\_p6.md}). The INLP fit (2,000 scenes)
+takes rank 2--8 and leaves R² ≤ 0.095 at every layer, from up to 0.60.
+Questions are grouped by the hop of the deepest object they involve. On
+300 new scenes (7,200 questions), clean accuracy is 0.82 at depth 1,
+0.69 at depth 2, 0.65 at depth 3 and 0.66 at depth 4, against chance ≈
+0.36, so deep questions have headroom (0.29 above chance). Erasing the
+map does not hurt deep questions more than random erasure: the excess
+drop is −0.005, 0.023, 0.001 and −0.031 at layers 14, 21, 28 and 12--30.
+The only reliably positive value, 0.023 {[}0.004, 0.041{]} at layer 21,
+is a fifth of the preregistered threshold of 0.10, and erasing at every
+layer 12--30 again hurts less than random erasure. The preregistered
+verdict is \textbf{still not used}.
+
 \section{4. Discussion}\label{discussion}
 
 \textbf{What we found.} Gemma 3 12B (and 27B) composes per-object
@@ -606,12 +624,15 @@ disagree, as in our patches, the stated sentences win. (ii)
 \emph{By-product}: representations that track positions help next-token
 prediction in general and are decodable here without being needed. (iii)
 \emph{Other uses}: the map serves questions or tasks we did not ask,
-such as describing the scene or continuing the story. P5c speaks against
-(i) in its linear form. Erasing every linearly decodable copy, at every
-position and across layers 12--30, leaves the answers as intact as a
-random erasure does. A backup the model falls back on would have to live
-outside that subspace or be nonlinear. (ii) and (iii) remain; new task
-families would test (iii).
+such as describing the scene or continuing the story. P5c and P6 speak
+against (i) in its linear form, and P6 against the view that the map is
+held in reserve for long chains. Erasing every linearly decodable copy,
+at every position and across layers 12--30, leaves the answers as intact
+as a random erasure does. A backup the model falls back on would have to
+live outside that subspace or be nonlinear. (ii) and (iii) remain. P6
+lengthens the chains but keeps the question types, all of which can be
+answered by chaining. Questions that are hard to answer without a layout
+(collinearity, containment) would test (iii) more sharply.
 
 \section{5. Limitations}\label{limitations}
 
@@ -641,7 +662,7 @@ families would test (iii).
   \textbf{Erasure scope.} P5c removes the linear subspace that the
   list-position probe reads. Information coded differently at other
   positions, or nonlinearly, is not removed; ``not used'' means not used
-  in that subspace. The P5 tests were run on 12B only.
+  in that subspace. The P5 and P6 tests were run on 12B only.
 \item
   \textbf{Leaf-only moves.} Moving a leaf changes its sentence and its
   position together, so the sentence-site experiments locate the
@@ -676,7 +697,8 @@ deviations}\label{preregistration-and-deviations}
   both models); E3 (not carried). P5
   (\texttt{docs/preregistration\_p5.md}, Gemma 3 12B): natural encoding
   (no linear encoding), write-in (partial), erasure (map not used in
-  this subspace).
+  this subspace). P6 (\texttt{docs/preregistration\_p6.md}, 12B, 4--5
+  objects): still not used.
 \item
   \textbf{Exploratory}: the distance, sentence-end and question-mention
   probes; the necessity, sentence-part, question-token and mention

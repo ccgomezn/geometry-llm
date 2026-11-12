@@ -969,3 +969,25 @@ Model **gemma3-12b**. INLP basis fitted per layer at the object-list positions (
 | window 12-30 | composed (involve C) | 0.77 | 0.069 | 0.095 | -0.027 [-0.042, -0.012] | 4054 |
 
 Preregistered verdict: **map not used (in this subspace)**. Rules: docs/preregistration_p5.md.
+
+## 2026-11-12 18:37 · P6 is the map used when chaining is hard? (gemma3-12b) — preregistered
+Model **gemma3-12b**, scenes of 4–5 objects. INLP basis fitted per layer at the object-list positions (2000 scenes); erased at every token position. Rank per layer 0–8; probe R² before 0.01–0.60, after ≤ 0.095. Test: 300 new scenes, 7200 questions.
+
+Clean accuracy by depth (deepest object involved): 1: 0.82 (chance 0.37, n = 1734); 2: 0.69 (chance 0.37, n = 3125); 3: 0.65 (chance 0.36, n = 1950); 4: 0.66 (chance 0.35, n = 391). Headroom on deep questions: 0.29.
+
+| erased at | questions | clean acc | drop (probe basis) | drop (random basis) | excess drop [95% CI] | n |
+|---|---|---|---|---|---|---|
+| L14 | shallow | 0.82 | 0.004 | -0.006 | 0.010 [0.002, 0.018] | 1734 |
+| L14 | middle | 0.69 | 0.000 | -0.002 | 0.002 [-0.005, 0.008] | 3125 |
+| L14 | deep | 0.65 | 0.002 | 0.007 | -0.005 [-0.013, 0.003] | 2341 |
+| L21 | shallow | 0.82 | 0.052 | 0.057 | -0.004 [-0.022, 0.012] | 1734 |
+| L21 | middle | 0.69 | 0.040 | 0.026 | 0.014 [-0.000, 0.030] | 3125 |
+| L21 | deep | 0.65 | 0.045 | 0.022 | 0.023 [0.004, 0.041] | 2341 |
+| L28 | shallow | 0.82 | 0.020 | 0.013 | 0.007 [-0.004, 0.019] | 1734 |
+| L28 | middle | 0.69 | 0.002 | 0.008 | -0.006 [-0.016, 0.004] | 3125 |
+| L28 | deep | 0.65 | 0.012 | 0.011 | 0.001 [-0.010, 0.013] | 2341 |
+| window 12-30 | shallow | 0.82 | 0.091 | 0.123 | -0.032 [-0.052, -0.010] | 1734 |
+| window 12-30 | middle | 0.69 | 0.055 | 0.075 | -0.020 [-0.039, 0.001] | 3125 |
+| window 12-30 | deep | 0.65 | 0.053 | 0.084 | -0.031 [-0.053, -0.011] | 2341 |
+
+Preregistered verdict: **still not used**. Rules: docs/preregistration_p6.md.
