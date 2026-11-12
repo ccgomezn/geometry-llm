@@ -84,7 +84,6 @@
   figure img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
   figcaption { margin-top: .6rem; font-size: .95rem; color: var(--ink-2); }
 
-  .todo { border-left: 4px solid var(--orange); padding: .2rem 0 .2rem 1rem; color: var(--ink-2); font-style: italic; }
 
   .deeper { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--rule); }
   .deeper li { padding: .9rem 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: minmax(8rem, 12rem) 1fr; gap: .25rem 1.25rem; }
@@ -119,10 +118,9 @@
 
   <section aria-labelledby="found">
     <h2 id="found">What I found</h2>
-    <!-- YOUR THREE PARAGRAPHS GO HERE (see site/WRITE_THESE.md) -->
-    <p class="todo">Paragraph 1: the setup and the map.</p>
-    <p class="todo">Paragraph 2: the answers don't use it, and what they use instead.</p>
-    <p class="todo">Paragraph 3: the map would have answered better.</p>
+    <p>I gave Gemma 3, an open AI model from Google, small scenes described only in words, like &ldquo;Ana is 3 units north of Bo. Cy is 2 units east of Ana.&rdquo; Then I asked questions the text never answers directly, such as &ldquo;Is Cy further north than Bo?&rdquo; Inside the model, a simple decoder can read where every object is, including Cy, whose position you only get by combining two sentences. It even holds distances, which you can&rsquo;t get by just adding the sentences up. The model really does build a map of the scene.</p>
+    <p>But its answers don&rsquo;t use that map. I deleted the map at every word and across many layers, and the answers got no worse than when I deleted random directions instead. The same held on harder scenes with four or five objects. What the answers use is each object&rsquo;s own sentence: two numbers inside it steer them. Editing those two numbers moves 72% of the affected answers (83% in the larger 27B model, 0% for random numbers), and they act like a switch between stated facts, not a point on a map. The model also cuts a corner. When Cy moves because its own sentence changed, it updates its answers 39% of the time; when Cy moves to the same spot because Ana&rsquo;s sentence changed, only 21%.</p>
+    <p>So I asked whether the unused map would have done better. It would. Reading the answers off the model&rsquo;s own map gets questions that need the chain right 80% of the time, against 73% for the model&rsquo;s actual answers. On questions a sentence states directly, the two tie at about 90%. Pushing the model&rsquo;s attention toward its map doesn&rsquo;t help; it only distracts it. The model holds a better answer than the one it gives and never looks at it. This is one model family on simple puzzles, and every test was written down before its data existed.</p>
     <figure>
       <img src="img/map-beats-model.png" width="1400" height="840" alt="Bar chart. On questions that need the chain of sentences, answers read off the model's unused map are right 80% of the time, the model's own answers 73%. On questions stated directly in a sentence, both are about 90%.">
       <figcaption>Answers read off the model's own unused map beat its actual answers exactly where a chain of sentences is needed. Gemma 3 12B, 300 new scenes, 5,350 questions.</figcaption>
