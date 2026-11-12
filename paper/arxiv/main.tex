@@ -142,10 +142,12 @@ reads each object's own sentence in layers 16--31 and never reads the
 object list. The answers also use the chain only partially. When only a
 parent's sentence moves an object, the model updates its answers about
 that object about half as often as when the object's own sentence moves
-it the same distance. The decodable map composes the chain correctly,
-but the answers do not. The 2-D code is not a linear function of the
-stated offset, yet values written from a fitted linear map still move
-0.27 of the answers (random 0.00).
+it the same distance. The decodable map composes the chain, and the
+answers do not. In a preregistered test, answering geometrically from
+the decoded map beats the model on questions that need the chain (0.80
+vs 0.73), and ties it on the others. The 2-D code is not a linear
+function of the stated offset, yet values written from a fitted linear
+map still move 0.27 of the answers (random 0.00).
 \end{abstract}
 
 \section{1. Introduction}\label{introduction}
@@ -188,6 +190,10 @@ contributions:
   Evidence that this code behaves as a switch between stated values, not
   as a coordinate: halfway settings snap, and a composed position copied
   from a word-identical sentence is not used (both preregistered).
+\item
+  A preregistered comparison showing that answers read linearly from the
+  unused map beat the model's own answers on questions that need
+  composition (0.80 vs 0.73), and tie them elsewhere.
 \item
   Preregistered erasure tests: removing the decodable coordinates
   everywhere does not hurt answers about inferred positions more than a
@@ -655,6 +661,37 @@ of it to remove. By contrast, the probes read two-step positions as
 accurately as one-step ones (§3.2): the unused map composes the chain,
 and the answers do not.
 
+\subsection{3.10 Would the model's own map have answered better? (P9,
+preregistered)}\label{would-the-models-own-map-have-answered-better-p9-preregistered}
+
+If the map composes the chain and the answers do not, then answering
+from the map should beat the model, but only where composition is needed
+(\texttt{docs/preregistration\_p9.md}). - \textbf{Decoding.} We fit the
+P2 probe at the object-list positions on 2,000 new scenes and decode
+every object's position on 300 new chains (5,350 questions). -
+\textbf{Map answers.} Each question is answered geometrically from the
+decoded positions. - \textbf{Comparison.} These answers are compared
+with the model's own.
+
+At layer 21 (probe R² 0.71), the map is more accurate on questions that
+involve C and R: \textbf{0.80 vs 0.73, difference +0.069 {[}+0.042,
++0.094{]}}. On questions that need no composition it ties the model: C
+and M alone, 0.91 vs 0.89 (+0.019 {[}−0.009, +0.047{]}); M and R, 0.90
+vs 0.90. The preregistered verdict is \textbf{the map would have
+answered better}.
+
+Layer 24 shows the same pattern (+0.056 {[}+0.029, +0.082{]} on CR, ties
+elsewhere). The advantage fades where the probe is weaker: at layer 18
+(R² 0.56) the map trails the model on every class, and at layer 28 (R²
+0.65) the CR difference is +0.010. The map and the model agree on only
+0.67 of CR answers at layer 21, against 0.82 on the other classes.
+
+The model therefore holds, in a representation its answers never read, a
+more accurate answer to exactly the questions where its own answers cut
+corners. A caveat stated in advance applies: the read-out is a linear
+probe we fitted, so this shows the information is present and linearly
+usable, not that the model could use it without further computation.
+
 \section{4. Discussion}\label{discussion}
 
 \textbf{What we found.} Gemma 3 12B (and 27B) composes per-object
@@ -708,13 +745,14 @@ live outside that subspace or be nonlinear. P7 adds the mechanism: the
 answer pathway reads the objects' own sentences and never reads the
 list. The map at the list is built off the path the answers take. P8b
 adds a cost: the map composes the chain, while the answers under-use the
-parent's offset. Using the map would have improved them. This resembles
-the gap between faithful internal state and unfaithful decoding reported
-for propositional probes (Feng, Russell \& Steinhardt, 2024). (ii) and
-(iii) remain. P6 lengthens the chains but keeps the question types, all
-of which can be answered by chaining. Questions that are hard to answer
-without a layout (collinearity, containment) would test (iii) more
-sharply.
+parent's offset. P9 measures that cost: read linearly, the map answers
+chain questions 7 points more accurately than the model does. This
+resembles the gap between faithful internal state and unfaithful
+decoding reported for propositional probes (Feng, Russell \& Steinhardt,
+2024). (ii) and (iii) remain. P6 lengthens the chains but keeps the
+question types, all of which can be answered by chaining. Questions that
+are hard to answer without a layout (collinearity, containment) would
+test (iii) more sharply.
 
 \section{5. Limitations}\label{limitations}
 
@@ -784,10 +822,11 @@ deviations}\label{preregistration-and-deviations}
   attention knockout): composed position available without M's sentence
   (the re-reading hypothesis rejected); list not read. P8
   (\texttt{docs/preregistration\_p8.md}, multi-layer transfer): partial
-  (0.13 at most). Deviation in P7: a classification bug dropped
-  direction questions about C and M alone before scoring, so P7's CM
-  class contains only further-north/east questions; CR and MR, on which
-  the verdicts rest, are unaffected (noted in
+  (0.13 at most). P9 (\texttt{docs/preregistration\_p9.md}): the map
+  would have answered better. Deviation in P7: a classification bug
+  dropped direction questions about C and M alone before scoring, so
+  P7's CM class contains only further-north/east questions; CR and MR,
+  on which the verdicts rest, are unaffected (noted in
   \texttt{results/RESULTS.md}).
 \item
   \textbf{Exploratory}: the distance, sentence-end and question-mention

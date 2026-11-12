@@ -1056,3 +1056,23 @@ involving C) were classified correctly, and the preregistered verdicts rest on C
 are unchanged. Fixed in `src/geomap/followups.py` (only object names count), with a regression test. The exploratory P8b
 analysis had the same issue in its "all three" group; it was rerun after the fix (entry above), and its key C&R-only
 row is unchanged.
+
+## 2026-11-12 21:02 · P9 would the model's own map have answered better? (gemma3-12b) — preregistered
+Model **gemma3-12b**. Linear probes for scene-centred (x, y) at the object-list positions, fitted on 2000 new 3-object scenes. Test: 300 new chains R → M → C, 5350 questions. The *map* answers each question geometrically from the decoded positions; the *model* answers as usual. Accuracy against the true layout (95% scene-bootstrap CI for the difference):
+
+| layer (probe CV R²) | questions | n | model | map | map − model | agreement |
+|---|---|---|---|---|---|---|
+| 18 (0.56) | CM | 1286 | 0.89 | 0.82 | -0.067 [-0.099, -0.033] | 0.75 |
+| 18 (0.56) | CR | 2772 | 0.73 | 0.71 | -0.024 [-0.056, +0.007] | 0.61 |
+| 18 (0.56) | MR | 1292 | 0.90 | 0.83 | -0.071 [-0.103, -0.042] | 0.77 |
+| 21 (0.71) | CM | 1286 | 0.89 | 0.91 | +0.019 [-0.009, +0.047] | 0.82 |
+| 21 (0.71) | CR | 2772 | 0.73 | 0.80 | +0.069 [+0.042, +0.094] | 0.67 |
+| 21 (0.71) | MR | 1292 | 0.90 | 0.90 | -0.005 [-0.033, +0.022] | 0.82 |
+| 24 (0.68) | CM | 1286 | 0.89 | 0.89 | +0.005 [-0.025, +0.034] | 0.81 |
+| 24 (0.68) | CR | 2772 | 0.73 | 0.79 | +0.056 [+0.029, +0.082] | 0.66 |
+| 24 (0.68) | MR | 1292 | 0.90 | 0.88 | -0.020 [-0.050, +0.009] | 0.80 |
+| 28 (0.65) | CM | 1286 | 0.89 | 0.87 | -0.020 [-0.049, +0.009] | 0.80 |
+| 28 (0.65) | CR | 2772 | 0.73 | 0.74 | +0.010 [-0.017, +0.037] | 0.63 |
+| 28 (0.65) | MR | 1292 | 0.90 | 0.87 | -0.026 [-0.057, +0.002] | 0.81 |
+
+Preregistered verdict (layer 21, CR questions): **the map would have answered better**. Rules: docs/preregistration_p9.md.
