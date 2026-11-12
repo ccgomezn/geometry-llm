@@ -25,8 +25,9 @@ The git history shows the order.
 
 - Paper (preprint, Zenodo): https://doi.org/10.5281/zenodo.24178043 · source: [`paper/draft.md`](paper/draft.md) (PDF build: `python3 paper/arxiv/build.py`)
 - Plain-language write-ups: [Part 1](https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea),
-  [Part 2](https://medium.com/@gfcristhian98/i-found-the-map-inside-the-ai-then-i-deleted-it-and-nothing-happened-70f599a6fc83)
-- Interactive demo: [`demo/move-the-map.html`](demo/move-the-map.html)
+  [Part 2](https://medium.com/@gfcristhian98/i-found-the-map-inside-the-ai-then-i-deleted-it-and-nothing-happened-70f599a6fc83),
+  [Part 3](https://medium.com/@gfcristhian98/the-ai-knew-better-than-it-answered-665e03cf3fb6)
+- Interactive demo and summary: https://ccgomezn.github.io/geometry-llm/
 
 ## Layout
 
