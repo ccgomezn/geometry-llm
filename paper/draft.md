@@ -153,6 +153,10 @@ All rules are in `docs/preregistration*.md`, committed before the corresponding 
 
 **Deviations.** A code review changed which model the unchanged selection rule picked, from Gemma 3 27B to 12B. One chain experiment (E2) also used a stricter question set defined after the data. In the attention-knockout test, a classification bug dropped direction questions about C and M before scoring. The verdicts rest on the other classes, which were unaffected. Each deviation is dated in `results/RESULTS.md`.
 
+## AI assistance
+
+The author used Claude (Anthropic) to help write the experiment code, run analyses, and draft and edit this text. The research questions, the preregistered designs and decision rules, and the conclusions were set and checked by the author, who takes responsibility for all content. Every number comes from the result files in the public repository.
+
 ## Code and data
 
 Code, preregistrations (with their commit history), and all result files are available at https://github.com/ccgomezn/geometry-llm.
