@@ -61,6 +61,22 @@ def patch_edit(meta: list):
     return edit
 
 
+def multi_patch_edit(meta: list):
+    """meta[item] = list of (layer, positions, source activations [n_pos, d]), or None: copy at several layers at once
+    (layers visited in increasing order, as nnsight requires)."""
+
+    def edit(m: LoadedModel, row_items: list[int]):
+        ls = sorted({l for i in row_items if meta[i] for l, _, _ in meta[i]})
+        for l in ls:
+            h = layer_out(m, l)
+            for j, i in enumerate(row_items):
+                for ll, pos, acts in (meta[i] or ()):
+                    if ll == l:
+                        h[j, pos, :] = acts.to(h.device, h.dtype)
+
+    return edit
+
+
 def run_pair(m: LoadedModel, base: Scene, src: Scene, leaf: str, qs: Sequence[Question],
              sites: Sequence[Site], layers: Sequence[int], batch_size: int = 16) -> pd.DataFrame:
     base_pre = build_prompt(base, None, m.tok, m.family)

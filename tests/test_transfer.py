@@ -78,3 +78,43 @@ def test_verdict_transfer_rules():
     assert verdict_transfer(mk([0.0, 0.05, 0.1], [1.0, 1.0, 1.0]))[0] == "not carried"
     assert verdict_transfer(mk([0.9, 0.05, 0.08], [1.0, 1.0, 1.0]))[0] == "not carried"  # layer 0 is not counted
     assert verdict_transfer(mk([0.0, 0.3, 0.2], [1.0, 1.0, 1.0]))[0] == "partial"
+
+
+# ---------- P8: multi-layer transfer ----------
+
+def test_multi_patch_self_copy_is_identity(m):
+    from geomap.patching import multi_patch_edit, prefix_acts
+    from geomap.prompts import build_prompt
+    from geomap.scoring import score
+    tp = make_transfer_pairs(m, 1, seed=3)[0]
+    spec = build_prompt(tp.base, None, m.tok, m.family)
+    acts = prefix_acts(m, spec, range(m.n_layers + 1))
+    pos = list(range(*spec.relation_spans[tp.child]))
+    items = [(build_prompt(tp.base, q, m.tok, m.family), q) for q in tp.qs[:2]]
+    meta = [[(l, pos, acts[l][pos]) for l in range(m.n_layers + 1)] for _ in items]
+    a, b = score(m, items), score(m, items, edit=multi_patch_edit(meta))
+    for x, y in zip(a, b):
+        assert all(abs(x[k] - y[k]) < 1e-4 for k in x)
+
+
+def test_run_transfer_multi_schema_and_last_layer_null(m):
+    from geomap.transfer import run_transfer_multi
+    tp = make_transfer_pairs(m, 1, seed=4)[0]
+    starts = [0, m.n_layers]
+    df = run_transfer_multi(m, tp, starts)
+    assert set(df.site) == {"none", "source", "target", "patched"}
+    assert sorted(df[df.site == "patched"].layer.unique()) == starts
+    # copying only the final outputs over C's sentence cannot change anything downstream
+    none = df[df.site == "none"].set_index("qid").model_ans
+    last = df[(df.site == "patched") & (df.layer == m.n_layers)].set_index("qid").model_ans
+    assert (none == last.reindex(none.index)).all()
+
+
+def test_verdict_multi():
+    from geomap.transfer import verdict_multi
+    s = pd.DataFrame(dict(layer=[0, 8, 16, 24, 48], follow_T=[0.9, 0.8, 0.6, 0.2, 0.0],
+                          stable=[0.95, 0.95, 0.92, 0.97, 1.0]))
+    assert verdict_multi(s) == ("carried by the dependent's sentence", 16)
+    assert verdict_multi(s.assign(follow_T=0.05)) == ("not carried", None)
+    assert verdict_multi(s.assign(follow_T=0.3)) == ("partial", None)
+    assert verdict_multi(s.assign(stable=0.8)) == ("partial", None)

@@ -15,7 +15,7 @@ import pandas as pd
 
 from geomap.composition import _chain
 from geomap.models import LoadedModel
-from geomap.patching import run_pair
+from geomap.patching import multi_patch_edit, prefix_acts, run_pair
 from geomap.prompts import NAME_POOLS, aligned, build_prompt, single_token_names
 from geomap.questions import Question, _resample_component, all_questions, answer_for, passes_margin
 from geomap.scenes import Scene, generate_scene, hybrid, move_object
@@ -131,5 +131,38 @@ def verdict_transfer(summary: pd.DataFrame, follow: float = 0.5, stable: float =
     if len(hit):
         return "carried", int(hit.layer.iloc[0])
     if (s.follow_T <= none).all():
+        return "not carried", None
+    return "partial", None
+
+
+def run_transfer_multi(m: LoadedModel, tp: TransferPair, starts, batch_size: int = 16) -> pd.DataFrame:
+    """P8: clean answers on base ("none"), source and target, plus answers after copying C's sentence from the source
+    run at every layer output from L to the last ("patched", layer = L), for each L in `starts`."""
+    bpre = build_prompt(tp.base, None, m.tok, m.family)
+    acts = prefix_acts(m, build_prompt(tp.src, None, m.tok, m.family), range(m.n_layers + 1))
+    pos = list(range(*bpre.relation_spans[tp.child]))
+    items, meta, info = [], [], []
+    for qi, q in enumerate(tp.qs):
+        bspec = build_prompt(tp.base, q, m.tok, m.family)
+        for site, scene in (("none", tp.base), ("source", tp.src), ("target", tp.tgt)):
+            items.append((bspec if site == "none" else build_prompt(scene, q, m.tok, m.family), q))
+            meta.append(None)
+            info.append((site, -1, qi))
+        for L in starts:
+            items.append((bspec, q))
+            meta.append([(l, pos, acts[l][pos]) for l in range(L, m.n_layers + 1)])
+            info.append(("patched", L, qi))
+    scores = score(m, items, edit=multi_patch_edit(meta), batch_size=batch_size)
+    return pd.DataFrame([dict(site=site, layer=L, qid=qi, qtype=tp.qs[qi].qtype.value, model_ans=predict(sc))
+                         for (site, L, qi), sc in zip(info, scores)])
+
+
+def verdict_multi(summary: pd.DataFrame, follow: float = 0.5, stable: float = 0.9, none: float = 0.1):
+    """docs/preregistration_p8.md: carried if some start L has follow_T >= 0.5 with stable >= 0.9 (returns the latest
+    such L); not carried if follow_T <= 0.1 at every L; otherwise partial."""
+    hit = summary[(summary.follow_T >= follow) & (summary.stable >= stable)]
+    if len(hit):
+        return "carried by the dependent's sentence", int(hit.layer.max())
+    if (summary.follow_T <= none).all():
         return "not carried", None
     return "partial", None
