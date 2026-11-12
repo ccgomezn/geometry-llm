@@ -1,6 +1,5 @@
-"""Paper figure 2: (a) probes by layer, (b) patching by layer and site, (c) DAS vs random subspace.
-
-Each panel is drawn only if its result files exist."""
+"""Paper figure 2: (a) probes by layer, (b) patching by layer and site. (The subspace results are Figure 3,
+paper/make_paper_figs.py.)"""
 
 import argparse
 
@@ -21,7 +20,7 @@ def main():
     ap.add_argument("--model", default="gemma3-12b")
     a = ap.parse_args()
     M = a.model
-    fig, axs = plt.subplots(1, 3, figsize=(13, 3.6))
+    fig, axs = plt.subplots(1, 2, figsize=(10, 3.8))
 
     ax = axs[0]
     real = pd.read_csv(R / "p2" / f"{M}_real.csv")
@@ -59,25 +58,6 @@ def main():
     ax.set_xlabel("layer patched")
     ax.set_ylabel("joint agreement (all answers follow)")
     ax.set_title("(b) Moving one object inside the model", fontsize=10)
-
-    ax = axs[2]
-    p4 = R / "p4" / f"{M}_das.csv"
-    if p4.exists():
-        d = pd.read_csv(p4)
-        qts = [q for q in d.qtype.unique() if q != "ALL"] + ["ALL"]
-        meths = list(dict.fromkeys(d.method))
-        w = 0.8 / len(meths)
-        for i, meth in enumerate(meths):
-            dm = d[d.method == meth].set_index("qtype").reindex(qts)
-            ax.bar([j + i * w for j in range(len(qts))], dm.acc, w, label=meth,
-                   yerr=[dm.acc - dm.acc_lo, dm.acc_hi - dm.acc], capsize=2)
-        ax.axhline(0.7, color="g", ls="-.", lw=0.8)
-        ax.set_xticks([j + 0.4 - w / 2 for j in range(len(qts))], [q.replace("_", " ") for q in qts], rotation=25,
-                      fontsize=8)
-        ax.legend(fontsize=7)
-    ax.set_ylim(0, 1)
-    ax.set_ylabel("interchange accuracy")
-    ax.set_title("(c) Swapping only a learned subspace", fontsize=10)
 
     fig.tight_layout()
     out = R / "figures" / "paper_fig2_mechanism.png"

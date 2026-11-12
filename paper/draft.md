@@ -1,6 +1,6 @@
 # Decodable, Not Used: A Language Model Composes a Spatial Map but Answers from a Code for Each Stated Relation
 
-*Cristhian Gómez Neira — draft, November 2026*
+*Cristhian Gómez Neira*
 
 ## Abstract
 
@@ -31,7 +31,7 @@ We test the property that separates a usable map from a readable one: **editing 
 
 **Patching.** Each pair of scenes differs in the one sentence that places a leaf. We run the model on the base scene but copy in the source scene's hidden states at one site and one layer. Sites: the object's list position; the end of the list; the object's sentence; the whole description (positive control); and, exploratorily, parts of the sentence and the question tokens. *Joint agreement* is the share of pairs in which every answer then equals the model's answer on the source scene, among pairs where at least one answer differs.
 
-**Distributed alignment search (DAS).** Following Geiger et al. (2024), we learn an orthonormal Q ∈ ℝ^{d×2} and set h′ = h_base + QQᵀ(h_src − h_base) at every position of a site at one layer. Q is trained with Adam (lr 10⁻³, 2 epochs) so that the patched run gives the model's answer on the source scene. *Interchange accuracy* is the share of questions, among those where the model's source and base answers differ, on which the patched answer equals the source answer. The control is a random 2-D subspace. Training and test use disjoint pairs (300 each).
+**Distributed alignment search (DAS).** Following Geiger et al. (2024), we learn an orthonormal $Q \in \mathbb{R}^{d\times 2}$ and set $h' = h_{\text{base}} + QQ^\top(h_{\text{src}} - h_{\text{base}})$ at every position of a site at one layer. Q is trained with Adam (lr 10⁻³, 2 epochs) so that the patched run gives the model's answer on the source scene. *Interchange accuracy* is the share of questions, among those where the model's source and base answers differ, on which the patched answer equals the source answer. The control is a random 2-D subspace. Training and test use disjoint pairs (300 each).
 
 **Interpolation test.** With Q fixed, we set the subspace to base + α(source − base) for α ∈ {0, ¼, ½, ¾, 1, 1½} on 150 test pairs. Answers are scored against the layout with the object at the matching interpolated position (margin ≥ 1 unit / 10° there). The key subset is *novel* questions, whose answer at the interpolated position differs from the answer in both stated layouts. A coordinate code should give that in-between answer; a switch between stated values should not. Chance on this subset is the mean of 1/8 (direction) and 1/2 (binary questions), 0.141.
 
@@ -64,7 +64,7 @@ The coordinates are also *computed*, not merely the two stated offsets held side
 Where does the information go? Copying the moved object's *sentence* gives 0.94 [0.91, 0.96] at layer 6, close to the whole-description control (0.95). Between layers 16 and 32 both lose their effect (layer 20: 0.18 and 0.23; layer 32: 0.01). Over the same layers, copying the question tokens gains it (0.01 at layer 16, 0.20 at layer 28, 0.78 at layer 32; exploratory). The final position alone carries it only at layers 46–48 (≥ 0.56). The information flows from the stated sentence to the question; the list and mention positions, where the coordinates are best decoded, are bypassed. Against the original preregistration, the P3 criterion for a map fails and the criterion for relational processing is met, so the overall verdict was **mixed**.
 
 ![Figure 2](../results/figures/paper_fig2_mechanism.png)
-*Figure 2. (a) Probe R² of (x, y) at the list position by layer, with controls and the stated-sentence baseline. (b) Joint agreement after copying one site from the source scene (100 pairs). [Panel (c) of this render is empty and should be removed; the subspace results are in Figure 3.]*
+*Figure 2. (a) Probe R² of (x, y) at the list position by layer, with controls and the stated-sentence baseline. (b) Joint agreement after copying one site from the source scene (100 pairs). The subspace results are in Figure 3.*
 
 ### 3.4 A 2-D code at the stated sentence controls the answers
 
@@ -120,7 +120,7 @@ Three follow-ups on Gemma 3 12B, with rules fixed before the data (`docs/preregi
 
 *Natural encoding (P5a).* For 600 new aligned pairs, we regress the change in the two P4c subspace coordinates at each token of the moved object's sentence on the change in its stated offset (one 2×2 map per token position from the sentence end; pair-grouped 5-fold CV). The fit reaches **R² = 0.31**, inside the range of 200 random 2-D subspaces (95th percentile 0.35, 99th 0.39). Random directions score this high because the number words themselves change between the two sentences. The preregistered verdict is **no linear encoding**: the code is not a linear coordinate of the stated offset.
 
-*Write-in (P5b).* On the 300 P4c test pairs, instead of copying the source run's coordinates, we set them to base + W_j Δoff using the fitted maps. The copy edit reproduces the P4c result exactly (**0.72 [0.68, 0.75]**). The write-in moves **0.27 [0.22, 0.31]** of the affected answers; the same write-in through the random P4 control subspace moves **0.00**. The ratio, 0.37, gives the preregistered verdict **partial**. The write-in works for "further east" (0.65) far better than for "further north" (0.28) or direction (0.14). Values derived from the stated offset therefore act on the answers through this subspace, so it is not a purely dormant direction; but a linear map from the offset captures only part of what the copied values carry.
+*Write-in (P5b).* On the 300 P4c test pairs, instead of copying the source run's coordinates, we set them to base + $W_j\,\Delta\mathrm{off}$ using the fitted maps. The copy edit reproduces the P4c result exactly (**0.72 [0.68, 0.75]**). The write-in moves **0.27 [0.22, 0.31]** of the affected answers; the same write-in through the random P4 control subspace moves **0.00**. The ratio, 0.37, gives the preregistered verdict **partial**. The write-in works for "further east" (0.65) far better than for "further north" (0.28) or direction (0.14). Values derived from the stated offset therefore act on the answers through this subspace, so it is not a purely dormant direction; but a linear map from the offset captures only part of what the copied values carry.
 
 *Erasing the map (P5c).* At each layer 12–30 we fit the P2 ridge probe on object-list activations of 2,000 new scenes and remove its directions by iterative nullspace projection (Ravfogel et al., 2020) until the probe's held-out R² falls below 0.1. That takes rank 2–10 and leaves R² ≤ 0.09 at every layer (from up to 0.69). We then erase this basis at every token position, at layer 14, 21 or 28, or at all layers 12–30, and compare with random bases of the same rank. On 300 new chains (5,320 questions), erasing the map never hurts questions that involve the two-step object more than random erasure does. The excess drop is −0.003, −0.022, −0.011 and −0.027 for the four configurations; the largest upper CI bound is 0.001. Stated-only questions behave the same way. The preregistered verdict is **map not used (in this subspace)**.
 
@@ -137,7 +137,7 @@ Three follow-ups on Gemma 3 12B, with rules fixed before the data (`docs/preregi
 ## 5. Limitations
 
 - **Scope.** Two models of one family (Gemma 3); 3-object scenes; five question types; fixed sentence templates and integer grids. Other families did not pass the behaviour gate, which limits what we can say about them.
-- **DAS illusions.** A learned subspace can move behaviour through a direction the model does not naturally use [CITE: Makelov et al. 2023, "Is this the subspace you are looking for?"]. Disjoint-data stability, the random control, the link to model competence, and the sentence-site location argue against a pure illusion, and so does P5b: values written from a fitted linear map of the offset move 0.27 of the answers (random subspace 0.00). But P5a finds no linear encoding, and the write-in recovers only 37% of the copy edit, so part of what the copied values carry is not captured by a linear reading of the stated offset.
+- **DAS illusions.** A learned subspace can move behaviour through a direction the model does not naturally use (Makelov et al., 2024). Disjoint-data stability, the random control, the link to model competence, and the sentence-site location argue against a pure illusion, and so does P5b: values written from a fitted linear map of the offset move 0.27 of the answers (random subspace 0.00). But P5a finds no linear encoding, and the write-in recovers only 37% of the copy edit, so part of what the copied values carry is not captured by a linear reading of the stated offset.
 - **E3 and redundancy.** A null transfer from C's sentence is compatible with the composed position being present there but overridden by recomputation from M's unchanged sentence. "Not carried" means not decisive, not absent.
 - **Erasure scope.** P5c removes the linear subspace that the list-position probe reads. Information coded differently at other positions, or nonlinearly, is not removed; "not used" means not used in that subspace. The P5 tests were run on 12B only.
 - **Leaf-only moves.** Moving a leaf changes its sentence and its position together, so the sentence-site experiments locate the information but do not identify its format.
@@ -149,6 +149,10 @@ Three follow-ups on Gemma 3 12B, with rules fixed before the data (`docs/preregi
 - **Preregistered follow-ups** (`docs/preregistration_e2.md`, `_e3.md`, `_p4c.md`): E2 (lazy; mixed on a stricter set defined after the data, a dated deviation); P4c confirmation and 27B replication (both confirmed under ALL ≥ 0.70, random ≤ 0.05; the original per-type ≥ 0.7 criterion, reported only, is not met); halfway test (switch in both models); E3 (not carried). P5 (`docs/preregistration_p5.md`, Gemma 3 12B): natural encoding (no linear encoding), write-in (partial), erasure (map not used in this subspace).
 - **Exploratory**: the distance, sentence-end and question-mention probes; the necessity, sentence-part, question-token and mention patches; DAS at the sentence site at layer 14 (the choice that P4c then confirmed); the first interpolation run; the stability, failure and competence analyses.
 
+## Code and data
+
+Code, preregistrations (with their commit history), and all result files will be released at [repo URL].
+
 ## References
 
 - An, J., Yang, L., Wang, M., Lu, L., An, W., & Yang, E. (2026). From Human Cognition to Neural Activations: Probing the Computational Primitives of Spatial Reasoning in LLMs. arXiv:2603.26323.
@@ -157,8 +161,8 @@ Three follow-ups on Gemma 3 12B, with rules fixed before the data (`docs/preregi
 - Gurnee, W., & Tegmark, M. (2023). Language Models Represent Space and Time. *ICLR 2024*. arXiv:2310.02207.
 - Hewitt, J., & Liang, P. (2019). Designing and Interpreting Probes with Control Tasks. *EMNLP-IJCNLP*, 2733–2743. doi:10.18653/v1/D19-1275
 - Kosslyn, S. M., Ball, T. M., & Reiser, B. J. (1978). Visual images preserve metric spatial information: Evidence from studies of image scanning. *JEP:HPP*, 4(1), 47–60. doi:10.1037/0096-1523.4.1.47
-- [CITE: Makelov, A., Lange, G., & Nanda, N. (2023). Is This the Subspace You Are Looking For? An Interpretability Illusion for Subspace Activation Patching — verify authors, venue, arXiv id]
+- Makelov, A., Lange, G., Geiger, A., & Nanda, N. (2024). Is This the Subspace You Are Looking for? An Interpretability Illusion for Subspace Activation Patching. *ICLR 2024*. arXiv:2311.17030.
 - Pylyshyn, Z. W. (2002). Mental imagery: In search of a theory. *BBS*, 25(2), 157–182. doi:10.1017/S0140525X02000043
-- Ravfogel, S., Elazar, Y., Gonen, H., Twiton, M., & Goldberg, Y. (2020). Null It Out: Guarding Protected Attributes by Iterative Nullspace Projection. *ACL 2020*. arXiv:2004.07667.
+- Ravfogel, S., Elazar, Y., Gonen, H., Twiton, M., & Goldberg, Y. (2020). Null It Out: Guarding Protected Attributes by Iterative Nullspace Projection. *ACL 2020*, 7237–7256. doi:10.18653/v1/2020.acl-main.647. arXiv:2004.07667.
 - Tehenan, M., Bolivar Moya, C., Long, T., & Lin, G. (2025). Linear Spatial World Models Emerge in Large Language Models. arXiv:2506.02996.
 - Vafa, K., Chen, J. Y., Rambachan, A., Kleinberg, J., & Mullainathan, S. (2024). Evaluating the World Model Implicit in a Generative Model. *NeurIPS 2024*. arXiv:2406.03689.
