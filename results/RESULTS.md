@@ -991,3 +991,25 @@ Clean accuracy by depth (deepest object involved): 1: 0.82 (chance 0.37, n = 173
 | window 12-30 | deep | 0.65 | 0.053 | 0.084 | -0.031 [-0.053, -0.011] | 2341 |
 
 Preregistered verdict: **still not used**. Rules: docs/preregistration_p6.md.
+
+## 2026-11-12 20:14 · P7 attention knockout: what does the question read? (gemma3-12b) — preregistered
+Model **gemma3-12b**, 300 new chains R → M → C, 4842 questions (CM: 744, CR: 2802, MR: 1296). The question tokens (everything after the object list) may not attend to one span, in the given layers. Clean accuracy: CM 0.96, CR 0.70, MR 0.90.
+
+Accuracy drop (clean − knocked out), with scene-bootstrap 95% CIs:
+
+| blocked span | layers | CR (needs C's composed position) | CM (C vs its parent) | MR (no C) |
+|---|---|---|---|---|
+| list | all | 0.018 [0.003, 0.031] | -0.017 [-0.030, -0.004] | 0.015 [0.001, 0.032] |
+| list | 0-15 | 0.003 [-0.004, 0.010] | -0.004 [-0.014, 0.005] | 0.010 [-0.002, 0.022] |
+| list | 16-31 | 0.004 [-0.008, 0.015] | -0.013 [-0.022, -0.005] | 0.011 [-0.004, 0.026] |
+| list | 32-47 | 0.002 [-0.001, 0.006] | 0.000 [-0.005, 0.005] | 0.002 [-0.002, 0.006] |
+| own | all | 0.133 [0.110, 0.154] | 0.351 [0.317, 0.384] | -0.065 [-0.081, -0.049] |
+| own | 0-15 | 0.000 [-0.007, 0.007] | 0.030 [0.013, 0.046] | -0.017 [-0.028, -0.007] |
+| own | 16-31 | 0.124 [0.103, 0.144] | 0.259 [0.223, 0.294] | -0.062 [-0.079, -0.048] |
+| own | 32-47 | 0.007 [0.001, 0.013] | -0.005 [-0.011, -0.001] | 0.002 [-0.002, 0.006] |
+| parent | all | 0.027 [0.017, 0.039] | -0.015 [-0.028, -0.001] | 0.410 [0.380, 0.443] |
+| parent | 0-15 | 0.005 [-0.001, 0.011] | -0.008 [-0.019, 0.001] | 0.046 [0.032, 0.059] |
+| parent | 16-31 | 0.020 [0.011, 0.031] | 0.003 [-0.012, 0.017] | 0.327 [0.302, 0.354] |
+| parent | 32-47 | 0.001 [-0.004, 0.006] | -0.004 [-0.008, 0.000] | 0.009 [-0.003, 0.021] |
+
+Preregistered verdicts: **composed position available without M's sentence**; **list not read**. Rules: docs/preregistration_p7.md.

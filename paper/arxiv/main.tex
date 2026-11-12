@@ -135,10 +135,14 @@ stated ones (0.085 and 0.055 vs chance 0.141). Composed positions are
 decodable but are not the variable the answers read: erasing the
 linearly decodable coordinates at every token and layer 12--30 (probe R²
 ≤ 0.09 after erasure) costs no more accuracy than erasing random
-directions of the same rank, on 3-object scenes and on 4--5-object
-scenes where questions require chaining up to four relations. The 2-D
-code is not a linear function of the stated offset, yet values written
-from a fitted linear map still move 0.27 of the answers (random 0.00).
+directions of the same rank. This holds on 3-object scenes and on
+4--5-object scenes where questions require chaining up to four
+relations. Attention knockout shows why: the question reads each
+object's own sentence in layers 16--31, a dependent object's sentence
+already carries its composed position, and the object list is never
+read. The 2-D code is not a linear function of the stated offset, yet
+values written from a fitted linear map still move 0.27 of the answers
+(random 0.00).
 \end{abstract}
 
 \section{1. Introduction}\label{introduction}
@@ -583,6 +587,48 @@ is a fifth of the preregistered threshold of 0.10, and erasing at every
 layer 12--30 again hurts less than random erasure. The preregistered
 verdict is \textbf{still not used}.
 
+\subsection{3.8 What the question reads (P7,
+preregistered)}\label{what-the-question-reads-p7-preregistered}
+
+To find where the answers take positions from, we block attention from
+the question tokens to one span of the prompt. The question tokens are
+everything after the object list. We block either in all 48 layers or in
+one third of them, on 300 new chains R → M → C (4,842 questions;
+\texttt{docs/preregistration\_p7.md}). Questions fall into three
+classes: - \textbf{CR} involve C and R, so they need C's composed
+position (clean accuracy 0.70); - \textbf{CM} involve only C and its
+parent (0.96); - \textbf{MR} do not involve C (0.90).
+
+\emph{The object list is not read.} Blocking it changes accuracy by at
+most 0.018 in any class or layer window. The answers never need the
+place where the map is decodable.
+
+\emph{Each object's own sentence is read, in layers 16--31.} Blocking
+C's sentence costs CM questions \textbf{0.351 {[}0.317, 0.384{]}} and CR
+questions 0.133. Blocking M's sentence costs MR questions \textbf{0.410
+{[}0.380, 0.443{]}}. Nearly all of each effect comes from layers 16--31
+(0.259 and 0.327). The knockout is therefore effective and selective.
+Blocking C's sentence even helps MR questions slightly (−0.065), as if
+it competes with them.
+
+\emph{The question does not re-read the chain.} Blocking M's sentence
+costs CR questions only \textbf{0.027 {[}0.017, 0.039{]}}, although
+these need M's offset. The preregistered verdict is \textbf{composed
+position available without M's sentence}. This rejects our hypothesis
+that the question re-reads the chain of relations.
+
+The list is not read, and C's own sentence is. So the composed position
+reaches the question mainly through C's sentence tokens, which can
+themselves attend to M's sentence. Composition happens before the
+question, at the dependent object's sentence.
+
+This seems to conflict with E3, where copying C's sentence at a single
+layer did not transfer C's composed position. One reading reconciles
+them: C's sentence keeps re-reading M's sentence at later layers, so a
+copy made at one layer is overwritten by the next layers, which read M's
+unchanged sentence. Copying C's sentence at every layer from some layer
+onward would test this.
+
 \section{4. Discussion}\label{discussion}
 
 \textbf{What we found.} Gemma 3 12B (and 27B) composes per-object
@@ -594,18 +640,21 @@ The answers depend on a compact code over the sentence that
 \emph{states} an object's position, and this code behaves like a
 selector between stated values: it moves answers to the stated
 alternative, rarely to anything in between. When an object's position
-must be inferred, the copy computed over its own sentence is not used
-either; the answers are recomputed from the sentences that state the
-relations.
+must be inferred, the question reads it from that object's own sentence,
+which has already read its parent's sentence. The object list, where the
+map is decodable, is never read (P7). A one-layer copy of that sentence
+does not transfer the composed position (E3). This suggests the
+composition is kept up across layers rather than stored once.
 
 \textbf{A filing card, not a map.} A useful summary is that the model
 keeps something like a filing card per sentence, a low-dimensional code
-for what that sentence stated, and recombines the cards at question
-time, from about layer 16 to 32. It also builds a map-like code for
-every object, but in this task the map is decodable and not causally
-used. Because our moved objects are leaves, the 2-D code cannot be
-distinguished from a code for the object's stated offset; the switch
-behaviour favours the offset reading.
+for what that sentence stated. A dependent object's card is updated with
+its parent's card before the question arrives, and the question reads
+each named object's card in layers 16--31 (P7). It also builds a
+map-like code for every object, but in this task the map is decodable
+and not causally used. Because our moved objects are leaves, the 2-D
+code cannot be distinguished from a code for the object's stated offset;
+the switch behaviour favours the offset reading.
 
 \textbf{Decodability bounds use from above.} Our probes beat every
 control, including a nonlinear target that rules out sentence copying,
@@ -629,10 +678,13 @@ against (i) in its linear form, and P6 against the view that the map is
 held in reserve for long chains. Erasing every linearly decodable copy,
 at every position and across layers 12--30, leaves the answers as intact
 as a random erasure does. A backup the model falls back on would have to
-live outside that subspace or be nonlinear. (ii) and (iii) remain. P6
-lengthens the chains but keeps the question types, all of which can be
-answered by chaining. Questions that are hard to answer without a layout
-(collinearity, containment) would test (iii) more sharply.
+live outside that subspace or be nonlinear. P7 adds the mechanism: the
+answer pathway reads the objects' own sentences and never reads the
+list. The map at the list is built off the path the answers take. (ii)
+and (iii) remain. P6 lengthens the chains but keeps the question types,
+all of which can be answered by chaining. Questions that are hard to
+answer without a layout (collinearity, containment) would test (iii)
+more sharply.
 
 \section{5. Limitations}\label{limitations}
 
@@ -698,7 +750,9 @@ deviations}\label{preregistration-and-deviations}
   (\texttt{docs/preregistration\_p5.md}, Gemma 3 12B): natural encoding
   (no linear encoding), write-in (partial), erasure (map not used in
   this subspace). P6 (\texttt{docs/preregistration\_p6.md}, 12B, 4--5
-  objects): still not used.
+  objects): still not used. P7 (\texttt{docs/preregistration\_p7.md},
+  attention knockout): composed position available without M's sentence
+  (the re-reading hypothesis rejected); list not read.
 \item
   \textbf{Exploratory}: the distance, sentence-end and question-mention
   probes; the necessity, sentence-part, question-token and mention
