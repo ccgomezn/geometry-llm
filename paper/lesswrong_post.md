@@ -141,7 +141,7 @@ The write-in reaches 0.37 of the copy edit, so the verdict is "partial". It work
 
 ## Links
 
-- A non-technical write-up with an interactive demo where you edit the 2-D code yourself: [Part 1](https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea), [Part 2](PART-2-LINK).
+- A non-technical write-up with an interactive demo where you edit the 2-D code yourself: [Part 1](https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea), [Part 2](https://medium.com/@gfcristhian98/i-found-the-map-inside-the-ai-then-i-deleted-it-and-nothing-happened-70f599a6fc83).
 - Paper, code, preregistrations and results: [coming soon / repo link].
 
 *AI assistance: I used Claude (Anthropic) extensively for the code, the analysis and drafting this post. The experimental design decisions, preregistrations and conclusions were reviewed by me, and every number above comes from the committed results files.*

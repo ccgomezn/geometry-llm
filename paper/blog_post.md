@@ -88,4 +88,4 @@ The next experiment is designed to tell these apart: erase the map wherever the 
 
 ---
 
-*Part 2: [I Found the Map Inside the AI. Then I Deleted It, and Nothing Happened.](PART-2-LINK)*
+*Part 2: [I Found the Map Inside the AI. Then I Deleted It, and Nothing Happened.](https://medium.com/@gfcristhian98/i-found-the-map-inside-the-ai-then-i-deleted-it-and-nothing-happened-70f599a6fc83)*

@@ -4,7 +4,7 @@
 
 ---
 
-In [Part 2](PART-2-LINK), I found a map inside an AI model and deleted it, and the model's answers didn't change. That result bugged me. If the model doesn't need its map, why build one? And if it isn't using the map, what *is* it using?
+In [Part 2](https://medium.com/@gfcristhian98/i-found-the-map-inside-the-ai-then-i-deleted-it-and-nothing-happened-70f599a6fc83), I found a map inside an AI model and deleted it, and the model's answers didn't change. That result bugged me. If the model doesn't need its map, why build one? And if it isn't using the map, what *is* it using?
 
 So I kept digging. The answer turned out to be more interesting than "the map is useless".
 
@@ -73,4 +73,4 @@ The obvious question: can we *connect* the two routes? If you nudge the model to
 
 ---
 
-*Part 1, with an interactive demo: [The AI Worked Out Where Things Are, Even When Nobody Told It](https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea). Part 2: [I Found the Map Inside the AI. Then I Deleted It, and Nothing Happened.](PART-2-LINK)*
+*Part 1, with an interactive demo: [The AI Worked Out Where Things Are, Even When Nobody Told It](https://medium.com/@gfcristhian98/the-ai-worked-out-where-things-are-even-when-nobody-told-it-d4f9faed80ea). Part 2: [I Found the Map Inside the AI. Then I Deleted It, and Nothing Happened.](https://medium.com/@gfcristhian98/i-found-the-map-inside-the-ai-then-i-deleted-it-and-nothing-happened-70f599a6fc83)*
