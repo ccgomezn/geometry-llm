@@ -159,6 +159,6 @@ Three follow-ups on Gemma 3 12B, with rules fixed before the data (`docs/preregi
 - Kosslyn, S. M., Ball, T. M., & Reiser, B. J. (1978). Visual images preserve metric spatial information: Evidence from studies of image scanning. *JEP:HPP*, 4(1), 47–60. doi:10.1037/0096-1523.4.1.47
 - [CITE: Makelov, A., Lange, G., & Nanda, N. (2023). Is This the Subspace You Are Looking For? An Interpretability Illusion for Subspace Activation Patching — verify authors, venue, arXiv id]
 - Pylyshyn, Z. W. (2002). Mental imagery: In search of a theory. *BBS*, 25(2), 157–182. doi:10.1017/S0140525X02000043
-- Ravfogel, S., Elazar, Y., Gonen, H., Twiton, M., & Goldberg, Y. (2020). Null It Out: Guarding Protected Attributes by Iterative Nullspace Projection. *ACL 2020*, 7237–7256. arXiv:2004.07667.
+- Ravfogel, S., Elazar, Y., Gonen, H., Twiton, M., & Goldberg, Y. (2020). Null It Out: Guarding Protected Attributes by Iterative Nullspace Projection. *ACL 2020*. arXiv:2004.07667.
 - Tehenan, M., Bolivar Moya, C., Long, T., & Lin, G. (2025). Linear Spatial World Models Emerge in Large Language Models. arXiv:2506.02996.
 - Vafa, K., Chen, J. Y., Rambachan, A., Kleinberg, J., & Mullainathan, S. (2024). Evaluating the World Model Implicit in a Generative Model. *NeurIPS 2024*. arXiv:2406.03689.
