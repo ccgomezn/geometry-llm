@@ -155,7 +155,7 @@ All rules are in `docs/preregistration*.md`, committed before the corresponding 
 
 ## Code and data
 
-Code, preregistrations (with their commit history), and all result files will be released at https://github.com/ccgomezn/geometry-llm.
+Code, preregistrations (with their commit history), and all result files are available at https://github.com/ccgomezn/geometry-llm.
 
 ## References
 
