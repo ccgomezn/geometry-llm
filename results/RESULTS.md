@@ -1096,3 +1096,31 @@ Model **gemma3-12b**, 300 new chains R → M → C, 5334 questions. In attention
 | +8 | MR | 0.89 | -0.493 | -0.492 | -0.001 [-0.037, +0.035] | 1276 |
 
 Preregistered verdict (CR): **no benefit**. Rules: docs/preregistration_p10.md.
+
+## 2026-11-13 10:34 · Study 2 pilot: can the model tell inside the triangle? (gemma3-12b) — preregistered
+Model **gemma3-12b**. 400 new triangle scenes (seed 702), 4017 questions. Balanced accuracy with a 95% scene-bootstrap CI; *hard* = P inside the triangle vs inside its bounding box but outside the triangle. Baselines fitted on 2000 other scenes (seed 701); box and feature and magnitude rules are map-free, the centroid rule is a reference only. *model − best map-free* is a paired scene-bootstrap difference.
+
+| who | rung | subset | n | balanced acc [95% CI] | acc | prob. on yes/no or names |
+|---|---|---|---|---|---|---|
+| model | 1 direct | all | 722 | 0.90 [0.88, 0.92] | 0.90 | 1.00 |
+| model | 2 chain | all | 1403 | 0.66 [0.63, 0.68] | 0.65 | 1.00 |
+| model | 3 extremes | all | 1492 | 0.76 [0.73, 0.79] | 0.61 | 1.00 |
+| model | 4 inside | all | 400 | 0.52 [0.49, 0.54] | 0.46 | 1.00 |
+| model | 4 inside | hard | 342 | 0.51 [0.49, 0.54] | 0.37 | 1.00 |
+| model | 4 inside | inside | 226 | – [–, –] | 0.08 | 1.00 |
+| model | 4 inside | box_hard | 116 | – [–, –] | 0.95 | 1.00 |
+| model | 4 inside | outside_box | 58 | – [–, –] | 0.97 | 1.00 |
+| box | 4 inside | hard | 342 | 0.50 [0.50, 0.50] | 0.66 | – |
+| feature | 4 inside | hard | 342 | 0.49 [0.43, 0.54] | 0.44 | – |
+| magnitude | 4 inside | hard | 342 | 0.63 [0.58, 0.69] | 0.63 | – |
+| centroid | 4 inside | hard | 342 | 0.92 [0.89, 0.95] | 0.92 | – |
+| model − magnitude | 4 inside | hard | 342 | -0.12 [-0.18, -0.06] | – | – |
+
+Preregistered verdict: **fail**. Rules: docs/preregistration_s2_pilot.md.
+
+*Hand note (exploratory, not preregistered).* The model answers "no" to 93.5% of rung-4 questions. With people names
+(even scenes) it never says "yes" in any stratum; with object names it says "yes" to 16% of inside and 11% of box_hard
+points. Rung 3 says "yes" to 93% of true-yes and 40% of true-no items. The run saved only the chosen answer, not the
+yes/no log-probabilities, so whether the model's yes-score separates inside from outside (despite the "no" answers)
+cannot be checked from these files. Per the preregistration, the main study does not start; next step decided with
+the author.
