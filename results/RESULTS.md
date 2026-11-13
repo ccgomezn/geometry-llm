@@ -1147,3 +1147,44 @@ Check: the argmax reproduces 99.8% of the pilot's rung-4 answers.
 magnitude rule alone 0.674, magnitude + model score 0.671 (hard subset, 10-fold). The score correlates with the size
 cues (Spearman 0.25 with the magnitude rule's probability, −0.23 with the length of P's stated offset). So the weak
 lean (AUC 0.58) is consistent with "a short stated offset means inside", not with reading the triangle's shape.
+
+## 2026-11-13 18:04 · Study 2: could the model's own map tell inside the triangle? (gemma3-12b) — preregistered
+Model **gemma3-12b**. Linear probes for scene-centred (x, y) at the object-list positions, fitted on 2000 new triangle scenes (seed 711); primary layer = best training CV R² (**L21**). Test: the pilot's 400 scenes (seed 702), 4017 questions. The *map* answers every question geometrically from the decoded positions; the *model* answers are the pilot's. Balanced accuracy with 95% scene-bootstrap CIs; differences are paired.
+
+| layer (CV R² / test R²) | rung | subset | n | model | map | map − model | agreement | map − size rule |
+|---|---|---|---|---|---|---|---|---|
+| 14 (0.11 / 0.19) | 1 direct | all | 722 | 0.90 | 0.80 [0.77, 0.83] | -0.10 [-0.13, -0.06] | 0.78 |  |
+| 14 (0.11 / 0.19) | 2 chain | all | 1403 | 0.66 | 0.58 [0.56, 0.61] | -0.07 [-0.10, -0.04] | 0.60 |  |
+| 14 (0.11 / 0.19) | 3 extremes | all | 1492 | 0.76 | 0.64 [0.58, 0.69] | -0.13 [-0.18, -0.07] | 0.66 |  |
+| 14 (0.11 / 0.19) | 4 inside | all | 400 | 0.52 | 0.50 [0.48, 0.53] | -0.01 [-0.05, 0.02] | 0.86 | -0.17 [-0.22, -0.11] |
+| 14 (0.11 / 0.19) | 4 inside | hard | 342 | 0.51 | 0.50 [0.47, 0.53] | -0.01 [-0.05, 0.03] | 0.86 | -0.13 [-0.19, -0.07] |
+| 18 (0.47 / 0.53) | 1 direct | all | 722 | 0.90 | 0.95 [0.94, 0.97] | 0.05 [0.02, 0.07] | 0.88 |  |
+| 18 (0.47 / 0.53) | 2 chain | all | 1403 | 0.66 | 0.68 [0.66, 0.71] | 0.03 [-0.00, 0.06] | 0.67 |  |
+| 18 (0.47 / 0.53) | 3 extremes | all | 1492 | 0.76 | 0.69 [0.64, 0.75] | -0.07 [-0.13, -0.01] | 0.67 |  |
+| 18 (0.47 / 0.53) | 4 inside | all | 400 | 0.52 | 0.50 [0.46, 0.53] | -0.02 [-0.06, 0.02] | 0.81 | -0.17 [-0.23, -0.12] |
+| 18 (0.47 / 0.53) | 4 inside | hard | 342 | 0.51 | 0.48 [0.44, 0.52] | -0.03 [-0.08, 0.02] | 0.80 | -0.15 [-0.21, -0.07] |
+| 21 (0.57 / 0.62) | 1 direct | all | 722 | 0.90 | 0.95 [0.94, 0.97] | 0.05 [0.03, 0.08] | 0.87 |  |
+| 21 (0.57 / 0.62) | 2 chain | all | 1403 | 0.66 | 0.76 [0.74, 0.79] | 0.11 [0.08, 0.14] | 0.68 |  |
+| 21 (0.57 / 0.62) | 3 extremes | all | 1492 | 0.76 | 0.76 [0.70, 0.81] | -0.01 [-0.06, 0.05] | 0.66 |  |
+| 21 (0.57 / 0.62) | 4 inside | all | 400 | 0.52 | 0.51 [0.47, 0.56] | -0.00 [-0.05, 0.05] | 0.75 | -0.16 [-0.21, -0.10] |
+| 21 (0.57 / 0.62) | 4 inside | hard | 342 | 0.51 | 0.47 [0.41, 0.52] | -0.05 [-0.10, 0.02] | 0.72 | -0.16 [-0.24, -0.09] |
+| 24 (0.56 / 0.61) | 1 direct | all | 722 | 0.90 | 0.94 [0.92, 0.96] | 0.04 [0.01, 0.06] | 0.85 |  |
+| 24 (0.56 / 0.61) | 2 chain | all | 1403 | 0.66 | 0.76 [0.74, 0.78] | 0.10 [0.08, 0.13] | 0.69 |  |
+| 24 (0.56 / 0.61) | 3 extremes | all | 1492 | 0.76 | 0.75 [0.70, 0.81] | -0.01 [-0.07, 0.05] | 0.66 |  |
+| 24 (0.56 / 0.61) | 4 inside | all | 400 | 0.52 | 0.54 [0.50, 0.57] | 0.02 [-0.02, 0.06] | 0.78 | -0.13 [-0.19, -0.08] |
+| 24 (0.56 / 0.61) | 4 inside | hard | 342 | 0.51 | 0.52 [0.48, 0.56] | 0.00 [-0.04, 0.06] | 0.75 | -0.11 [-0.18, -0.04] |
+| 28 (0.52 / 0.56) | 1 direct | all | 722 | 0.90 | 0.94 [0.93, 0.96] | 0.04 [0.02, 0.07] | 0.88 |  |
+| 28 (0.52 / 0.56) | 2 chain | all | 1403 | 0.66 | 0.72 [0.70, 0.75] | 0.07 [0.04, 0.10] | 0.69 |  |
+| 28 (0.52 / 0.56) | 3 extremes | all | 1492 | 0.76 | 0.75 [0.69, 0.81] | -0.02 [-0.07, 0.05] | 0.68 |  |
+| 28 (0.52 / 0.56) | 4 inside | all | 400 | 0.52 | 0.54 [0.50, 0.57] | 0.02 [-0.02, 0.06] | 0.81 | -0.13 [-0.19, -0.07] |
+| 28 (0.52 / 0.56) | 4 inside | hard | 342 | 0.51 | 0.53 [0.49, 0.56] | 0.01 [-0.03, 0.06] | 0.80 | -0.11 [-0.17, -0.04] |
+
+Preregistered verdict (layer 21, rung 4 hard): **no evidence the map carries the shape**. Rules: docs/preregistration_s2_map.md.
+
+*Hand note (2026-11-13).* The decoded map gets chain questions right more often than the model does (rung 2, L21: 0.76 vs
+0.66, as in P9), but at every layer it is at chance on "inside" (hard subset 0.47–0.53), below the size rule (0.63). It
+says "yes" for 31% of box_hard points and only 24% of inside points. *Exploratory check, not preregistered*
+(`scripts/s2_noise_ceiling.py`): true positions blurred with random noise to the same R² (0.62, about 2 grid units)
+still score 0.59 on the hard subset. So the decoded map is worse than a randomly blurred true map: its errors are
+systematic and wipe out the shape. Caveat: even that blurred map scores below the size rule (0.63); a decoded map would
+need R² ≈ 0.85 to clear it. The test could therefore have passed only with a much more accurate probe than Study 1's (0.74).
