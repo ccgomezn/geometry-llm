@@ -135,3 +135,15 @@ def ladder(ts: TriScene, rng: np.random.Generator) -> list[LadderQ]:
                  f"Is {p} inside the triangle formed by {a}, {b} and {c}? Answer yes or no.", ("yes", "no"))
     out.append(LadderQ(q, 4, "yes" if in_triangle(co[p], co[a], co[b], co[c]) else "no", "yes"))
     return out
+
+
+def ladder_answer(q: Question, coords) -> str:
+    """The correct answer to a ladder question for any coordinates (true, or decoded from the model's map)."""
+    if q.qtype == TriQType.INSIDE:
+        p, a, b, c = q.args
+        return "yes" if in_triangle(coords[p], coords[a], coords[b], coords[c]) else "no"
+    if q.qtype == TriQType.EXTREME:
+        ax, sign = _DIRS[q.text.split()[3]]
+        p, *cs = q.args
+        return "yes" if all(sign * (coords[p][ax] - coords[k][ax]) > 0 for k in cs) else "no"
+    return answer_for(q, coords)

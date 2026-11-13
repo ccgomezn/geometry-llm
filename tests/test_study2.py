@@ -109,3 +109,31 @@ def test_auc_ci():
     assert auc_ci(np.where(lab == 1, -2.0, 1.0), lab, g, n_boot=50)[0] == 0.0
     est, lo, hi = auc_ci(np.zeros(40), lab, g, n_boot=50)
     assert est == 0.5 and lo <= 0.5 <= hi
+
+
+def _map_df(map_right_inside: bool, n=120, seed=0):
+    rng = np.random.default_rng(seed)
+    rows = []
+    for si in range(n):
+        st = ["inside", "box_hard", "outside_box"][si % 3]
+        truth = "yes" if st == "inside" else "no"
+        mp = truth if map_right_inside else ("no" if rng.random() < 0.9 else "yes")
+        rows.append(dict(scene=si, rung=4, stratum=st, truth=truth, positive="yes", model_pred="no", map_pred=mp,
+                         mag_pred="yes" if rng.random() < 0.5 else "no"))
+        rows.append(dict(scene=si, rung=1, stratum=st, truth="Ann", positive="Ann", model_pred="Ann",
+                         map_pred="Ann", mag_pred=None))
+        rows.append(dict(scene=si, rung=1, stratum=st, truth="Bo", positive="Ann", model_pred="Bo",
+                         map_pred="Ann", mag_pred=None))
+    return pd.DataFrame(rows)
+
+
+def test_map_summary_and_verdict():
+    from geomap.study2 import map_summary, verdict_s2_map
+    s = map_summary(_map_df(True), n_boot=200)
+    h = s[(s.rung == 4) & (s.subset == "hard")].iloc[0]
+    assert h.map_bal_acc == 1.0 and h.model_bal_acc == 0.5 and h.map_minus_model_lo > 0
+    assert h.map_minus_magnitude_lo > 0
+    r1 = s[(s.rung == 1) & (s.subset == "all")].iloc[0]
+    assert r1.model_bal_acc == 1.0 and r1.map_bal_acc == 0.5 and r1.agreement == 0.5
+    assert verdict_s2_map(s) == "the map can tell inside"
+    assert verdict_s2_map(map_summary(_map_df(False), n_boot=200)) == "no evidence the map carries the shape"

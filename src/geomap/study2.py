@@ -214,3 +214,40 @@ def auc_ci(score, label, groups, n_boot: int = 1000, seed: int = 0) -> tuple[flo
         return float(est), float("nan"), float("nan")
     lo, hi = np.nanquantile(boots, [0.025, 0.975])
     return float(est), float(lo), float(hi)
+
+
+def _ci3(prefix, t):
+    return {prefix: t[0], f"{prefix}_lo": t[1], f"{prefix}_hi": t[2]}
+
+
+def map_summary(df: pd.DataFrame, n_boot: int = 1000, seed: int = 0) -> pd.DataFrame:
+    """Map vs model per rung (subset all) and on rung 4 hard. df: one row per question with scene, rung, stratum,
+    truth, positive, model_pred, map_pred, and mag_pred (rung 4, the magnitude rule). Balanced accuracies with
+    scene-bootstrap CIs; differences are paired over the same resampled scenes."""
+    rows = []
+    groups = [(r, "all", df[df.rung == r]) for r in sorted(df.rung.unique())]
+    d4 = df[df.rung == 4]
+    groups.append((4, "hard", d4[d4.stratum.isin(HARD)]))
+    for rung, subset, d in groups:
+        args = (d.positive, d.scene)
+        row = dict(rung=rung, subset=subset, n=len(d),
+                   **_ci3("model_bal_acc", ba_ci(d.truth, d.model_pred, *args, n_boot=n_boot, seed=seed)),
+                   **_ci3("map_bal_acc", ba_ci(d.truth, d.map_pred, *args, n_boot=n_boot, seed=seed)),
+                   **_ci3("map_minus_model", ba_diff_ci(d.truth, d.map_pred, d.model_pred, *args, n_boot, seed)),
+                   agreement=float(np.mean(d.map_pred.values == d.model_pred.values)))
+        if rung == 4:
+            row.update(**_ci3("magnitude_bal_acc", ba_ci(d.truth, d.mag_pred, *args, n_boot=n_boot, seed=seed)),
+                       **_ci3("map_minus_magnitude", ba_diff_ci(d.truth, d.map_pred, d.mag_pred, *args, n_boot, seed)))
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def verdict_s2_map(summary: pd.DataFrame, floor: float = 0.65) -> str:
+    """docs/preregistration_s2_map.md, rung 4 hard subset at the primary layer."""
+    h = summary[(summary.rung == 4) & (summary.subset == "hard")].iloc[0]
+    mm_lo = float(h.map_minus_magnitude_lo)
+    if math.isnan(mm_lo) or mm_lo <= 0:
+        return "no evidence the map carries the shape"
+    if h.map_bal_acc >= floor and h.map_bal_acc_lo > 0.5 and h.map_minus_model_lo > 0:
+        return "the map can tell inside"
+    return "partial"

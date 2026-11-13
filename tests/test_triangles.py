@@ -109,3 +109,21 @@ def test_every_triangle_admits_all_strata():  # review #1: the stratum must not 
         got = {stratum(q, A, B, C) for q in grid
                if q not in (A, B, C) and edge_distance(q, A, B, C) >= 0.5}
         assert got == set(STRATA)
+
+
+def test_ladder_answer_matches_truth_and_moves_with_coords():
+    from geomap.triangles import ladder_answer
+    rng = np.random.default_rng(12)
+    for _ in range(100):
+        ts = generate_tri_scene(rng, POOL)
+        for it in ladder(ts, rng):
+            assert ladder_answer(it.question, ts.scene.coords) == it.truth
+    # float coordinates (a decoded map) work, and moving P changes the inside answer
+    ts = generate_tri_scene(np.random.default_rng(13), POOL)
+    q = next(it for it in ladder(ts, np.random.default_rng(0)) if it.rung == 4).question
+    a, b, c = (ts.scene.coords[k] for k in ts.corners)
+    g = ((a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3)
+    co = {**{k: tuple(map(float, v)) for k, v in ts.scene.coords.items()}, ts.point: g}
+    assert ladder_answer(q, co) == "yes"
+    co[ts.point] = (100.0, 100.0)
+    assert ladder_answer(q, co) == "no"
