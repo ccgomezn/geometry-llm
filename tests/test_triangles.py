@@ -1,7 +1,10 @@
 import numpy as np
 import pytest
 
-from geomap.triangles import edge_distance, generate_tri_scene, in_triangle, stratum
+from geomap.models import load_tiny_for_tests
+from geomap.prompts import NAME_POOLS, build_prompt, single_token_names
+from geomap.questions import answer_for
+from geomap.triangles import edge_distance, generate_tri_scene, in_triangle, ladder, stratum
 
 POOL = ["Ann", "Bo", "Cy", "Dee", "Eli", "Fay", "Gus", "Hal"]
 T = ((0, 0), (4, 0), (0, 4))
@@ -61,3 +64,37 @@ def test_generator_terminates_small_bound():  # Review Focus 1
     rng = np.random.default_rng(2)
     for _ in range(50):
         generate_tri_scene(rng, POOL, bound=3, min_area=2.0)
+
+
+def test_ladder_truths_and_rungs():
+    rng = np.random.default_rng(3)
+    for _ in range(100):
+        ts = generate_tri_scene(rng, POOL)
+        items = ladder(ts, rng)
+        co, p, par = ts.scene.coords, ts.point, ts.scene.parent[ts.point]
+        assert sum(it.rung == 4 for it in items) == 1
+        for it in items:
+            q = it.question
+            if it.rung in (1, 2):
+                other = next(a for a in q.args if a != p)
+                assert (other == par) == (it.rung == 1) and other in ts.corners
+                assert it.truth == answer_for(q, co) and it.positive == q.args[0]
+            else:
+                assert q.candidates == ("yes", "no") and it.positive == "yes"
+            if it.rung == 4:
+                assert (it.truth == "yes") == in_triangle(co[p], *(co[c] for c in ts.corners))
+            if it.rung == 3:
+                ax, sign = {"north": (1, 1), "east": (0, 1), "south": (1, -1), "west": (0, -1)}[q.text.split()[3]]
+                beyond = all(sign * (co[p][ax] - co[c][ax]) > 0 for c in ts.corners)
+                assert (it.truth == "yes") == beyond
+
+
+def test_ladder_prompts_build():
+    m = load_tiny_for_tests()
+    pool = single_token_names(m.tok, NAME_POOLS["people"])
+    rng = np.random.default_rng(4)
+    for _ in range(5):
+        ts = generate_tri_scene(rng, pool)
+        for it in ladder(ts, rng):
+            spec = build_prompt(ts.scene, it.question, m.tok, m.family)
+            assert set(spec.question_pos) == set(it.question.args)

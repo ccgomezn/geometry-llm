@@ -7,10 +7,12 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from enum import Enum
 from typing import Sequence
 
 import numpy as np
 
+from geomap.questions import QType, Question, answer_for, make_question
 from geomap.scenes import TEMPLATES, Relation, Scene
 
 Point = tuple[int, int]
@@ -88,3 +90,44 @@ def generate_tri_scene(rng: np.random.Generator, names_pool: Sequence[str], boun
     names = tuple((a, b, c, p)[i] for i in rng.permutation(4))
     scene = Scene(names=names, coords=coords, relations=rels, parent=parent, hop=hop, seed=seed)
     return TriScene(scene=scene, corners=(a, b, c), point=p, stratum=want)
+
+
+class TriQType(str, Enum):
+    EXTREME = "extreme"
+    INSIDE = "inside"
+
+
+@dataclass(frozen=True)
+class LadderQ:
+    question: Question
+    rung: int  # 1 direct, 2 chain, 3 extremes, 4 inside
+    truth: str
+    positive: str  # the answer counted as the positive class for balanced accuracy
+
+
+_DIRS = {"north": (1, 1), "east": (0, 1), "south": (1, -1), "west": (0, -1)}  # axis, sign
+
+
+def ladder(ts: TriScene, rng: np.random.Generator) -> list[LadderQ]:
+    s, p, (a, b, c) = ts.scene, ts.point, ts.corners
+    co, par = s.coords, s.parent[ts.point]
+    out = []
+    for corner in (a, b, c):  # rungs 1-2: P against each corner on each axis
+        rung = 1 if corner == par else 2
+        for qt, ax in ((QType.MORE_NORTH, 1), (QType.MORE_EAST, 0)):
+            if abs(co[p][ax] - co[corner][ax]) < 1:
+                continue
+            args = (p, corner) if rng.random() < 0.5 else (corner, p)
+            q = make_question(qt, args, s.names)
+            out.append(LadderQ(q, rung, answer_for(q, co), args[0]))
+    for d, (ax, sign) in _DIRS.items():  # rung 3: beyond all three corners?
+        extreme = max(sign * co[k][ax] for k in (a, b, c))
+        if abs(sign * co[p][ax] - extreme) < 1:
+            continue
+        q = Question(TriQType.EXTREME, (p, a, b, c),
+                     f"Is {p} farther {d} than all of {a}, {b} and {c}? Answer yes or no.", ("yes", "no"))
+        out.append(LadderQ(q, 3, "yes" if sign * co[p][ax] > extreme else "no", "yes"))
+    q = Question(TriQType.INSIDE, (p, a, b, c),
+                 f"Is {p} inside the triangle formed by {a}, {b} and {c}? Answer yes or no.", ("yes", "no"))
+    out.append(LadderQ(q, 4, "yes" if in_triangle(co[p], co[a], co[b], co[c]) else "no", "yes"))
+    return out
