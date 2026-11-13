@@ -18,11 +18,12 @@ from geomap.models import load
 from geomap.prompts import NAME_POOLS, build_prompt, single_token_names
 from geomap.report import ROOT, append_entry
 from geomap.scoring import candidate_mass, predict, score
-from geomap.study2 import (box_rule, centroid_rule, feature_rule, fit_centroid_rule, fit_feature_rule,
-                           pilot_summary, verdict_pilot)
+from geomap.study2 import (box_rule, centroid_rule, check_answers, feature_rule, fit_centroid_rule, fit_feature_rule,
+                           fit_magnitude_rule, magnitude_rule, pilot_summary, verdict_pilot)
 from geomap.triangles import generate_tri_scene, ladder
 
 TEST_SEED, TRAIN_SEED = 702, 701
+PREREG_N, PREREG_N_TRAIN = 400, 2000  # only this configuration is logged as the preregistered run
 
 
 def scenes(seed: int, n: int, pools) -> list:
@@ -54,7 +55,8 @@ def main():
     out = Path(a.out) if a.out else out
     out.mkdir(parents=True, exist_ok=True)
     tag = f"S2 pilot {a.model}"
-    done = out / f"{a.model}_s2_pilot.done"
+    run = f"{a.model}_s2_pilot_n{a.n}_seed{TEST_SEED}"
+    done = out / f"{run}.done"
     if done.exists():
         print(f"[s2] already complete ({done}); delete it to rerun", flush=True)
         return
@@ -74,29 +76,33 @@ def main():
                                   positive=it.positive, mass=math.exp(candidate_mass(x)), text=it.question.text)
                              for (si, ts, it), x in zip(flat, sc)])
 
-    df = df_step(out / f"{a.model}_s2_pilot_n{a.n}_seed{TEST_SEED}_answers.parquet", model_answers)
+    df = df_step(out / f"{run}_answers.parquet", model_answers)
+    check_answers(df, [it.question.text for _, _, it in flat], [it.truth for _, _, it in flat])
     print(f"[s2] model answers ready ({time.time() - t0:.0f}s)", flush=True)
 
     train = [ts for ts, _ in scenes(TRAIN_SEED, a.n_train, pools)]
     tss = [ts for ts, _ in test]
     base = {"box": box_rule(tss), "feature": feature_rule(fit_feature_rule(train), tss),
+            "magnitude": magnitude_rule(fit_magnitude_rule(train), tss),
             "centroid": centroid_rule(tss, fit_centroid_rule(train))}
     s = pilot_summary(df, base)
-    s.to_csv(out / f"{a.model}_s2_pilot_summary.csv", index=False)
+    s.to_csv(out / f"{run}_summary.csv", index=False)
     v = verdict_pilot(s)
 
     names = {1: "1 direct", 2: "2 chain", 3: "3 extremes", 4: "4 inside"}
     lines = [f"Model **{a.model}**. {len(test)} new triangle scenes (seed {TEST_SEED}), {len(flat)} questions. Balanced "
              "accuracy with a 95% scene-bootstrap CI; *hard* = P inside the triangle vs inside its bounding box but "
              f"outside the triangle. Baselines fitted on {a.n_train} other scenes (seed {TRAIN_SEED}); box and feature "
-             "rules are map-free, the centroid rule is a reference only.", "",
+             "and magnitude rules are map-free, the centroid rule is a reference only. *model − best map-free* is a paired "
+             "scene-bootstrap difference.", "",
              "| who | rung | subset | n | balanced acc [95% CI] | acc | prob. on yes/no or names |",
              "|---|---|---|---|---|---|---|"]
     for r in s.itertuples():
-        lines.append(f"| {r.who} | {names[r.rung]} | {r.subset} | {r.n} | {fmt(r.bal_acc)} [{fmt(r.lo)}, {fmt(r.hi)}] | "
+        who = f"model − {r.vs}" if r.who == "model_minus_best_map_free" else r.who
+        lines.append(f"| {who} | {names[r.rung]} | {r.subset} | {r.n} | {fmt(r.bal_acc)} [{fmt(r.lo)}, {fmt(r.hi)}] | "
                      f"{fmt(r.acc)} | {fmt(r.mean_prob_mass)} |")
     lines += ["", f"Preregistered verdict: **{v}**. Rules: docs/preregistration_s2_pilot.md."]
-    if not a.smoke:
+    if not a.smoke and (a.n, a.n_train) == (PREREG_N, PREREG_N_TRAIN):
         append_entry(f"Study 2 pilot: can the model tell inside the triangle? ({a.model}) — preregistered",
                      "\n".join(lines), [])
     done.write_text(v)

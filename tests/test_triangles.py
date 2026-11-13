@@ -4,7 +4,7 @@ import pytest
 from geomap.models import load_tiny_for_tests
 from geomap.prompts import NAME_POOLS, build_prompt, single_token_names
 from geomap.questions import answer_for
-from geomap.triangles import edge_distance, generate_tri_scene, in_triangle, ladder, stratum
+from geomap.triangles import STRATA, edge_distance, generate_tri_scene, in_triangle, ladder, stratum
 
 POOL = ["Ann", "Bo", "Cy", "Dee", "Eli", "Fay", "Gus", "Hal"]
 T = ((0, 0), (4, 0), (0, 4))
@@ -98,3 +98,14 @@ def test_ladder_prompts_build():
         for it in ladder(ts, rng):
             spec = build_prompt(ts.scene, it.question, m.tok, m.family)
             assert set(spec.question_pos) == set(it.question.args)
+
+
+def test_every_triangle_admits_all_strata():  # review #1: the stratum must not depend on the triangle's shape
+    rng = np.random.default_rng(9)
+    grid = [(x, y) for x in range(-8, 9) for y in range(-8, 9)]
+    for _ in range(300):
+        ts = generate_tri_scene(rng, POOL)
+        A, B, C = (ts.scene.coords[k] for k in ts.corners)
+        got = {stratum(q, A, B, C) for q in grid
+               if q not in (A, B, C) and edge_distance(q, A, B, C) >= 0.5}
+        assert got == set(STRATA)

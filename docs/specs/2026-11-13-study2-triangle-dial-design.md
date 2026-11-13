@@ -99,7 +99,8 @@ The pilot's go rule compares the model with the best **map-free** baseline (box 
 - Gemma 3 12B, about 400 new scenes, all four rungs; no probes, no interventions.
 - Report per rung: accuracy / balanced accuracy with scene-bootstrap 95% CIs, and each baseline's score.
 - **Go rule** (to preregister): on rung 4, inside vs box-hard, the model's balanced accuracy is at least **0.65**
-  (point estimate), its CI lower bound is above 0.5, and its point estimate is above the best map-free baseline.
+  (point estimate), its CI lower bound is above 0.5, and the paired CI of (model − best map-free baseline) is above 0.
+  The map-free baselines include a *magnitude rule* (size cues from the stated sentences), added after code review.
   The 0.65 floor is the headroom guard (as `min_headroom` in Study 1's P6): below it, erasure has too little room to
   show anything, and Headline B would be meaningless. Rungs 1–2 should look like Study 1 (sanity check, not a gate).
 - **Weak pass** (above chance and above the map-free baselines, but under 0.65): stop and decide with the author.

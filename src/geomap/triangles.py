@@ -66,15 +66,19 @@ def generate_tri_scene(rng: np.random.Generator, names_pool: Sequence[str], boun
     want = STRATA[int(rng.choice(3, p=np.asarray(p_strata) / np.sum(p_strata)))]
     grid = [(x, y) for x in range(-bound, bound + 1) for y in range(-bound, bound + 1)]
     A = (0, 0)
-    while True:  # redraw the triangle until it is large enough and has a P position in the wanted stratum
+    # Redraw the triangle until it is large enough and admits a P position in EVERY stratum, so the triangle's
+    # shape carries no information about the stratum drawn above.
+    while True:
         B = tuple(int(v) for v in rng.integers(-bound, bound + 1, 2))
         C = tuple(int(v) for v in rng.integers(-bound, bound + 1, 2))
         if len({A, B, C}) < 3 or abs(_cross(A, B, C)) / 2 < min_area:
             continue
-        ok = [q for q in grid if q not in (A, B, C) and edge_distance(q, A, B, C) >= min_edge_dist
-              and stratum(q, A, B, C) == want]
-        if ok:
-            P = ok[int(rng.integers(len(ok)))]
+        by: dict[str, list] = {k: [] for k in STRATA}
+        for q in grid:
+            if q not in (A, B, C) and edge_distance(q, A, B, C) >= min_edge_dist:
+                by[stratum(q, A, B, C)].append(q)
+        if all(by.values()):
+            P = by[want][int(rng.integers(len(by[want])))]
             break
     par = (a, b, c)[int(rng.integers(3))]
     coords = {a: A, b: B, c: C, p: P}

@@ -1,6 +1,7 @@
 # Preregistration: Study 2 pilot, can the model tell whether a point is inside a triangle?
 
-*Committed 2026-11-13, before any Study 2 data exists. Gemma 3 12B instruct (Colab, one A100). Answers only: no
+*Committed 2026-11-13, before any Study 2 data exists; revised the same day after code review, still before any data
+(see "Revision" at the end). Gemma 3 12B instruct (Colab, one A100). Answers only: no
 probes, no interventions. Design: `docs/specs/2026-11-13-study2-triangle-dial-design.md`.*
 
 ## Why
@@ -16,7 +17,9 @@ shortcut. This pilot checks that before any main-study work.
 - Four objects: corners A, B, C and point P, with single-token names (people pool for even-numbered scenes, objects pool
   for odd ones, as in Study 1).
 - Integer grid, north = +y, east = +x. A at the origin; B and C drawn uniformly from [-8, 8]²; triangle area ≥ 4.
-- P's position is drawn in a stratum chosen first: **inside** the triangle (probability 0.5), **box_hard**, which is
+  A triangle is kept only if it admits P positions in **all three** strata below, so its shape carries no information
+  about which stratum P is drawn from.
+- P's position is drawn uniformly from the eligible grid points of a stratum chosen first: **inside** the triangle (probability 0.5), **box_hard**, which is
   outside the triangle but inside its bounding box (0.35), or **outside_box** (0.15). P is never on a corner and is at
   least 0.5 units from every edge.
 - Described as relations only: "B is … of A. C is … of B. P is … of X", where X is a random corner. This is followed
@@ -50,14 +53,20 @@ shortcut. This pilot checks that before any main-study work.
   construction.
 - **Feature rule** (map-free): logistic regression on the stated offsets only (B − A, C − B, P − its parent, and which
   corner is P's parent), fitted on the training scenes.
+- **Magnitude rule** (map-free): standardised logistic regression on size cues: |dx| and |dy| of each stated sentence,
+  the length of P's offset, the three side lengths, the area, and which corner is P's parent. It knows how big things
+  are but not where they point. (On the test scenes it scores about 0.69 without any model.)
 - **Centroid rule** (reference only, never part of the decision): "inside" iff P's distance to the centroid, divided by
   the mean centroid-to-corner distance, is below a threshold fitted on the training scenes. It needs true positions,
   so it is itself a rough map method.
 
 ## Decision rule (rung 4, hard subset)
 
-- **Go:** balanced accuracy ≥ 0.65, CI lower bound > 0.5, and above both map-free baselines.
-- **Weak pass:** CI lower bound > 0.5 and above both map-free baselines, but balanced accuracy < 0.65.
+Let *best map-free* be whichever of the box, feature and magnitude rules has the highest hard-subset balanced accuracy,
+and *gap* = model − best map-free, with a **paired** scene-bootstrap 95% CI (same resampled scenes for both).
+
+- **Go:** balanced accuracy ≥ 0.65, its CI lower bound > 0.5, and the gap's CI lower bound > 0.
+- **Weak pass:** both CI conditions hold but balanced accuracy < 0.65.
 - **Fail:** anything else.
 
 The 0.65 floor guards headroom. Below it, erasing the map has too little room to show an effect in the main study.
@@ -75,3 +84,11 @@ The 0.65 floor guards headroom. Below it, erasing the map has too little room to
 - Rung 4 per stratum.
 - The centroid rule.
 - The probability the model puts on the allowed answers.
+
+## Revision (2026-11-13, before any data)
+
+A code review found that size-only shortcuts from the stated sentences (how long P's offset is, the triangle's area)
+reach about 0.6–0.7 balanced accuracy on the hard subset, while the first version's map-free baselines sat near 0.5,
+and that the generator made triangle size depend on P's stratum. Changes: triangles must admit all three strata; the
+magnitude rule joins the map-free baselines; "above the baselines" became a paired CI on the gap instead of a point
+comparison. No Study 2 data existed when this was changed (git history: the pilot notebook had not been run).
