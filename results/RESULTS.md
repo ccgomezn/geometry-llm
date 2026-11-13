@@ -1188,3 +1188,30 @@ says "yes" for 31% of box_hard points and only 24% of inside points. *Explorator
 still score 0.59 on the hard subset. So the decoded map is worse than a randomly blurred true map: its errors are
 systematic and wipe out the shape. Caveat: even that blurred map scores below the size rule (0.63); a decoded map would
 need R² ≈ 0.85 to clear it. The test could therefore have passed only with a much more accurate probe than Study 1's (0.74).
+
+## 2026-11-13 21:51 · Study 2 pilot: can the model tell inside the triangle? (gemma3-27b) — preregistered
+Model **gemma3-27b**. 400 new triangle scenes (seed 702), 4017 questions. Balanced accuracy with a 95% scene-bootstrap CI; *hard* = P inside the triangle vs inside its bounding box but outside the triangle. Baselines fitted on 2000 other scenes (seed 701); box and feature and magnitude rules are map-free, the centroid rule is a reference only. *model − best map-free* is a paired scene-bootstrap difference.
+
+| who | rung | subset | n | balanced acc [95% CI] | acc | prob. on yes/no or names |
+|---|---|---|---|---|---|---|
+| model | 1 direct | all | 722 | 0.91 [0.89, 0.93] | 0.91 | 1.00 |
+| model | 2 chain | all | 1403 | 0.67 [0.64, 0.69] | 0.67 | 1.00 |
+| model | 3 extremes | all | 1492 | 0.78 [0.71, 0.84] | 0.95 | 1.00 |
+| model | 4 inside | all | 400 | 0.56 [0.51, 0.61] | 0.55 | 1.00 |
+| model | 4 inside | hard | 342 | 0.54 [0.49, 0.59] | 0.51 | 1.00 |
+| model | 4 inside | inside | 226 | – [–, –] | 0.44 | 1.00 |
+| model | 4 inside | box_hard | 116 | – [–, –] | 0.65 | 1.00 |
+| model | 4 inside | outside_box | 58 | – [–, –] | 0.76 | 1.00 |
+| box | 4 inside | hard | 342 | 0.50 [0.50, 0.50] | 0.66 | – |
+| feature | 4 inside | hard | 342 | 0.49 [0.43, 0.54] | 0.44 | – |
+| magnitude | 4 inside | hard | 342 | 0.63 [0.58, 0.69] | 0.63 | – |
+| centroid | 4 inside | hard | 342 | 0.92 [0.89, 0.95] | 0.92 | – |
+| model − magnitude | 4 inside | hard | 342 | -0.09 [-0.16, -0.02] | – | – |
+
+Preregistered verdict: **fail**. Rules: docs/preregistration_s2_pilot.md.
+
+*Hand note (2026-11-13).* Run on Colab (G4, whole model on the GPU). The 27B model is less biased than the 12B (says
+"yes" to 38% of rung-4 questions vs 6.5%), but on the hard subset it is still near chance (0.54 vs 0.51 for 12B) and
+below the size rule (0.63). There is a weak signal with people names only ("yes" for 45% of inside points, 28% of
+box_hard, 15% of outside_box) and none with object names (43% / 43% / 31%). Rungs 1–3 barely move from 12B (0.91 / 0.67
+/ 0.78 vs 0.90 / 0.66 / 0.76). Doubling the model size does not make "inside" judgeable from text.
