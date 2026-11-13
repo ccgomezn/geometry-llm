@@ -1215,3 +1215,25 @@ Preregistered verdict: **fail**. Rules: docs/preregistration_s2_pilot.md.
 below the size rule (0.63). There is a weak signal with people names only ("yes" for 45% of inside points, 28% of
 box_hard, 15% of outside_box) and none with object names (43% / 43% / 31%). Rungs 1–3 barely move from 12B (0.91 / 0.67
 / 0.78 vs 0.90 / 0.66 / 0.76). Doubling the model size does not make "inside" judgeable from text.
+
+## 2026-11-13 23:01 · Study 2: can the model tell inside the triangle when it thinks step by step? (gemma3-27b) — preregistered
+Model **gemma3-27b**. The pilot's 400 rung-4 questions (same scenes, seed 702), with the one-word instruction replaced by *think it through step by step, then end with 'Answer: yes' or 'Answer: no'*. Greedy decoding, up to 1536 new tokens; a reply with no final answer line counts as wrong. *One word* = the same model's pilot answers. Balanced accuracy with 95% scene-bootstrap CIs; differences are paired.
+
+| subset | n | step by step | one word | size rule | step by step − one word | step by step − size rule |
+|---|---|---|---|---|---|---|
+| hard | 342 | 0.73 [0.69, 0.78] | 0.54 | 0.63 | 0.19 [0.12, 0.27] | 0.10 [0.03, 0.18] |
+| all | 400 | 0.76 [0.72, 0.80] | 0.56 | 0.67 | 0.20 [0.13, 0.26] | 0.09 [0.02, 0.14] |
+
+Says yes: inside 0.78, box_hard 0.31, outside_box 0.17. No final answer: 1; hit the token limit: 1; median reply length 686 tokens.
+Exploratory: 342 of 342 hard replies write (x, y) coordinates (accuracy 0.75), 0 do not (accuracy –).
+
+Preregistered verdict (hard subset): **step-by-step reasoning can tell inside**. Rules: docs/preregistration_s2_reasoning.md.
+
+*Hand note (2026-11-14).* Run on Colab (G4). Every hard reply writes explicit (x, y) coordinates for the objects and then
+applies a textbook test (barycentric coordinates or "same side of each edge"). *Exploratory, not preregistered*
+(`scripts/s2_reasoning_coords.py`, positions compared up to a shift): in 322 of the 342 hard replies all four written
+positions are correct, in 2 at least one is wrong, and in 18 the parser could not find all four. With correct
+coordinates the final answer is still right only 75% of the time ("yes" for 79% of inside points, "no" for 69% of
+box_hard), and the errors are slips in the edge test (a sign or comparison read the wrong way). So in writing, the
+model builds the map almost perfectly; what fails is the 2-D test applied to it. In one step (pilot) neither happens
+reliably: the one-word answer is at chance, and the 12B model's internal map is too distorted to answer from.
