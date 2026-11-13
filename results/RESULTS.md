@@ -1124,3 +1124,26 @@ points. Rung 3 says "yes" to 93% of true-yes and 40% of true-no items. The run s
 yes/no log-probabilities, so whether the model's yes-score separates inside from outside (despite the "no" answers)
 cannot be checked from these files. Per the preregistration, the main study does not start; next step decided with
 the author.
+
+## 2026-11-13 16:36 · Study 2: does the yes-score separate inside from outside? (gemma3-12b) — exploratory
+Model **gemma3-12b**, exploratory (not preregistered). The pilot's 400 rung-4 questions (same scenes, seed 702), re-scored keeping log P(yes) and log P(no). AUC: how often the score ranks an inside point above a box_hard point (0.5 = no separation), 95% scene-bootstrap CI. *Refit BA*: balanced accuracy if the yes/no cut-off on the model's score were chosen on half the scenes and tested on the other half (removes the 'no' bias).
+
+| subset | score | n | AUC [95% CI] | refit BA |
+|---|---|---|---|---|
+| hard | model yes − no | 342 | 0.58 [0.52, 0.64] | 0.57 |
+| hard | magnitude rule (map-free) | 342 | 0.68 [0.62, 0.74] | – |
+| hard | centroid (reference) | 342 | 0.98 [0.96, 0.99] | – |
+| hard, people names | model yes − no | 174 | 0.62 [0.53, 0.70] | 0.56 |
+| hard, people names | magnitude rule (map-free) | 174 | 0.68 [0.59, 0.76] | – |
+| hard, people names | centroid (reference) | 174 | 0.97 [0.95, 0.99] | – |
+| hard, object names | model yes − no | 168 | 0.55 [0.45, 0.63] | 0.49 |
+| hard, object names | magnitude rule (map-free) | 168 | 0.67 [0.58, 0.76] | – |
+| hard, object names | centroid (reference) | 168 | 0.98 [0.97, 1.00] | – |
+
+Mean yes − no (log-odds): inside -3.36, box_hard -3.83, outside_box -4.50.
+Check: the argmax reproduces 99.8% of the pilot's rung-4 answers.
+
+*Hand note (exploratory).* The model's yes − no score adds nothing beyond the size shortcut: cross-validated AUC of the
+magnitude rule alone 0.674, magnitude + model score 0.671 (hard subset, 10-fold). The score correlates with the size
+cues (Spearman 0.25 with the magnitude rule's probability, −0.23 with the length of P's stated offset). So the weak
+lean (AUC 0.58) is consistent with "a short stated offset means inside", not with reading the triangle's shape.
