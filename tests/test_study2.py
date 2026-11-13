@@ -99,3 +99,13 @@ def test_pilot_summary_shape():
     assert d.bal_acc == pytest.approx(0.5) and d.lo > 0 and d.vs == "box"
     assert set(s[s.who == "model"].rung) == {1, 2, 3, 4}
     assert {"inside", "box_hard", "outside_box"} <= set(s[(s.who == "model") & (s.rung == 4)].subset)
+
+
+def test_auc_ci():
+    from geomap.study2 import auc_ci
+    lab = np.array([1, 1, 0, 0] * 10)
+    g = np.repeat(np.arange(20), 2)
+    assert auc_ci(np.where(lab == 1, 2.0, -1.0), lab, g, n_boot=50)[0] == 1.0
+    assert auc_ci(np.where(lab == 1, -2.0, 1.0), lab, g, n_boot=50)[0] == 0.0
+    est, lo, hi = auc_ci(np.zeros(40), lab, g, n_boot=50)
+    assert est == 0.5 and lo <= 0.5 <= hi

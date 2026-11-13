@@ -196,3 +196,21 @@ def verdict_pilot(summary: pd.DataFrame, floor: float = 0.65) -> str:
     if any(math.isnan(x) for x in (est, lo, dlo)) or not (lo > 0.5 and dlo > 0):
         return "fail"
     return "go" if est >= floor else "weak pass"
+
+
+def auc_ci(score, label, groups, n_boot: int = 1000, seed: int = 0) -> tuple[float, float, float]:
+    """ROC AUC of `score` for label 1 vs 0 (threshold-free: does the score rank positives above negatives?), with a
+    95% bootstrap CI over whole groups (scenes). Resamples with a missing class are dropped."""
+    from sklearn.metrics import roc_auc_score
+
+    score, label, groups = np.asarray(score, float), np.asarray(label).astype(int), np.asarray(groups)
+    f = lambda i: roc_auc_score(label[i], score[i]) if 0 < label[i].sum() < len(i) else float("nan")
+    est = f(np.arange(len(score)))
+    rng = np.random.default_rng(seed)
+    uniq = np.unique(groups)
+    members = {g: np.flatnonzero(groups == g) for g in uniq}
+    boots = np.array([f(np.concatenate([members[g] for g in rng.choice(uniq, len(uniq))])) for _ in range(n_boot)])
+    if np.isnan(boots).all():
+        return float(est), float("nan"), float("nan")
+    lo, hi = np.nanquantile(boots, [0.025, 0.975])
+    return float(est), float(lo), float(hi)
