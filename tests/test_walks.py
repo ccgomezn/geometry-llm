@@ -156,3 +156,19 @@ def test_allowed_ranks():
     assert allowed_ranks(20, 6) == [2, 3]        # 2 even-distance slots inside the loop
     assert allowed_ranks(20, 8) == [1, 2, 3]
     assert allowed_ranks(14, 12) == [1, 2]       # only step 0 lies before the target
+
+
+def test_announced_baselines_count_only_objects_introduced_with_there_is():
+    from geomap.walks import Walk, baselines
+    b = baselines(_walk())   # start object clock; announced in order: bell, tree, lamp; target bell
+    assert b["announced 1"] == 1.0 and b["announced 2"] == b["announced 3"] == b["announced 4"] == 0.0
+    w = Walk(moves=["north"] * 8, landmarks={2: "bell", 4: "tree", 6: "lamp", 7: "ring"}, target="tree", loop=4)
+    b = baselines(w)         # no start object: announced k is rank k
+    assert b["announced 2"] == b["rank 2"] == 1.0 and b["announced 1"] == 0.0
+
+
+def test_pilot_words_reproduce_the_12b_walks():
+    from geomap.walks import LANDMARKS, walk_items
+    assert len(LANDMARKS) == 44 and not {"fountain", "sofa", "statue"} & set(LANDMARKS)
+    w = walk_items(LANDMARKS)[0]   # first walk of the 12B run (seed 1401), recorded in results/walks
+    assert (w.n, w.loop, w.target) == (14, 2, "ball")

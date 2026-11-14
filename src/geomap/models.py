@@ -19,9 +19,16 @@ MODELS = {
     "gemma3-12b": "google/gemma-3-12b-it",
     "gemma3-27b": "google/gemma-3-27b-it",
     "llama3.2-3b": "meta-llama/Llama-3.2-3B-Instruct",
+    "llama3.3-70b": "meta-llama/Llama-3.3-70B-Instruct",
 }
 FAMILY = {"qwen3-1.7b": "qwen3", "qwen3-4b": "qwen3", "qwen3-8b": "qwen3", "qwen3-14b": "qwen3", "qwen3-32b": "qwen3",
-          "gemma3-4b": "gemma3", "gemma3-12b": "gemma3", "gemma3-27b": "gemma3", "llama3.2-3b": "llama3", "tiny": "qwen3"}
+          "gemma3-4b": "gemma3", "gemma3-12b": "gemma3", "gemma3-27b": "gemma3", "llama3.2-3b": "llama3", "llama3.3-70b": "llama3", "tiny": "qwen3"}
+QUANT = {"llama3.3-70b": {"load_in_8bit": True}}  # 140 GB in bf16; 8-bit weights fit one 80-96 GB GPU
+
+
+def quant_config(key: str) -> dict | None:
+    """bitsandbytes settings for models too large for one GPU in bf16 (weights only; activations stay bf16)."""
+    return QUANT.get(key)
 
 
 @dataclass
@@ -81,6 +88,10 @@ def load(key: str, device: str | None = None, dtype=torch.bfloat16, random_init:
             hf = dispatch_model(hf, device_map=dmap)
         else:
             hf = hf.to(device)
+    elif quant_config(key) is not None:
+        from transformers import BitsAndBytesConfig
+        hf = AutoModelForCausalLM.from_pretrained(repo, dtype=dtype, device_map="auto",
+                                                  quantization_config=BitsAndBytesConfig(**quant_config(key)))
     elif device == "auto":
         hf = AutoModelForCausalLM.from_pretrained(repo, dtype=dtype, device_map="auto")
     else:

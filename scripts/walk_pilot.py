@@ -16,8 +16,8 @@ from geomap.checkpoint import df_step, notify
 from geomap.models import load
 from geomap.report import ROOT, append_entry
 from geomap.scoring import candidate_mass, predict, score
-from geomap.walks import (BASELINES, FORMATS, baselines, build_walk_prompt, landmark_pool, verdict_walk_pilot,
-                          walk_items, walk_summary)
+from geomap.walks import (BASELINES, FORMATS, LANDMARKS, baselines, build_walk_prompt, landmark_pool,
+                          verdict_walk_pilot, walk_items, walk_summary)
 
 SEED, NS, LOOPS, PER_CELL = 1401, (14, 20, 26), (2, 6, 8, 12), 200
 
@@ -45,9 +45,11 @@ def main():
     t0 = time.time()
     log = lambda msg: print(f"[walk] {msg} ({time.time() - t0:.0f}s)", flush=True)
     m = load(a.model)
-    pool = landmark_pool(m.tok)
+    pool = landmark_pool(m.tok) if a.smoke else LANDMARKS  # the same walks for every model (as in the 12B run)
+    multi = sorted(set(pool) - set(landmark_pool(m.tok)))
     walks = walk_items(pool, NS, LOOPS, a.per_cell, SEED)
-    log(f"{len(walks)} walks, {len(pool)} landmark words; {len(walks) * len(FORMATS)} questions")
+    log(f"{len(walks)} walks, {len(pool)} landmark words ({len(multi)} take several tokens here: {multi}); "
+        f"{len(walks) * len(FORMATS)} questions")
     notify(f"[{tag}] started: {len(walks) * len(FORMATS)} questions")
 
     def answers(fmt):
@@ -97,7 +99,12 @@ def main():
         d = df[(df.fmt == "user") & (df.loop == l)]
         lines.append(f"| {l} | " + " | ".join(f"{d[f'b_{k}'].mean():.2f}" for k in BASELINES) + " |")
     chosen = f" Main study: {cfg['fmt']} format, N = {cfg['n']}, ℓ = {cfg['loop']} (with ℓ = 2 at the same N)." if cfg else ""
-    lines += ["", f"Preregistered verdict: **{v}**.{chosen} Rules: docs/preregistration_walk_pilot.md."]
+    rules = "docs/preregistration_walk_pilot.md" + (", amended by docs/preregistration_walk_ladder.md (extended "
+                                                     "baselines)" if a.model != "gemma3-12b" else "")
+    if multi:
+        lines += ["", f"Landmark words this tokenizer splits into several tokens (scored over all of them): "
+                      f"{', '.join(multi)}."]
+    lines += ["", f"Preregistered verdict: **{v}**.{chosen} Rules: {rules}."]
     if not a.smoke and a.per_cell == PER_CELL:
         append_entry(f"Walk pilot: does the model know which landmark a long walk came back to? ({a.model}) — "
                      "preregistered", "\n".join(lines), [])

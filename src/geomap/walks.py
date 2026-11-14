@@ -18,18 +18,20 @@ MOVES = {"north": (0, 1), "south": (0, -1), "east": (1, 0), "west": (-1, 0)}
 OPPOSITE = {"north": "south", "south": "north", "east": "west", "west": "east"}
 DIRS = list(MOVES)
 
-# Concrete things you could pass in a street; filtered per tokenizer by landmark_pool.
+# Concrete things you could pass in a street: the words that are single tokens for Gemma 3, used for every model so
+# all models see the same walks (in other tokenizers a few words take several tokens and are scored over all of them).
 LANDMARKS = ["clock", "bell", "tree", "chair", "table", "lamp", "rock", "box", "book", "ring", "coin", "shell",
-             "stone", "car", "ball", "hat", "pen", "bag", "desk", "door", "bench", "statue", "fountain", "boat",
+             "stone", "car", "ball", "hat", "pen", "bag", "desk", "door", "bench", "boat",
              "cart", "gate", "flag", "tower", "bridge", "truck", "bike", "cup", "key", "shoe", "sign", "van",
-             "fence", "barrel", "bus", "piano", "sofa", "bed", "anchor", "basket", "bucket", "mirror", "kite"]
+             "fence", "barrel", "bus", "piano", "bed", "anchor", "basket", "bucket", "mirror", "kite"]
 
 INTRO = "You are walking on a grid of city blocks. Each move takes you one block north, south, east or west."
 QUESTION = "You are now back at one of the objects you saw. Which object is it?"
 PREFILL_ASK = ("Describe a walk on a grid of city blocks, one block north, south, east or west per move. Mention the "
                "objects you pass, and end back at one of them.")
 PREFILL_END = "I am now back at the"
-BASELINES = ["recency", "primacy", "rank 1", "rank 2", "rank 3", "rank 4", "parity guess"]
+BASELINES = ["recency", "primacy", "rank 1", "rank 2", "rank 3", "rank 4", "parity guess",
+             "announced 1", "announced 2", "announced 3", "announced 4"]
 FORMATS = ("user", "prefill")
 
 
@@ -174,6 +176,8 @@ def baselines(w: Walk) -> dict[str, float]:
     t = w.target_step
     out = {"recency": float(order[-1] == t), "primacy": float(order[0] == t)}
     out.update({f"rank {k}": float(len(order) >= k and order[k - 1] == t) for k in range(1, 5)})
+    announced = [s for s in order if s > 0]  # introduced with "There is a ... here" (not the start object)
+    out.update({f"announced {k}": float(len(announced) >= k and announced[k - 1] == t) for k in range(1, 5)})
     even = [s for s in order if (w.n - s) % 2 == 0]
     out["parity guess"] = 1.0 / len(even) if t in even else 0.0
     return out
