@@ -1464,3 +1464,56 @@ accuracy at 0.56, under the 0.57 floor (chance 0.42 + 0.15).
 
 A fair control needs random directions matched downward in removed variance (towards the low-variance end). That is a
 new, small run: the bases are saved, so only one extra scoring pass is needed.
+
+## 2026-11-14 15:26 · Fair random control for the verified erasure (gemma3-12b) — preregistered amendment
+Model **gemma3-12b**. Amends the confirmatory erasure: same map bases (rank 2–40 per layer, layers 12–48, every token except the first), same test set and the same clean and map-erased answers. New control: random bases matched in removed variance in both directions (α -0.37 to +0.07); removed variance fair/map 0.980–1.018 on the fit scenes, 0.97–1.07 on the validation scenes.
+
+Probes under the fair control (validation scenes; clean layer 21: linear 0.68, MLP 0.73): L14 linear 0.09, MLP -0.07; L21 linear 0.63, MLP 0.64; L28 linear 0.56, MLP 0.54; L36 linear 0.44, MLP 0.31; L44 linear 0.35, MLP 0.23.
+
+Test set: 600 chains (seed 1203), 10700 questions. Excess drop = fair-control accuracy − map-erased accuracy; 95% scene-bootstrap CIs.
+
+| questions | n | clean | map erased | fair random | excess drop [95% CI] |
+|---|---|---|---|---|---|
+| all stated-only | 2594 | 0.89 | 0.68 | 0.67 | -0.011 [-0.032, +0.009] |
+| **all composed** (primary B) | 8106 | 0.77 | 0.71 | 0.69 | -0.025 [-0.036, -0.014] |
+| CM axis | 1530 | 0.95 | 0.86 | 0.83 | -0.031 [-0.055, -0.007] |
+| CM direction | 1036 | 0.83 | 0.75 | 0.66 | -0.088 [-0.113, -0.062] |
+| CR axis **(primary A)** | 2092 | 0.73 | 0.67 | 0.73 | +0.055 [+0.040, +0.071] |
+| CR direction | 778 | 0.51 | 0.38 | 0.40 | +0.015 [-0.018, +0.048] |
+| CR distance | 2670 | 0.75 | 0.74 | 0.67 | -0.071 [-0.090, -0.052] |
+| MR axis | 1564 | 0.89 | 0.70 | 0.70 | -0.003 [-0.022, +0.016] |
+| MR direction | 1030 | 0.89 | 0.65 | 0.63 | -0.023 [-0.058, +0.011] |
+
+Fair-control composed accuracy 0.69 (chance 0.42).
+
+Preregistered verdicts: primary A (C–R axis) **confirmed: composed axis answers use the map**; primary B (all composed) **map not used beyond generic damage**. Rules: docs/preregistration_erase_fair_control.md.
+
+*Hand note (2026-11-14).* **The control is valid this time.** It removes the same variance as the map erasure at
+every layer (0.98–1.02 on the fit scenes, 0.97–1.07 on held-out ones), with α between −0.37 and +0.07. A small lean
+towards low-variance directions was enough, because the eigenvalues span a very wide range. It leaves the map
+readable (layer 21: linear 0.63, MLP 0.64, against 0.68 and 0.73 clean), so it is a fair "same-size, not-the-map"
+erasure. Composed accuracy under it is 0.69, well above the 0.57 floor.
+
+**Primary A, confirmed:** on the C–R axis questions the map erasure costs 0.055 [0.040, 0.071] more than the fair
+control. The fair control leaves them exactly at clean accuracy (0.73 → 0.73), while erasing the map drops them to
+0.67. Chance is 0.50, so that removes about a quarter of the model's above-chance performance on these questions
+(0.23 → 0.17). Both halves show it: more east +0.065 [0.042, 0.088], more north +0.046 [0.025, 0.067].
+
+**Primary B, not used overall:** across all composed questions the map erasure costs *less* than the control (−0.025
+[−0.036, −0.014]). The control hurts C–R distance (0.75 → 0.67) and C–M direction (0.83 → 0.66) more than the map
+erasure does (0.74, 0.75).
+
+**The pattern:** the C–R axis questions are the only subset where erasing the map hurts beyond a same-size erasure.
+They are also the ones that need both the composition (C's position relative to R is stated nowhere) and a coordinate
+read-out (compare x or y). The one-step C–M axis questions (−0.031) and the stated R–M axis questions (−0.003) do not
+show it, and neither do the composed distance questions. This matches check A, where the model's mistakes followed
+the map's on C–R questions.
+
+**How much weight it bears:**
+- The subset was named in a preregistration before this test set existed, and the same effect appeared on P5c's
+  test set in the closed-loop run (+0.06, then against an isotropic control).
+- This control was added after the confirmatory test failed, but before any data of it. The amendment did not change
+  the subset, the test set or the thresholds.
+- The result depends on the control. Against the controls that removed 10–40× more variance, the excess was negative.
+  The fair control is the only one of the three that matches the size of the edit.
+- 12B only, 3-object scenes.
