@@ -1574,3 +1574,62 @@ What this means for the programme: on the question type where the map would be m
 model does not consult its composed map. It takes a one-sentence shortcut and answers below chance. Whether the map
 itself has the right answer on these exact questions has not been measured here. P9 showed it does on chain
 questions in general (0.80 vs 0.73); a probe read-out on this bulk set would make it direct.
+
+## 2026-11-14 23:20 · Walk pilot: does the model know which landmark a long walk came back to? (gemma3-12b) — preregistered
+Model **gemma3-12b**. 2400 new walks (seed 1401): walk length N ∈ [14, 20, 26] moves × loop length ℓ ∈ [2, 6, 8, 12] (moves since the target landmark was seen), 200 walks per cell, 4 landmarks per walk (chance 0.25), each scored in two formats (*user*: walk in the user message; *prefill*: walk in the model's own turn). ℓ = 2 is the shortcut-sufficient control (one block out and back). Accuracy with a 95% walk-bootstrap CI; *gap* = model − best map-free baseline in that cell, paired over walks. A cell passes at accuracy ≥ 0.60 with gap CI lower bound > 0.
+
+**user**
+
+| N | ℓ | accuracy [95% CI] | best map-free | gap [95% CI] | prob. on answers | passes |
+|---|---|---|---|---|---|---|
+| 14 | 2 | 0.53 [0.46, 0.59] | recency 1.00 | -0.47 [-0.54, -0.41] | 1.00 | no |
+| 14 | 6 | 0.28 [0.23, 0.34] | rank 3 0.53 | -0.24 [-0.33, -0.17] | 1.00 | no |
+| 14 | 8 | 0.22 [0.17, 0.28] | primacy 0.36 | -0.14 [-0.24, -0.06] | 1.00 | no |
+| 14 | 12 | 0.09 [0.06, 0.13] | primacy 0.52 | -0.43 [-0.51, -0.35] | 1.00 | no |
+| 20 | 2 | 0.45 [0.38, 0.51] | recency 1.00 | -0.56 [-0.62, -0.49] | 1.00 | no |
+| 20 | 6 | 0.22 [0.17, 0.28] | rank 2 0.50 | -0.28 [-0.38, -0.18] | 1.00 | no |
+| 20 | 8 | 0.17 [0.12, 0.22] | primacy 0.36 | -0.20 [-0.28, -0.10] | 1.00 | no |
+| 20 | 12 | 0.25 [0.18, 0.31] | rank 2 0.35 | -0.10 [-0.20, -0.02] | 1.00 | no |
+| 26 | 2 | 0.30 [0.24, 0.37] | recency 1.00 | -0.69 [-0.76, -0.63] | 1.00 | no |
+| 26 | 6 | 0.24 [0.19, 0.30] | rank 3 0.57 | -0.33 [-0.41, -0.24] | 1.00 | no |
+| 26 | 8 | 0.12 [0.07, 0.17] | primacy 0.36 | -0.24 [-0.33, -0.15] | 1.00 | no |
+| 26 | 12 | 0.23 [0.17, 0.29] | primacy 0.36 | -0.13 [-0.23, -0.03] | 1.00 | no |
+
+**prefill**
+
+| N | ℓ | accuracy [95% CI] | best map-free | gap [95% CI] | prob. on answers | passes |
+|---|---|---|---|---|---|---|
+| 14 | 2 | 0.10 [0.06, 0.14] | recency 1.00 | -0.90 [-0.94, -0.85] | 1.00 | no |
+| 14 | 6 | 0.05 [0.02, 0.09] | rank 3 0.53 | -0.48 [-0.56, -0.41] | 0.99 | no |
+| 14 | 8 | 0.23 [0.17, 0.29] | primacy 0.36 | -0.14 [-0.20, -0.08] | 0.99 | no |
+| 14 | 12 | 0.76 [0.69, 0.81] | primacy 0.52 | +0.23 [+0.17, +0.31] | 1.00 | yes |
+| 20 | 2 | 0.21 [0.15, 0.27] | recency 1.00 | -0.79 [-0.84, -0.73] | 0.99 | no |
+| 20 | 6 | 0.02 [0.01, 0.04] | rank 2 0.50 | -0.48 [-0.56, -0.41] | 0.99 | no |
+| 20 | 8 | 0.15 [0.11, 0.20] | primacy 0.36 | -0.21 [-0.28, -0.14] | 0.98 | no |
+| 20 | 12 | 0.17 [0.12, 0.23] | rank 2 0.35 | -0.18 [-0.28, -0.10] | 0.99 | no |
+| 26 | 2 | 0.41 [0.35, 0.49] | recency 1.00 | -0.58 [-0.65, -0.51] | 0.99 | no |
+| 26 | 6 | 0.06 [0.03, 0.09] | rank 3 0.57 | -0.52 [-0.59, -0.44] | 0.98 | no |
+| 26 | 8 | 0.14 [0.10, 0.20] | primacy 0.36 | -0.22 [-0.28, -0.16] | 0.98 | no |
+| 26 | 12 | 0.20 [0.15, 0.26] | primacy 0.36 | -0.15 [-0.21, -0.10] | 0.98 | no |
+
+Baseline accuracy by ℓ (all N, user format walks; the same walks in both formats):
+
+| ℓ | recency | primacy | rank 1 | rank 2 | rank 3 | rank 4 | parity guess |
+|---|---|---|---|---|---|---|---|
+| 2 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 | 1.00 | 0.25 |
+| 6 | 0.00 | 0.00 | 0.00 | 0.47 | 0.54 | 0.00 | 0.25 |
+| 8 | 0.00 | 0.36 | 0.36 | 0.33 | 0.30 | 0.00 | 0.25 |
+| 12 | 0.00 | 0.40 | 0.40 | 0.39 | 0.21 | 0.00 | 0.25 |
+
+Preregistered verdict: **go**. Main study: prefill format, N = 14, ℓ = 12 (with ℓ = 2 at the same N). Rules: docs/preregistration_walk_pilot.md.
+
+*Hand note (2026-11-15, post hoc, not part of the preregistered rule).* The **go is an artifact of the design and
+should be read as a fail.** In the one passing cell (prefill, N = 14, ℓ = 12) the target is 2 moves after the start,
+so it is always **the first object announced with "There is a … here"**, a map-free rule the preregistration did not
+list (it differs from "rank 1" when an object stands at the start). The model names that object in 0.76 of the walks
+there, exactly its accuracy (0.88 when no object stands at the start, 0.61 when one does, matching the rule both
+times). Across the prefill cells the model names that same object 42–74% of the time whatever the loop; in the user
+format it almost never names the first object and leans to the last. Gemma 3 12B therefore shows no sign of tracking
+where the walk is: accuracy is at or below chance (0.25) in every other cell, and even the 2-move control ("one block
+out, one block back", where naming the last object seen is always right) scores only 0.30–0.53 (user) and
+0.10–0.42 (prefill). Per the preregistration, a fail stops here and the next step is decided with the author.
