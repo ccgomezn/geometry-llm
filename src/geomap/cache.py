@@ -14,11 +14,15 @@ MAX_OBJS = 6
 
 
 def cache_prefix(m: LoadedModel, specs: Sequence[PromptSpec], layers: Sequence[int],
-                 batch_size: int = 16) -> dict[str, torch.Tensor]:
+                 batch_size: int = 16, erase: dict | None = None) -> dict[str, torch.Tensor]:
     """Returns {"list": [N, L, 6, d] bfloat16 (NaN-padded, slots in object-list order), "eol": [N, L, d]}.
 
     bfloat16, not float16: Gemma 3 residual-stream values exceed float16's range. Raises if any cached value
-    is not finite."""
+    is not finite.
+
+    erase: optional {layer: (B [d, r], c [r])}; at those layers h ← h − (h·B − c)Bᵀ at every position (as
+    followups.erase_edit), and a layer that is both erased and cached is cached after the erasure."""
+    erase = {l: v for l, v in (erase or {}).items() if v[0].shape[1] > 0}
     layers = sorted(layers)
     N, L, d = len(specs), len(layers), m.d_model
     out_list = torch.full((N, L, MAX_OBJS, d), float("nan"), dtype=torch.bfloat16)
@@ -42,9 +46,17 @@ def cache_prefix(m: LoadedModel, specs: Sequence[PromptSpec], layers: Sequence[i
         rows = torch.arange(B)
         saved = []
         with torch.no_grad(), m.lm.trace({"input_ids": ids, "attention_mask": am}):
-            for l in layers:
+            for l in sorted(set(layers) | set(erase)):
                 h = layer_out(m, l)
                 dev = h.device
+                if l in erase:
+                    B, c = erase[l]
+                    Bd, cd = B.to(dev, torch.float32), c.to(dev, torch.float32)
+                    hf = h[:].float()
+                    h[:] = (hf - (hf @ Bd - cd) @ Bd.T).to(h.dtype)
+                    h = layer_out(m, l)
+                if l not in layers:
+                    continue
                 saved.append((h[rows.to(dev)[:, None], pos.to(dev)].to(torch.bfloat16).cpu().save(),
                               h[rows.to(dev), eol.to(dev)].to(torch.bfloat16).cpu().save()))
         for k, (hl, he) in enumerate(saved):

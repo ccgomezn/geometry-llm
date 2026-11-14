@@ -1258,3 +1258,36 @@ the 342 hard replies (97%), and the parser could not find all four in 9. With co
 right only 62% of the time ("yes" for 52% of inside points, "no" for 80% of box_hard), against 75% for the 27B. 19
 replies hit the 1536-token limit without a final answer and count as wrong. So the 12B model turns the sentences into
 correct coordinates as reliably as the 27B; what is weaker is the geometric test it then runs on them in writing.
+
+## 2026-11-14 08:49 · Check A: do the model's mistakes follow its decoded map? (gemma3-12b) — preregistered
+Model **gemma3-12b**, P9's 300 test chains (5,350 questions; scenes regenerated from the seed and matched). *Follows the map's mistakes* = among questions the probe-decoded map gets wrong, the share where the model gives that same answer. *Blurred map* = the true positions plus Gaussian noise, with the noise calibrated per question type × class so it is as accurate as the decoded map (200 draws). 95% scene-bootstrap CIs.
+
+| layer | questions | n | map wrong | follows decoded map | follows blurred map | difference [95% CI] | phi (decoded / blurred) |
+|---|---|---|---|---|---|---|---|
+| 18 | all | 5350 | 1258 | 0.17 | 0.16 | +0.017 [-0.008, +0.040] | 0.12 / 0.16 |
+| 18 | CM | 1286 | 228 | 0.04 | 0.06 | -0.023 [-0.046, -0.002] | 0.11 / 0.14 |
+| 18 | CR | 2772 | 810 | 0.24 | 0.22 | +0.024 [-0.012, +0.057] | 0.09 / 0.15 |
+| 18 | MR | 1292 | 220 | 0.06 | 0.03 | +0.027 [-0.006, +0.067] | 0.08 / 0.02 |
+| 21 | all | 5350 | 804 | 0.22 | 0.17 | +0.053 [+0.023, +0.086] | 0.16 / 0.16 |
+| 21 | CM | 1286 | 118 | 0.05 | 0.06 | -0.009 [-0.047, +0.028] | 0.11 / 0.09 |
+| 21 | CR | 2772 | 552 | 0.30 | 0.22 | +0.081 [+0.040, +0.123] | 0.16 / 0.14 |
+| 21 | MR | 1292 | 134 | 0.04 | 0.03 | +0.004 [-0.030, +0.043] | 0.04 / 0.04 |
+| 24 | all | 5350 | 878 | 0.19 | 0.16 | +0.033 [+0.003, +0.062] | 0.13 / 0.15 |
+| 24 | CM | 1286 | 136 | 0.06 | 0.06 | +0.003 [-0.036, +0.050] | 0.10 / 0.09 |
+| 24 | CR | 2772 | 588 | 0.27 | 0.22 | +0.049 [+0.005, +0.093] | 0.13 / 0.15 |
+| 24 | MR | 1292 | 154 | 0.03 | 0.04 | -0.010 [-0.035, +0.023] | 0.05 / 0.03 |
+| 28 | all | 5350 | 1046 | 0.19 | 0.17 | +0.024 [-0.005, +0.050] | 0.15 / 0.18 |
+| 28 | CM | 1286 | 168 | 0.05 | 0.06 | -0.010 [-0.043, +0.026] | 0.15 / 0.11 |
+| 28 | CR | 2772 | 716 | 0.25 | 0.22 | +0.033 [-0.004, +0.067] | 0.12 / 0.15 |
+| 28 | MR | 1292 | 162 | 0.06 | 0.03 | +0.027 [-0.011, +0.071] | 0.10 / 0.03 |
+
+Preregistered verdict (layer 21, all questions): **the model's mistakes follow the map**. Rules: docs/preregistration_map_use_checks.md (check A).
+
+*Hand note (2026-11-14).* The noise calibration matched the decoded map's accuracy within 0.01 in every stratum. The
+overlap is just over the preregistered 0.05 and sits almost entirely in the **CR** questions (C relative to R, the ones
+that need C's composed position): there the model gives the decoded map's wrong answer in 30% of its mistakes, against
+22% for an equally accurate blurred map (+0.08 [+0.04, +0.12]). CM and MR show none. It is largest at layer 21, the
+layer with the best probe (R² 0.71), and smaller at 18, 24 and 28. So where the decoded map misplaces the composed
+object, the model tends to misplace it the same way. As stated in advance, this shows a shared source of error, not
+necessarily that the answer reads the map. It sits beside P5c, where erasing the linear map did not hurt the answers.
+Check B (nonlinear probe after erasure) tests one way both can be true.
