@@ -4,5 +4,5 @@ set -e
 cd "${0:A:h}/.."
 rm -f colab/geomap_colab.zip
 zip -qr colab/geomap_colab.zip src scripts docs pyproject.toml results/RESULTS.md \
-  results/p4/gemma3-12b_L14_relation_confirm_k2.pt results/p5/gemma3-12b_p5c_bases.pt -x '*/__pycache__/*' -x '*.pyc'
+  results/p4/gemma3-12b_L14_relation_confirm_k2.pt results/p5/gemma3-12b_p5c_bases.pt results/erase/gemma3-12b_erase_closed_loop_bases.pt -x '*/__pycache__/*' -x '*.pyc'
 ls -lh colab/geomap_colab.zip

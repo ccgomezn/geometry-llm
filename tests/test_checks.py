@@ -181,3 +181,45 @@ def test_verdict_closed_loop():
     assert v(s(0.05, -0.01, 0.06)) == "unclear"
     assert v(s(0.15, 0.10, 0.03), max_val_r2=0.12) == "the map could not be erased"
     assert v(s(0.15, 0.10, 0.03), random_comp_acc=0.50) == "uninformative (the erasure damages the model in general)"
+
+
+# ---------- confirmatory axis test ----------
+
+def _aniso(n=600, d=40, seed=0):
+    rng = np.random.default_rng(seed)
+    scales = np.geomspace(10, 0.1, d)
+    Q = np.linalg.qr(rng.standard_normal((d, d)))[0]
+    X = (rng.standard_normal((n, d)) * scales) @ Q.T
+    return X - X.mean(0), Q
+
+
+def test_variance_matched_random_matches_the_removed_variance():
+    from geomap.checks import variance_matched_random
+    X, Q = _aniso()
+    var = lambda R: float(((X @ R) ** 2).sum() / len(X))
+    B = np.linalg.qr(Q[:, [0, 4, 12]] + 0.2 * Q[:, [3, 16, 31]])[0]    # high-variance target
+    R, alpha = variance_matched_random(X, B, seed=0)
+    assert R.shape == B.shape and np.allclose(R.T @ R, np.eye(3), atol=1e-8)
+    assert abs(var(R) - var(B)) / var(B) <= 0.02 and 0 < alpha <= 8
+    iso = np.linalg.qr(np.random.default_rng(0).standard_normal((40, 3)))[0]
+    assert var(iso) < 0.5 * var(B)                                     # isotropic removes much less here
+    R0, a0 = variance_matched_random(X, np.zeros((40, 0)), seed=0)
+    assert R0.shape == (40, 0)
+
+
+def test_variance_matched_random_low_target_returns_isotropic():
+    from geomap.checks import variance_matched_random
+    X, Q = _aniso()
+    B = Q[:, -2:]                                                      # the two lowest-variance directions
+    R, alpha = variance_matched_random(X, B, seed=0)
+    assert alpha == 0 and R.shape == (40, 2)
+
+
+def test_verdict_axis():
+    from geomap.checks import verdict_axis
+    ok = dict(max_val_r2=0.05, random_comp_acc=0.70, comp_chance=0.42)
+    assert verdict_axis(0.05, 0.02, **ok) == "confirmed: composed axis answers use the map"
+    assert verdict_axis(0.02, 0.005, **ok) == "small effect"
+    assert verdict_axis(0.05, -0.01, **ok) == "not confirmed"
+    assert verdict_axis(0.05, 0.02, **{**ok, "max_val_r2": 0.10}) == "the map could not be erased"
+    assert verdict_axis(0.05, 0.02, **{**ok, "random_comp_acc": 0.55}) == "uninformative"

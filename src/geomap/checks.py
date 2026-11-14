@@ -212,3 +212,60 @@ def verdict_closed_loop(summary, max_val_r2: float, random_comp_acc: float, comp
     if c.excess <= none:
         return "linear map not used" if mlp21 >= mlp_max else "map not used"
     return "unclear"
+
+
+# ---------- confirmatory axis test (docs/preregistration_erase_axis_confirm.md) ----------
+
+def variance_matched_random(X, B, seed: int, alpha_max: float = 8.0, tol: float = 0.02, max_iter: int = 60):
+    """Random orthonormal basis R with B's rank that removes as much variance as B: tr(RᵀΣR) = tr(BᵀΣB) within tol
+    (relative), Σ = XᵀX / n (X centred). Directions w ~ (Σ + floor)^(α/2) z, from isotropic (α = 0) towards the top
+    principal directions; the null space of X gets the smallest positive eigenvalue; α by bisection in [0, alpha_max].
+    Returns (R, α); α = 0 (isotropic) when isotropic directions already remove at least B's variance."""
+    X, B = np.asarray(X, np.float64), np.asarray(B, np.float64)
+    d, r = B.shape
+    if r == 0:
+        return np.zeros((d, 0)), 0.0
+    n = len(X)
+    _, S, Vt = np.linalg.svd(X, full_matrices=False)
+    lam = S ** 2 / n
+    pos = lam > lam.max() * 1e-12
+    V, lam = Vt[pos].T, lam[pos] / lam.max()
+    floor = lam.min()
+    Z = np.random.default_rng(seed).standard_normal((d, r))
+    ZV = V.T @ Z
+    Znull = Z - V @ ZV
+    var = lambda R: float(((X @ R) ** 2).sum() / n)
+    target = var(B)
+
+    def basis(alpha):
+        W = V @ (lam[:, None] ** (alpha / 2) * ZV) + floor ** (alpha / 2) * Znull
+        return np.linalg.qr(W)[0]
+
+    R = basis(0.0)
+    if var(R) >= target * (1 - tol):
+        return R, 0.0
+    lo, hi = 0.0, alpha_max
+    if var(basis(hi)) < target:
+        return basis(hi), hi
+    for _ in range(max_iter):
+        mid = (lo + hi) / 2
+        R = basis(mid)
+        v = var(R)
+        if abs(v - target) <= tol * target:
+            return R, mid
+        lo, hi = (mid, hi) if v < target else (lo, mid)
+    return R, mid
+
+
+def verdict_axis(excess: float, lo: float, max_val_r2: float, random_comp_acc: float, comp_chance: float,
+                 r2_max: float = 0.10, headroom: float = 0.15, min_effect: float = 0.03) -> str:
+    """docs/preregistration_erase_axis_confirm.md. excess, lo: CR-axis excess drop vs the matched random control."""
+    if max_val_r2 >= r2_max:
+        return "the map could not be erased"
+    if random_comp_acc < comp_chance + headroom:
+        return "uninformative"
+    if lo > 0 and excess >= min_effect:
+        return "confirmed: composed axis answers use the map"
+    if lo > 0:
+        return "small effect"
+    return "not confirmed"
