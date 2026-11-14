@@ -1517,3 +1517,60 @@ the map's on C–R questions.
 - The result depends on the control. Against the controls that removed 10–40× more variance, the excess was negative.
   The fair control is the only one of the three that matches the size of the edit.
 - 12B only, 3-object scenes.
+
+## 2026-11-14 15:52 · Bulk C–R axis test: composed map or own-step shortcut? (gemma3-12b) — preregistered
+Model **gemma3-12b**. 5250 new C–R axis questions (*which is farther east / north, C or R?*) in 2031 chains R → M → C (seed 1301), split by the steps on the asked axis (d1 = R→M, d2 = M→C). Erasures from earlier runs, not refitted: the map (confirmatory test's bases, layers 12–48, every token except the first) and the fair random control (variance-matched). Excess drop = fair-control accuracy − map-erased accuracy; 95% scene-bootstrap CIs. Chance 0.50.
+
+| cell | n | clean | map erased | fair random | excess drop [95% CI] |
+|---|---|---|---|---|---|
+| own step only | 750 | 0.98 | 0.89 | 0.94 | +0.048 [+0.023, +0.075] |
+| agree | 750 | 0.97 | 0.91 | 0.94 | +0.027 [+0.007, +0.047] |
+| first step only | 750 | 0.53 | 0.52 | 0.57 | +0.057 [+0.043, +0.075] |
+| conflict, C larger | 1500 | 0.88 | 0.68 | 0.83 | +0.147 [+0.117, +0.175] |
+| conflict, M larger **(decisive)** | 1500 | 0.34 | 0.45 | 0.38 | -0.071 [-0.093, -0.049] |
+| all (balanced pool) | 5250 | 0.70 | 0.65 | 0.70 | +0.041 [+0.029, +0.052] |
+
+By question type and by which object is named first:
+
+| split | n | clean | map erased | fair random | excess drop [95% CI] |
+|---|---|---|---|---|---|
+| more_east | 2622 | 0.71 | 0.64 | 0.70 | +0.060 [+0.043, +0.078] |
+| more_north | 2628 | 0.69 | 0.67 | 0.69 | +0.021 [+0.006, +0.036] |
+| C first | 2625 | 0.70 | 0.68 | 0.69 | +0.007 [-0.003, +0.018] |
+| R first | 2625 | 0.70 | 0.63 | 0.70 | +0.074 [+0.055, +0.092] |
+
+Clean accuracy in *conflict, M larger*: 0.336 [0.304, 0.368].
+
+Preregistered verdicts: behaviour **the model follows C's own step**; erasure **the erased directions support the own-step shortcut, not the composed position**; replication **the C–R axis effect replicates**. Rules: docs/preregistration_axis_bulk.md.
+
+*Hand note (2026-11-14).* All three preregistered verdicts are clear, and they replicate the exploratory split
+(made on the fair-control test set) on 5,250 new questions.
+
+**Behaviour: the model answers "is C farther east / north than R?" with the direction of C's own sentence.**
+- When that direction gives the answer, it is near perfect: 0.98 when only C's step moves on the axis, 0.97 when both
+  steps agree.
+- When C's sentence says nothing about the axis and the answer comes from the first sentence alone, it is at chance:
+  0.53. It does not use the R→M sentence on its own.
+- When the two steps conflict, it follows C's step in 77% of answers: 0.88 correct when C's step is larger, 0.34
+  [0.30, 0.37] when M's step is larger, which is below chance. The gap between 0.88 and 0.98 and the 0.34 above zero
+  show that it composes a little, but the one-sentence shortcut dominates.
+
+**Erasure: the erased "map" directions feed that shortcut, not C's composed position.** In the deciding cell (M's step
+larger), where the composed position gives the right answer and C's step the wrong one, erasing the map *raises*
+accuracy: 0.34 → 0.45 (fair control 0.38; excess −0.071 [−0.093, −0.049]). Erasing the map lowers the share of
+conflict answers that follow C's step from 0.77 to 0.62 (fair control 0.73). Erasing pushes both conflict cells
+towards chance, which is what removing the shortcut's input does. If the answers read C's composed position, erasing
+it would have hurt the deciding cell.
+
+**Replication:** the C–R axis effect itself replicates on the balanced pool (+0.041 [+0.029, +0.052]). So the
+confirmed effect is real, but its explanation is the shortcut. The directions the probe finds at the object list carry
+C's own step from its parent, which is part of its position, and the answer uses that part. It does not use the part
+that requires composing with M's step.
+
+Exploratory splits: the effect is larger for *more east* (+0.060) than *more north* (+0.021). It appears when R is
+named first in the question (+0.074 [+0.055, +0.092]) and not when C is (+0.007 [−0.003, +0.018]).
+
+What this means for the programme: on the question type where the map would be most useful (the steps conflict), the
+model does not consult its composed map. It takes a one-sentence shortcut and answers below chance. Whether the map
+itself has the right answer on these exact questions has not been measured here. P9 showed it does on chain
+questions in general (0.80 vs 0.73); a probe read-out on this bulk set would make it direct.
