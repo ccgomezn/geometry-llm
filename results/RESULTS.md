@@ -1291,3 +1291,34 @@ layer with the best probe (R² 0.71), and smaller at 18, 24 and 28. So where the
 object, the model tends to misplace it the same way. As stated in advance, this shows a shared source of error, not
 necessarily that the answer reads the map. It sits beside P5c, where erasing the linear map did not hurt the answers.
 Check B (nonlinear probe after erasure) tests one way both can be true.
+
+## 2026-11-14 08:09 · Check B: does a nonlinear map survive the erasure? (gemma3-12b) — preregistered
+Model **gemma3-12b**. 2000 new 3-object scenes (seed 901); object-list positions. Erasure as in P5c's "window 12–30": the INLP basis (rank 0–10 per layer) or a random basis of the same rank, removed at every token at the output of layers 12–30, and the activations captured after it. Probes on scene-centred activations, 3-fold scene-grouped CV; R² pooled over x and y, 95% scene-bootstrap CIs. MLP: 2 × 512 GELU, early stopping.
+
+| layer | probe | no erasure | probe basis erased | random basis erased |
+|---|---|---|---|---|
+| 14 | linear | 0.21 [0.19, 0.23] | 0.12 [0.10, 0.13] | 0.21 [0.19, 0.22] |
+| 14 | mlp | 0.10 [0.07, 0.12] | -0.06 [-0.08, -0.05] | 0.07 [0.05, 0.09] |
+| 21 | linear | 0.68 [0.67, 0.69] | 0.57 [0.56, 0.58] | 0.64 [0.63, 0.66] |
+| 21 | mlp | 0.73 [0.72, 0.74] | 0.60 [0.59, 0.62] | 0.69 [0.68, 0.70] |
+| 28 | linear | 0.63 [0.61, 0.64] | 0.44 [0.42, 0.45] | 0.56 [0.54, 0.57] |
+| 28 | mlp | 0.64 [0.63, 0.66] | 0.35 [0.34, 0.37] | 0.57 [0.55, 0.58] |
+| 36 | linear | 0.54 [0.53, 0.55] | 0.43 [0.42, 0.45] | 0.50 [0.48, 0.51] |
+| 36 | mlp | 0.42 [0.40, 0.44] | 0.20 [0.18, 0.21] | 0.40 [0.38, 0.41] |
+
+MLP R² by hop at layer 21 (hop 0, hop 1, hop 2): clean 0.68 / 0.74 / 0.76; probe 0.56 / 0.62 / 0.63; random 0.62 / 0.72 / 0.72.
+
+Preregistered verdict (layer 21): **a nonlinear map survives the erasure**. Rules: docs/preregistration_map_use_checks.md (check B).
+
+*Hand note (2026-11-14).* The MLP passed the validity check (clean, layer 21: 0.73 vs linear 0.68). The striking number
+is the **linear** probe: refitted on the erased run's activations it still reads positions with R² 0.57 at layer 21
+(0.64 after random erasure, 0.68 clean), even though P5c's INLP basis took the probe's R² to 0.02 on the activations it
+was fitted on. The erasure removes the map's *original* directions, but in the erased forward pass the map reappears
+in other directions (the model recomputes it from the text downstream of the erased layers, or holds redundant
+copies). So P5c's erasure was not effective in the running model: about 85% of the linearly readable map was still
+there while the answers were scored. P5c's "erasing the map costs no more than random" therefore does not show that the
+map is unused, and the same applies to any erasure fitted once on clean activations. (Its own "R² after" figure was
+measured on the fitting activations, not on the erased run.) With check A (the model's mistakes follow the decoded
+map on the composed C–R questions), the "decodable but not used" conclusion is now open again. The next test is an
+erasure that holds in the running model: fit the basis iteratively on activations captured under the erasure until a
+freshly fitted probe fails, then rescore the answers against a matched random erasure.
