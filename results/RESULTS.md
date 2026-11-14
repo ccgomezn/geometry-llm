@@ -1387,3 +1387,80 @@ Reading: the answers to "which is further east / north" depend on the map's coor
 object C relative to R, which no single sentence states. Distance and direction answers do not show it, and the random
 control is not neutral for them. This is exploratory and was not the preregistered test; it needs its own
 preregistered run with an erasure that passes the 0.10 check on fresh scenes.
+
+## 2026-11-14 14:22 · Confirmatory erasure: do composed axis answers use the map? (gemma3-12b) — preregistered
+Model **gemma3-12b**. Erasure at every token except the first, at every layer 12–48, fitted in closed loop from the closed-loop test's bases on 4000 scenes (seed 1101) down to refitted probe R² < 0.02: 8 rounds; dev checks: seed 1103 after round 8: max R² 0.018 (layer 21). Rank per layer 2–40 (total 960). Matched random control: α 0.00–0.07; removed variance matched/probe 0.98–43.57; isotropic/probe 10.11 (median).
+
+**Is the map gone?** Fresh scenes (seed 1102, 1000): largest linear-probe R² over the erased layers **0.009** (layer 24); layers ≥ 0.10: none.
+
+| layer | linear, map erased | linear, matched random | linear, isotropic | MLP, map erased | MLP, matched random | MLP, isotropic |
+|---|---|---|---|---|---|---|
+| 14 | -0.00 | 0.09 | 0.09 | -0.10 | -0.09 | -0.07 |
+| 21 | 0.00 | 0.60 | 0.63 | -0.02 | 0.59 | 0.62 |
+| 28 | 0.00 | 0.53 | 0.54 | -0.07 | 0.50 | 0.52 |
+| 36 | -0.00 | 0.39 | 0.40 | -0.10 | 0.28 | 0.28 |
+| 44 | -0.00 | 0.29 | 0.29 | -0.10 | 0.21 | 0.22 |
+
+**Do the answers suffer?** New test set (600 chains, seed 1203, 10700 questions). Excess drop = random-erased accuracy − map-erased accuracy; 95% scene-bootstrap CIs. Primary: **CR axis** against the matched control.
+
+| control | questions | n | clean | map erased | random | excess drop [95% CI] |
+|---|---|---|---|---|---|---|
+| isotropic random | CM axis | 1530 | 0.95 | 0.86 | 0.74 | -0.124 [-0.155, -0.093] |
+| isotropic random | CM direction | 1036 | 0.83 | 0.75 | 0.57 | -0.171 [-0.194, -0.148] |
+| isotropic random | CR axis | 2092 | 0.73 | 0.67 | 0.62 | -0.053 [-0.082, -0.023] |
+| isotropic random | CR direction | 778 | 0.51 | 0.38 | 0.30 | -0.080 [-0.112, -0.046] |
+| isotropic random | CR distance | 2670 | 0.75 | 0.74 | 0.63 | -0.109 [-0.129, -0.087] |
+| isotropic random | MR axis | 1564 | 0.89 | 0.70 | 0.67 | -0.027 [-0.067, +0.014] |
+| isotropic random | MR direction | 1030 | 0.89 | 0.65 | 0.65 | -0.004 [-0.034, +0.025] |
+| matched random (primary) | CM axis | 1530 | 0.95 | 0.86 | 0.63 | -0.225 [-0.260, -0.192] |
+| matched random (primary) | CM direction | 1036 | 0.83 | 0.75 | 0.54 | -0.204 [-0.230, -0.176] |
+| matched random (primary) | CR axis **(primary)** | 2092 | 0.73 | 0.67 | 0.64 | -0.036 [-0.066, -0.005] |
+| matched random (primary) | CR direction | 778 | 0.51 | 0.38 | 0.29 | -0.091 [-0.125, -0.055] |
+| matched random (primary) | CR distance | 2670 | 0.75 | 0.74 | 0.56 | -0.183 [-0.207, -0.157] |
+| matched random (primary) | MR axis | 1564 | 0.89 | 0.70 | 0.60 | -0.101 [-0.128, -0.074] |
+| matched random (primary) | MR direction | 1030 | 0.89 | 0.65 | 0.52 | -0.128 [-0.160, -0.097] |
+
+Overall:
+
+| control | questions | n | clean | excess drop [95% CI] |
+|---|---|---|---|---|
+| matched random (primary) | stated only | 2594 | 0.89 | -0.112 [-0.134, -0.090] |
+| matched random (primary) | composed | 8106 | 0.77 | -0.147 [-0.164, -0.130] |
+| isotropic random | stated only | 2594 | 0.89 | -0.018 [-0.046, +0.010] |
+| isotropic random | composed | 8106 | 0.77 | -0.102 [-0.116, -0.087] |
+
+Matched random erasure, composed accuracy 0.56 (chance 0.42).
+
+Preregistered verdict: **uninformative**. Rules: docs/preregistration_erase_axis_confirm.md.
+
+*Hand note (2026-11-14).* **Preregistered verdict: uninformative**, by a hair: the matched random erasure left composed
+accuracy at 0.56, under the 0.57 floor (chance 0.42 + 0.15).
+
+- **The erasure worked this time.** On the fresh scenes the linear probe reads nothing at any layer 12–48 (max 0.009),
+  and the MLP probe is at or below −0.02 at all five probed layers. The dev check passed on the first try (0.018).
+- **The random controls were not fair, and the cause is a design error in the matched control.** The map lives in
+  *low-variance* directions: isotropic random directions of the same rank remove a median 10× more variance than the
+  map's basis (0.5× to 57× by layer). `variance_matched_random` only searched from isotropic towards higher-variance
+  directions, so where the target was below isotropic it returned isotropic directions. The 2% match the
+  preregistration required held at only 7 of 37 layers (24–30); elsewhere the "matched" basis removed up to 44× more
+  variance than the map's. Both controls are much harsher than the map erasure, so the negative excess drops say
+  nothing about map use.
+- **What stands without a control.** With the map gone at every layer, accuracy changes as follows (clean → map erased):
+
+  | questions | clean | map erased |
+  |---|---|---|
+  | composed, all | 0.77 | 0.71 |
+  | CR distance | 0.75 | 0.74 |
+  | CR axis | 0.73 | 0.67 |
+  | CR direction | 0.51 | 0.38 |
+  | CM axis | 0.95 | 0.86 |
+  | stated MR axis | 0.89 | 0.70 |
+  | stated MR direction | 0.89 | 0.65 |
+
+  These drops are upper bounds on map use, because they also include whatever damage removing 960 directions does by
+  itself. The composed distance answers survive the erasure intact. Axis and direction answers lose 0.06–0.13. The
+  largest losses are on the stated R–M questions, which suggests the erased directions also carry the stated relation
+  itself.
+
+A fair control needs random directions matched downward in removed variance (towards the low-variance end). That is a
+new, small run: the bases are saved, so only one extra scoring pass is needed.
