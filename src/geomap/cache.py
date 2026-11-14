@@ -14,14 +14,15 @@ MAX_OBJS = 6
 
 
 def cache_prefix(m: LoadedModel, specs: Sequence[PromptSpec], layers: Sequence[int],
-                 batch_size: int = 16, erase: dict | None = None) -> dict[str, torch.Tensor]:
+                 batch_size: int = 16, erase: dict | None = None, erase_start: int = 0) -> dict[str, torch.Tensor]:
     """Returns {"list": [N, L, 6, d] bfloat16 (NaN-padded, slots in object-list order), "eol": [N, L, d]}.
 
     bfloat16, not float16: Gemma 3 residual-stream values exceed float16's range. Raises if any cached value
     is not finite.
 
     erase: optional {layer: (B [d, r], c [r])}; at those layers h ← h − (h·B − c)Bᵀ at every position (as
-    followups.erase_edit), and a layer that is both erased and cached is cached after the erasure."""
+    followups.erase_edit) at positions ≥ erase_start, and a layer that is both erased and cached is cached after
+    the erasure."""
     erase = {l: v for l, v in (erase or {}).items() if v[0].shape[1] > 0}
     layers = sorted(layers)
     N, L, d = len(specs), len(layers), m.d_model
@@ -52,8 +53,8 @@ def cache_prefix(m: LoadedModel, specs: Sequence[PromptSpec], layers: Sequence[i
                 if l in erase:
                     B, c = erase[l]
                     Bd, cd = B.to(dev, torch.float32), c.to(dev, torch.float32)
-                    hf = h[:].float()
-                    h[:] = (hf - (hf @ Bd - cd) @ Bd.T).to(h.dtype)
+                    hf = h[:, erase_start:].float()
+                    h[:, erase_start:] = (hf - (hf @ Bd - cd) @ Bd.T).to(h.dtype)
                     h = layer_out(m, l)
                 if l not in layers:
                     continue

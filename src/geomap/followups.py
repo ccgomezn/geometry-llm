@@ -135,8 +135,9 @@ def inlp_basis(X, Y, groups, max_rounds: int = 20, r2_stop: float = 0.1):
     return B, hist
 
 
-def erase_edit(bases: dict):
-    """score() edit: at each layer l, h ← h − (h·B − c)Bᵀ at every position (bases[l] = (B [d, r], c = μ·B [r]))."""
+def erase_edit(bases: dict, start: int = 0):
+    """score() edit: at each layer l, h ← h − (h·B − c)Bᵀ at every position ≥ start (bases[l] = (B [d, r], c = μ·B [r])).
+    start=1 spares the first token (<bos>), which carries no scene information."""
 
     def edit(m: LoadedModel, row_items: list[int]):
         for l in sorted(bases):
@@ -145,8 +146,8 @@ def erase_edit(bases: dict):
                 continue
             h = layer_out(m, l)
             Bd, cd = B.to(h.device, torch.float32), c.to(h.device, torch.float32)
-            hf = h[:].float()
-            h[:] = (hf - (hf @ Bd - cd) @ Bd.T).to(h.dtype)
+            hf = h[:, start:].float()
+            h[:, start:] = (hf - (hf @ Bd - cd) @ Bd.T).to(h.dtype)
 
     return edit
 

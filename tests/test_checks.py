@@ -112,3 +112,72 @@ def test_cache_with_erasure(m):
     h1 = er[:, 0, :3].float()
     assert torch.allclose(h1 @ B, c.expand(4, 3, 4), atol=0.05)  # erased at the captured layer (bfloat16 storage)
     assert not torch.allclose(torch.nan_to_num(er[:, 1]).float(), torch.nan_to_num(clean[:, 1]).float())  # downstream
+
+
+# ---------- closed-loop erasure ----------
+
+def test_erasure_start_spares_early_positions(m):
+    from geomap.followups import erase_edit  # noqa: F401  (same operation, used by scoring)
+    scenes = [generate_scene(np.random.default_rng(i), NAME_POOLS["people"], 3) for i in range(3)]
+    specs = [build_prompt(s, None, m.tok, m.family) for s in scenes]
+    B = torch.linalg.qr(torch.randn(m.d_model, 4, generator=torch.Generator().manual_seed(0)))[0]
+    e = {1: (B, torch.full((4,), 0.3))}
+    clean = cache_prefix(m, specs, layers=[2], batch_size=3)["list"]
+    beyond = cache_prefix(m, specs, layers=[2], batch_size=3, erase=e, erase_start=10_000)["list"]
+    assert torch.equal(torch.nan_to_num(clean), torch.nan_to_num(beyond))  # nothing erased past the prompt
+    all_pos = cache_prefix(m, specs, layers=[2], batch_size=3, erase=e)["list"]
+    skip_bos = cache_prefix(m, specs, layers=[2], batch_size=3, erase=e, erase_start=1)["list"]
+    assert not torch.equal(torch.nan_to_num(all_pos), torch.nan_to_num(skip_bos))
+
+
+def test_erase_edit_start_matches_cache_erasure(m):
+    from geomap.followups import erase_edit
+    from geomap.scoring import score
+    from geomap.patching import make_pairs
+    base, _, _, qs = make_pairs(m, 2, seed=1, n_objects=(3,))[0]
+    items = [(build_prompt(base, q, m.tok, m.family), q) for q in qs[:2]]
+    B = torch.linalg.qr(torch.randn(m.d_model, 4, generator=torch.Generator().manual_seed(0)))[0]
+    e = {1: (B, torch.full((4,), 0.3))}
+    a = score(m, items, edit=erase_edit(e))
+    b = score(m, items, edit=erase_edit(e, start=1))
+    c = score(m, items, edit=erase_edit(e, start=10_000))
+    clean = score(m, items)
+    assert all(abs(x[k] - y[k]) < 1e-5 for x, y in zip(c, clean) for k in x)
+    assert any(abs(x[k] - y[k]) > 1e-5 for x, y in zip(a, b) for k in x)
+
+
+def test_extend_basis_keeps_old_directions_and_removes_the_rest():
+    from geomap.checks import extend_basis
+    from geomap.probes import GroupRidge
+    rng = np.random.default_rng(0)
+    n, d = 900, 30
+    g = np.repeat(np.arange(300), 3)
+    Y = rng.standard_normal((n, 2))
+    Q = np.linalg.qr(rng.standard_normal((d, 6)))[0]
+    X = 0.3 * rng.standard_normal((n, d)) + Y @ Q[:, :2].T + 0.5 * Y @ Q[:, 2:4].T + 0.25 * Y[:, ::-1] @ Q[:, 4:6].T
+    B_old = Q[:, :1]
+    Xe = X - (X @ B_old) @ B_old.T
+    B, r2s = extend_basis(B_old, Xe, Y, g, max_steps=5, r2_stop=0.05)
+    assert np.allclose(B.T @ B, np.eye(B.shape[1]), atol=1e-8)
+    assert np.allclose(B[:, :1].T @ B_old, 1, atol=1e-8) or np.linalg.norm(B @ (B.T @ B_old) - B_old) < 1e-8
+    assert r2s[0] > 0.5 and GroupRidge().fit(X - (X @ B) @ B.T, Y, g).cv_r2_ < 0.05
+    B2, r2s2 = extend_basis(B, X - (X @ B) @ B.T, Y, g, max_steps=5, r2_stop=0.05)
+    assert B2.shape == B.shape and r2s2[0] < 0.05  # nothing left: unchanged
+
+
+def test_verdict_closed_loop():
+    from geomap.checks import verdict_closed_loop
+    import pandas as pd
+    def s(comp, comp_lo, stat):
+        return pd.DataFrame([dict(config="c", composed=True, excess=comp, excess_lo=comp_lo),
+                             dict(config="c", composed=False, excess=stat, excess_lo=stat - 0.02)])
+    ok = dict(max_val_r2=0.05, random_comp_acc=0.70, comp_chance=0.40, mlp21=0.10)
+    v = lambda summ, **k: verdict_closed_loop(summ, **{**ok, **k})
+    assert v(s(0.15, 0.10, 0.03)) == "map used"
+    assert v(s(0.15, 0.10, 0.12)) == "partial use"            # not 0.05 above stated-only, but above it
+    assert v(s(0.06, 0.02, 0.01)) == "partial use"
+    assert v(s(0.02, -0.01, 0.00)) == "map not used"
+    assert v(s(0.02, -0.01, 0.00), mlp21=0.35) == "linear map not used"
+    assert v(s(0.05, -0.01, 0.06)) == "unclear"
+    assert v(s(0.15, 0.10, 0.03), max_val_r2=0.12) == "the map could not be erased"
+    assert v(s(0.15, 0.10, 0.03), random_comp_acc=0.50) == "uninformative (the erasure damages the model in general)"

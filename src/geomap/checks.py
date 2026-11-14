@@ -177,3 +177,38 @@ def verdict_nonlinear(mlp_clean: float, lin_clean: float, mlp_probe: float, mlp_
     if mlp_probe < gone and mlp_random >= intact:
         return "the erasure removes the map, linear and nonlinear"
     return "partly"
+
+
+# ---------- closed-loop erasure (docs/preregistration_erase_closed_loop.md) ----------
+
+def extend_basis(B_old, X, Y, groups, max_steps: int = 5, r2_stop: float = 0.05):
+    """X: scene-centred activations captured with B_old already erased. Runs INLP on X (up to max_steps, stopping at
+    group-CV R² < r2_stop) and returns (orthonormal basis spanning B_old and the new directions, R² before each step)."""
+    from geomap.followups import inlp_basis
+    B_old = np.asarray(B_old, np.float64)
+    B_new, hist = inlp_basis(X, Y, groups, max_rounds=max_steps, r2_stop=r2_stop)
+    if B_new.shape[1] == 0:
+        return B_old, hist
+    W = B_new - B_old @ (B_old.T @ B_new)
+    W = np.linalg.qr(W)[0]
+    keep = np.linalg.norm(W - B_old @ (B_old.T @ W), axis=0) > 1e-6
+    return np.concatenate([B_old, W[:, keep]], 1), hist
+
+
+def verdict_closed_loop(summary, max_val_r2: float, random_comp_acc: float, comp_chance: float, mlp21: float,
+                        r2_max: float = 0.10, headroom: float = 0.15, used: float = 0.10, gap: float = 0.05,
+                        none: float = 0.03, mlp_max: float = 0.30) -> str:
+    """docs/preregistration_erase_closed_loop.md. summary: erase_summary rows for the closed-loop configuration."""
+    if max_val_r2 >= r2_max:
+        return "the map could not be erased"
+    if random_comp_acc < comp_chance + headroom:
+        return "uninformative (the erasure damages the model in general)"
+    c = summary[summary.composed].iloc[0]
+    st = summary[~summary.composed].iloc[0]
+    if c.excess >= used and c.excess - st.excess >= gap:
+        return "map used"
+    if c.excess_lo > 0 and c.excess > st.excess:
+        return "partial use"
+    if c.excess <= none:
+        return "linear map not used" if mlp21 >= mlp_max else "map not used"
+    return "unclear"
