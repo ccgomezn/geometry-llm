@@ -32,7 +32,7 @@ This test checks both on new data, with many questions in each cell.
   | conflict, C larger | d1·d2 < 0, \|d2\| > \|d1\| | sign of d2 |
   | conflict, M larger | d1·d2 < 0, \|d1\| > \|d2\| | sign of d1 (d2's sign is wrong) |
 
-- **Sizes:** 1,500 questions in each conflict cell, 750 in each other cell (6,000 in all). Scenes are drawn in order
+- **Sizes:** 1,500 questions in each conflict cell, 750 in each other cell (5,250 in all). Scenes are drawn in order
   and a scene's C–R axis questions are kept while their cell is not yet full.
 - **Conditions:** clean; map erased (the confirmatory test's bases, layers 12–48, every token except the first); fair
   random control (the amendment's variance-matched bases). Nothing is refitted.
@@ -47,7 +47,7 @@ This test checks both on new data, with many questions in each cell.
    - lower bound > 0 and excess ≥ 0.03: **the answers read C's composed position from the map**;
    - upper bound < 0: **the erased directions support the own-step shortcut, not the composed position**;
    - otherwise: **undecided**.
-3. **Replication:** excess drop pooled over all 6,000 questions, lower bound > 0: **the C–R axis effect replicates**
+3. **Replication:** excess drop pooled over all 5,250 questions, lower bound > 0: **the C–R axis effect replicates**
    (the pool is balanced by cell, not the natural mix; reported as such).
 
 ## Reported, not part of the rules
