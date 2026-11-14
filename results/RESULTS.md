@@ -1322,3 +1322,68 @@ measured on the fitting activations, not on the erased run.) With check A (the m
 map on the composed C–R questions), the "decodable but not used" conclusion is now open again. The next test is an
 erasure that holds in the running model: fit the basis iteratively on activations captured under the erasure until a
 freshly fitted probe fails, then rescore the answers against a matched random erasure.
+
+## 2026-11-14 09:24 · Closed-loop erasure: does erasing the map (for real) hurt the answers? (gemma3-12b) — preregistered
+Model **gemma3-12b**. Erasure at every token except the first, at every layer 12–48. Basis fitted in closed loop on 2000 scenes (seed 1001), starting from P5c's: 7 rounds, converged (every layer's refitted probe R² < 0.05); rank per layer 0–24 (total 494). Random control: random orthonormal bases of the same rank.
+
+**Is the map gone?** Fresh scenes (seed 1002, 1000): largest linear-probe R² over the erased layers after the erasure **0.135** (layer 24).
+
+| layer | linear R², map erased | linear R², random erased | MLP R², map erased | MLP R², random erased |
+|---|---|---|---|---|
+| 14 | 0.00 | 0.08 | -0.12 | -0.08 |
+| 21 | 0.05 | 0.66 | 0.02 | 0.65 |
+| 28 | 0.04 | 0.60 | -0.08 | 0.56 |
+| 36 | 0.00 | 0.48 | -0.12 | 0.36 |
+| 44 | 0.02 | 0.40 | -0.13 | 0.30 |
+
+**Do the answers suffer?** P5c's test set (300 chains, 5320 questions). Excess drop = drop with the map erased − drop with the random basis; 95% scene-bootstrap CIs.
+
+| erasure | questions | clean acc | drop (map erased) | drop (random) | excess drop [95% CI] | n |
+|---|---|---|---|---|---|---|
+| P5c bases, first token spared | stated only | 0.91 | 0.164 | 0.083 | +0.081 [+0.056, +0.106] | 1266 |
+| P5c bases, first token spared | composed (involve C) | 0.77 | 0.027 | 0.002 | +0.024 [+0.014, +0.034] | 4054 |
+| closed loop | stated only | 0.91 | 0.205 | 0.142 | +0.062 [+0.033, +0.095] | 1266 |
+| closed loop | composed (involve C) | 0.77 | 0.051 | 0.044 | +0.007 [-0.008, +0.021] | 4054 |
+
+Accuracy by question class (CM: C and M; CR: C and R; MR: no C):
+
+| erasure | condition | CM | CR | MR |
+|---|---|---|---|---|
+| - | clean | 0.89 | 0.71 | 0.91 |
+| P5c bases, first token spared | probe | 0.84 | 0.69 | 0.74 |
+| P5c bases, first token spared | random | 0.88 | 0.71 | 0.82 |
+| closed loop | probe | 0.79 | 0.68 | 0.70 |
+| closed loop | random | 0.85 | 0.66 | 0.76 |
+
+Random erasure, composed accuracy 0.72 (chance 0.42). MLP R² at layer 21 after the erasure: 0.02. Fit rounds: max refitted R² per round 0.59, 0.46, 0.33, 0.27, 0.16, 0.08, 0.05.
+
+Preregistered verdict: **the map could not be erased**. Rules: docs/preregistration_erase_closed_loop.md.
+
+*Hand note (2026-11-14).* **Preregistered verdict as above: the map could not be erased.** On the fresh scenes the
+linear probe stays above 0.10 at three layers (20: 0.13, 24: 0.13, 25: 0.11); everywhere else it is below 0.10, at
+most layers below 0.03, and the MLP probe is at or below 0.02 at all five probed layers (clean, layer 21: 0.68 linear,
+0.73 MLP). The fit converged on its own 2,000 scenes but not quite on new ones, so the basis overfits a little. About
+80–95% of the readable map is gone, but by the rule that is not enough for a verdict on use.
+
+What the answers did, reported without a verdict:
+
+- **Overall, composed questions lose nothing beyond random** (+0.007 [−0.008, +0.021]); stated-only ones lose +0.062
+  [+0.033, +0.095].
+- **By question type (exploratory, `results/erase/gemma3-12b_erase_closed_loop_by_qtype.csv`) the overall number hides
+  a split.** Erasing the map hurts the single-axis comparisons (*more east*, *more north*) beyond random in every class:
+  stated MR +0.16 and +0.13, CM +0.08 and +0.09, and the truly composed CR +0.06 [+0.02, +0.10] and +0.04 [+0.01,
+  +0.08]. It does not hurt distance (*closest*, *farthest*) or *direction* questions beyond random; there the random
+  erasure hurts more (CR direction: random 0.34, map erased 0.48, clean 0.53), which cancels the axis effect in the
+  composed total.
+- **The same split appears with P5c's original bases once the first token is spared** (CR more east +0.05 [+0.02,
+  +0.08]; MR +0.14 and +0.17), so it does not depend on the closed-loop fit.
+- **The first-token explanation holds.** Sparing the first token cuts the damage of P5c's random erasure from 0.237 to
+  0.083 (stated-only) and from 0.095 to 0.002 (composed), while the map erasure costs about the same as before
+  (0.171 → 0.164; 0.069 → 0.027). With a fair random control, P5c's own erasure now shows a positive excess drop
+  (stated-only +0.081 [+0.056, +0.106], composed +0.024 [+0.014, +0.034]) instead of P5c's negative one. P5c's
+  "not used" verdict rested partly on a random control that broke the model at the first token.
+
+Reading: the answers to "which is further east / north" depend on the map's coordinates, including for the composed
+object C relative to R, which no single sentence states. Distance and direction answers do not show it, and the random
+control is not neutral for them. This is exploratory and was not the preregistered test; it needs its own
+preregistered run with an erasure that passes the 0.10 check on fresh scenes.
