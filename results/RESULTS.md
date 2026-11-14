@@ -1237,3 +1237,24 @@ coordinates the final answer is still right only 75% of the time ("yes" for 79% 
 box_hard), and the errors are slips in the edge test (a sign or comparison read the wrong way). So in writing, the
 model builds the map almost perfectly; what fails is the 2-D test applied to it. In one step (pilot) neither happens
 reliably: the one-word answer is at chance, and the 12B model's internal map is too distorted to answer from.
+
+## 2026-11-14 01:29 · Study 2: can the model tell inside the triangle when it thinks step by step? (gemma3-12b) — preregistered
+Model **gemma3-12b**. The pilot's 400 rung-4 questions (same scenes, seed 702), with the one-word instruction replaced by *think it through step by step, then end with 'Answer: yes' or 'Answer: no'*. Greedy decoding, up to 1536 new tokens; a reply with no final answer line counts as wrong. *One word* = the same model's pilot answers. Balanced accuracy with 95% scene-bootstrap CIs; differences are paired.
+
+| subset | n | step by step | one word | size rule | step by step − one word | step by step − size rule |
+|---|---|---|---|---|---|---|
+| hard | 342 | 0.67 [0.62, 0.72] | 0.51 | 0.63 | 0.15 [0.10, 0.21] | 0.04 [-0.04, 0.11] |
+| all | 400 | 0.67 [0.62, 0.71] | 0.52 | 0.67 | 0.15 [0.10, 0.20] | -0.00 [-0.07, 0.05] |
+
+Says yes: inside 0.52, box_hard 0.11, outside_box 0.16. No final answer: 19; hit the token limit: 19; median reply length 950 tokens.
+Exploratory: 342 of 342 hard replies write (x, y) coordinates (accuracy 0.62), 0 do not (accuracy –).
+
+Preregistered verdict (hard subset): **partial**. Rules: docs/preregistration_s2_reasoning.md.
+
+*Hand note (2026-11-14).* Run on Colab (A100). Like the 27B, the 12B model writes explicit (x, y) coordinates in every
+hard reply and then applies an edge or barycentric test. *Exploratory, not preregistered*
+(`scripts/s2_reasoning_coords.py`, positions compared up to a shift): all four written positions are correct in 333 of
+the 342 hard replies (97%), and the parser could not find all four in 9. With correct coordinates the final answer is
+right only 62% of the time ("yes" for 52% of inside points, "no" for 80% of box_hard), against 75% for the 27B. 19
+replies hit the 1536-token limit without a final answer and count as wrong. So the 12B model turns the sentences into
+correct coordinates as reliably as the 27B; what is weaker is the geometric test it then runs on them in writing.
