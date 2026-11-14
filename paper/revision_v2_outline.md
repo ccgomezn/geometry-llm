@@ -29,6 +29,36 @@ This changes the story in two places:
 - The overall picture: the answers mostly re-read the sentences (copy/steer/attention
   nulls stand), and the map contributes on top for composed coordinate comparisons.
 
+## 0b. Second update: the bulk C–R axis test (RESULTS.md, 2026-11-14 15:52) changes the reading of §0
+
+5,250 new C–R axis questions, split by how the two steps (R→M, M→C) combine on the asked axis. All three preregistered
+verdicts were clear:
+
+| case (on the asked axis) | clean | map erased | fair random |
+|---|---|---|---|
+| only C's step moves | 0.98 | 0.89 | 0.94 |
+| both steps agree | 0.97 | 0.91 | 0.94 |
+| only M's step moves (answer is in the first sentence) | 0.53 | 0.52 | 0.57 |
+| steps conflict, C's larger | 0.88 | 0.68 | 0.83 |
+| steps conflict, M's larger (C's direction misleads) | **0.34** | **0.45** | 0.38 |
+
+- **Behaviour (strong, preregistered, new):** the model answers "is C farther east than R?" with the direction of C's
+  own sentence. It is near perfect when that works, at chance when the answer is only in the first sentence, and
+  *below chance* (0.34 [0.30, 0.37]) when the two conflict and the first step is larger. This is a clean shortcut
+  result on its own.
+- **Erasure:** in that last case erasing the "map" *raises* accuracy (excess −0.071 [−0.093, −0.049]). So the §0
+  effect is real and replicates (+0.041 on the pool), but the erased directions carry C's own step, which the shortcut
+  uses. They do not carry the composed position the answer would need.
+- **Consequence for the paper:** §0's "the map is used for composed axis comparisons" should not go in. The
+  defensible statement is: the probe-readable directions contribute C's own step to a one-sentence shortcut; the
+  composed part of the map is not read, even where it would correct the shortcut. The v1 title ("…Its Answers Never
+  Read") is closer to right again, if "the map" means the composed position.
+- **Figure candidate:** the table above as a bar chart (clean / map erased / fair, by case). It shows the shortcut
+  and the erasure effect in one picture.
+- **One measurement that would complete it:** the map's own answers on these same questions (as in P9). If the
+  decoded map gets the "M's step larger" case right while the model gets 0.34, that is the clearest "knows better than
+  it answers" example in the paper.
+
 ## 1. Statements in the v1 preprint (Zenodo) that no longer hold
 
 | Where in `paper/draft.md` | v1 says | What we now know | Source |
