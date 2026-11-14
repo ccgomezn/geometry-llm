@@ -3,6 +3,32 @@
 *Outline for the author (2026-11-14). Facts, numbers and structure only; the prose is yours. Every number is from
 `results/RESULTS.md` (entries of 2026-11-14 unless marked).*
 
+## 0. Update after the fair random control (RESULTS.md, 2026-11-14 15:26)
+
+The fair control was run (open decision 1 below is done). It removes the same variance as the map erasure at every
+layer and leaves the map readable. Results on the 600-chain test set:
+
+| questions | clean | map erased | fair random | excess drop [95% CI] | preregistered verdict |
+|---|---|---|---|---|---|
+| C–R axis (primary A) | 0.73 | 0.67 | 0.73 | +0.055 [+0.040, +0.071] | confirmed: map used |
+| all composed (primary B) | 0.77 | 0.71 | 0.69 | −0.025 [−0.036, −0.014] | not used beyond generic damage |
+| C–R distance | 0.75 | 0.74 | 0.67 | −0.071 | — |
+| C–M axis | 0.95 | 0.86 | 0.83 | −0.031 | — |
+| stated R–M axis | 0.89 | 0.70 | 0.70 | −0.003 | — |
+
+This changes the story in two places:
+- **Story line 4 becomes a positive, narrow result.** The map is used for the one kind of question that needs both
+  composition and a coordinate read-out: "is C further east / north than R?". Erasing it removes about a quarter of
+  the model's above-chance accuracy there (0.23 → 0.17 above chance 0.50). It is not used for composed distance
+  questions or for one-step comparisons. Check A points the same way (mistakes follow the map on C–R questions).
+- **The title "Its Answers Never Read" is now wrong.** Something like "barely read" or "read for one kind of question"
+  fits the evidence.
+- §3.2 (e)–(g) below: replace the upper-bound table with the table above; (g)'s exploratory axis finding is now
+  confirmed by the amendment, and should be reported with its history: found exploratory, failed confirmatory run
+  (control broken), confirmed with the fair control added before its data.
+- The overall picture: the answers mostly re-read the sentences (copy/steer/attention
+  nulls stand), and the map contributes on top for composed coordinate comparisons.
+
 ## 1. Statements in the v1 preprint (Zenodo) that no longer hold
 
 | Where in `paper/draft.md` | v1 says | What we now know | Source |
