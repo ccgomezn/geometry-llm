@@ -223,3 +223,27 @@ def test_verdict_axis():
     assert verdict_axis(0.05, -0.01, **ok) == "not confirmed"
     assert verdict_axis(0.05, 0.02, **{**ok, "max_val_r2": 0.10}) == "the map could not be erased"
     assert verdict_axis(0.05, 0.02, **{**ok, "random_comp_acc": 0.55}) == "uninformative"
+
+
+def test_variance_matched_random_two_sided_matches_a_low_variance_target():
+    from geomap.checks import variance_matched_random
+    X, Q = _aniso()
+    var = lambda R: float(((X @ R) ** 2).sum() / len(X))
+    B = np.linalg.qr(Q[:, [20, 30, 36]] + 0.1 * Q[:, [25, 33, 38]])[0]   # low-variance target, below isotropic
+    iso = np.linalg.qr(np.random.default_rng(0).standard_normal((40, 3)))[0]
+    assert var(B) < 0.5 * var(iso)
+    R, alpha = variance_matched_random(X, B, seed=0, alpha_min=-8.0)
+    assert R.shape == B.shape and np.allclose(R.T @ R, np.eye(3), atol=1e-8)
+    assert abs(var(R) - var(B)) / var(B) <= 0.02 and alpha < 0
+    R_hi, a_hi = variance_matched_random(X, np.linalg.qr(Q[:, [0, 4, 12]])[0], seed=0, alpha_min=-8.0)
+    assert a_hi > 0                                                       # high targets still search upwards
+
+
+def test_verdict_overall():
+    from geomap.checks import verdict_overall
+    ok = dict(random_comp_acc=0.70, comp_chance=0.42)
+    assert verdict_overall(0.12, 0.05, **ok) == "map used"
+    assert verdict_overall(0.05, 0.01, **ok) == "partial use"
+    assert verdict_overall(0.02, -0.01, **ok) == "map not used beyond generic damage"
+    assert verdict_overall(0.05, -0.01, **ok) == "unclear"
+    assert verdict_overall(0.12, 0.05, random_comp_acc=0.50, comp_chance=0.42) == "uninformative"

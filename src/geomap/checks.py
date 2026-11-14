@@ -216,37 +216,49 @@ def verdict_closed_loop(summary, max_val_r2: float, random_comp_acc: float, comp
 
 # ---------- confirmatory axis test (docs/preregistration_erase_axis_confirm.md) ----------
 
-def variance_matched_random(X, B, seed: int, alpha_max: float = 8.0, tol: float = 0.02, max_iter: int = 60):
+def variance_matched_random(X, B, seed: int, alpha_max: float = 8.0, tol: float = 0.02, max_iter: int = 60,
+                            alpha_min: float = 0.0):
     """Random orthonormal basis R with B's rank that removes as much variance as B: tr(RᵀΣR) = tr(BᵀΣB) within tol
-    (relative), Σ = XᵀX / n (X centred). Directions w ~ (Σ + floor)^(α/2) z, from isotropic (α = 0) towards the top
-    principal directions; the null space of X gets the smallest positive eigenvalue; α by bisection in [0, alpha_max].
-    Returns (R, α); α = 0 (isotropic) when isotropic directions already remove at least B's variance."""
+    (relative), Σ = XᵀX / n (X centred). Directions w ~ (Σ + floor)^(α/2) z: α = 0 is isotropic, α > 0 leans towards
+    the top principal directions, α < 0 towards the low-variance ones; the null space of X gets the smallest positive
+    eigenvalue. α by bisection in [alpha_min, alpha_max]. Returns (R, α). With alpha_min = 0 (the confirmatory test's
+    setting) a target below isotropic returns isotropic directions; the fair control uses alpha_min < 0."""
     X, B = np.asarray(X, np.float64), np.asarray(B, np.float64)
     d, r = B.shape
     if r == 0:
         return np.zeros((d, 0)), 0.0
     n = len(X)
-    _, S, Vt = np.linalg.svd(X, full_matrices=False)
-    lam = S ** 2 / n
+    if n >= d:
+        lam, V = np.linalg.eigh(X.T @ X / n)
+    else:
+        _, S, Vt = np.linalg.svd(X, full_matrices=False)
+        lam, V = S ** 2 / n, Vt.T
     pos = lam > lam.max() * 1e-12
-    V, lam = Vt[pos].T, lam[pos] / lam.max()
+    V, lam_raw = V[:, pos], lam[pos]
+    lam = lam_raw / lam_raw.max()
     floor = lam.min()
     Z = np.random.default_rng(seed).standard_normal((d, r))
     ZV = V.T @ Z
     Znull = Z - V @ ZV
-    var = lambda R: float(((X @ R) ** 2).sum() / n)
+    var = lambda M: float((((V.T @ M) ** 2) * lam_raw[:, None]).sum())
     target = var(B)
 
     def basis(alpha):
         W = V @ (lam[:, None] ** (alpha / 2) * ZV) + floor ** (alpha / 2) * Znull
         return np.linalg.qr(W)[0]
 
+    lo, hi = alpha_min, alpha_max
     R = basis(0.0)
-    if var(R) >= target * (1 - tol):
+    v0 = var(R)
+    if abs(v0 - target) <= tol * target:
         return R, 0.0
-    lo, hi = 0.0, alpha_max
+    if alpha_min >= 0 and v0 > target:
+        return R, 0.0
     if var(basis(hi)) < target:
         return basis(hi), hi
+    if var(basis(lo)) > target:
+        return basis(lo), lo
+    mid = 0.0
     for _ in range(max_iter):
         mid = (lo + hi) / 2
         R = basis(mid)
@@ -269,3 +281,17 @@ def verdict_axis(excess: float, lo: float, max_val_r2: float, random_comp_acc: f
     if lo > 0:
         return "small effect"
     return "not confirmed"
+
+
+def verdict_overall(excess: float, lo: float, random_comp_acc: float, comp_chance: float, used: float = 0.10,
+                    none: float = 0.03, headroom: float = 0.15) -> str:
+    """Primary B of docs/preregistration_erase_fair_control.md (all composed questions)."""
+    if random_comp_acc < comp_chance + headroom:
+        return "uninformative"
+    if excess >= used and lo > 0:
+        return "map used"
+    if lo > 0:
+        return "partial use"
+    if excess <= none:
+        return "map not used beyond generic damage"
+    return "unclear"
