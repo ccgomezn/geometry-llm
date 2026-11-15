@@ -1847,7 +1847,7 @@ is positive from layer 12 on and peaks at 21–27. It holds on test rows whose p
 At the list mention the composition is weak: distance 0.29 vs 0.15 (gap +0.14 [+0.07, +0.22], just under the 0.15
 threshold, CI above 0), and |x|, |y| no better than the baseline. This is lower than the exploratory P2d (0.62 at the
 same site and layer). The likely cause is a design difference, not checked here: P2d trained the probe on all non-root
-objects (one-step and two-step, about 2.5× the rows, with one-step distances that the baseline fits at 0.91) and scored
+objects (one-step and two-step, about 3× the rows, with one-step distances that the baseline fits at 0.91) and scored
 two-step objects; this test trains on two-step objects only, as preregistered. So P2d's list-mention number probably
 borrowed a distance direction learned from one-step objects. The sentence end does not need that help.
 
