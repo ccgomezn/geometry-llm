@@ -90,7 +90,8 @@ def load(key: str, device: str | None = None, dtype=torch.bfloat16, random_init:
             hf = hf.to(device)
     elif quant_config(key) is not None:
         from transformers import BitsAndBytesConfig
-        hf = AutoModelForCausalLM.from_pretrained(repo, dtype=dtype, device_map="auto",
+        # whole model on GPU 0: "auto" keeps ~10% spare and spilled 70B layers to the CPU, which 8-bit refuses
+        hf = AutoModelForCausalLM.from_pretrained(repo, dtype=dtype, device_map={"": 0},
                                                   quantization_config=BitsAndBytesConfig(**quant_config(key)))
     elif device == "auto":
         hf = AutoModelForCausalLM.from_pretrained(repo, dtype=dtype, device_map="auto")
