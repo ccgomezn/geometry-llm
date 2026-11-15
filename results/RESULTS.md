@@ -1973,3 +1973,96 @@ What the read-out does with it (exploratory, `_items.csv`):
 Reading: the model carries both steps, and the right answer, to the position where it answers. The final read-out
 (layers ~32–36) uses C's own direction as the answer and M's step only as a weight on its confidence. The next step
 is to find which components in layers 28–40 write that read-out, and how they weigh the two steps (Stage 2).
+
+## 2026-11-15 21:55 · Stage 2: which components write the answer? (gemma3-12b) — preregistered
+Model **gemma3-12b**. Discovery: 1500 new C–R axis questions (seed 1701); test: 1900 (seed 1801). Direct contributions to logit(C) − logit(R) at the final position; each component's contribution regressed on own_yes (C's own step points the asked way), d1 (M's step, per unit), d2 (C's step, per unit) and the question order. Logit units.
+
+Checks: components sum to the model's logit difference r = 1.0000 (max |diff| 0.30); head parts by source token sum to the head 0.0132; final logit softcap None.
+
+**The model's answer** (discovery, same regression): own_yes +22.3, d1 +1.20/unit, d2 +0.90/unit, order +0.24.
+
+**Own-direction writers** (top 20 by own_yes; the top 10 carry 161% of the total own_yes weight):
+
+| component | own_yes | d1 | d2 | mean | own_yes comes from |
+|---|---|---|---|---|---|
+| L44H10 | +6.61 | +0.357 | +0.195 | -1.69 | Q_other 0.80, final 0.13 |
+| L47H2 | +4.64 | +0.213 | +0.125 | -1.40 | Q_C 0.30, list 0.27 |
+| L45H1 | +4.47 | +0.269 | +0.199 | -1.43 | Q_other 0.79, final 0.13 |
+| L41H0 | +3.73 | +0.540 | +0.262 | -1.57 | Q_C 0.35, list 0.33 |
+| L41H11 | +3.48 | +0.184 | +0.112 | -0.88 | list 0.29, C_sentence 0.28 |
+| L42H0 | +2.76 | +0.130 | +0.090 | -0.66 | Q_other 0.83, final 0.08 |
+| L41H5 | +2.60 | +0.038 | +0.243 | -1.32 | list 0.38, Q_C 0.28 |
+| L41H3 | +2.60 | +0.096 | +0.089 | -0.77 | list 0.31, Q_C 0.26 |
+| L35H8 | +2.50 | +0.127 | +0.035 | -0.61 | Q_C 0.37, list 0.23 |
+| L47H10 | +2.47 | +0.130 | +0.091 | -0.90 | Q_C 0.31, list 0.25 |
+| L47H8 | +1.95 | +0.103 | +0.062 | -0.41 | Q_other 0.52, final 0.48 |
+| L35H3 | +1.66 | +0.080 | +0.079 | -0.55 | list 0.41, Q_C 0.25 |
+| L41H4 | +1.61 | +0.045 | -0.134 | -0.14 | Q_C 0.35, list 0.30 |
+| MLP40 | +1.48 | +0.085 | +0.061 | -0.48 | – |
+| L35H12 | +1.45 | +0.050 | +0.008 | -0.35 | Q_C 0.36, list 0.28 |
+| L46H4 | +1.43 | +0.049 | +0.061 | -0.51 | – |
+| L47H7 | +1.39 | +0.060 | +0.039 | -0.36 | – |
+| MLP43 | +1.20 | +0.047 | -0.075 | -0.29 | – |
+| L41H1 | +1.13 | +0.050 | +0.079 | -0.11 | – |
+| L32H7 | +1.12 | +0.050 | +0.036 | -0.32 | – |
+
+**First-step writers** (top 10 by d1):
+
+| component | own_yes | d1 | d2 | d1 comes from |
+|---|---|---|---|---|
+| L41H0 | +3.73 | +0.540 | +0.262 | list 0.31, Q_R 0.27 |
+| L44H10 | +6.61 | +0.357 | +0.195 | Q_other 0.83, final 0.10 |
+| L45H1 | +4.47 | +0.269 | +0.199 | Q_other 0.81, final 0.10 |
+| L47H2 | +4.64 | +0.213 | +0.125 | list 0.30, Q_C 0.24 |
+| L41H11 | +3.48 | +0.184 | +0.112 | list 0.29, C_sentence 0.26 |
+| L42H0 | +2.76 | +0.130 | +0.090 | Q_other 0.83, final 0.07 |
+| L47H10 | +2.47 | +0.130 | +0.091 | Q_R 0.33, list 0.24 |
+| L35H8 | +2.50 | +0.127 | +0.035 | Q_C 0.34, Q_R 0.26 |
+| L43H0 | +0.70 | +0.111 | +0.126 | Q_R 0.40, list 0.29 |
+| L47H8 | +1.95 | +0.103 | +0.062 | final 0.50, Q_other 0.50 |
+
+Everything except the top 10 own-direction writers, summed: own_yes -13.6, d1 -0.89/unit, d2 -0.53/unit.
+
+**Test set, mean ablation at the final position** (accuracy):
+
+| condition | own step only | agree | first step only | conflict, C larger | conflict, M larger | regression: own_yes / d1 / d2 |
+|---|---|---|---|---|---|---|
+| clean | 0.98 | 0.98 | 0.47 | 0.92 | 0.34 | +19.8 / +1.25 / +1.37 |
+| own5 | 0.95 | 0.98 | 0.47 | 0.86 | 0.34 | +19.2 / +1.19 / +1.40 |
+| own10 | 0.95 | 0.96 | 0.47 | 0.85 | 0.35 | +21.3 / +1.30 / +1.61 |
+| own20 | 0.89 | 0.91 | 0.47 | 0.82 | 0.34 | +12.4 / +0.63 / +0.87 |
+| random | 0.98 | 0.98 | 0.47 | 0.90 | 0.34 | +20.2 / +1.28 / +1.41 |
+| first10 | 0.88 | 0.89 | 0.47 | 0.79 | 0.35 | +18.7 / +1.09 / +1.29 |
+| first10_x3 | 0.98 | 0.98 | 0.47 | 0.90 | 0.34 | +17.4 / +1.08 / +1.15 |
+
+(random = 3 draws of 10 matched components, averaged per question.)
+
+Shortcut-right questions lost beyond the matched control: +0.03. Decisive questions (*conflict, M larger* and *first step only*) with the top 10 ablated: 0.41 [0.37, 0.45]; minus the control +0.00 [-0.02, +0.03].
+
+Preregistered verdict: **ineffective**. Rules: docs/preregistration_components.md.
+
+*Hand note (2026-11-15).* Run on Colab (A100), eager attention; the attribution is exact (parts sum to the model's
+logit difference, r = 1.0000). **Preregistered verdict: ineffective.** What the attribution and the ablations show,
+exploratory and not part of the rule (per-question logit differences in `gemma3-12b_components_test.csv`):
+
+- **Who writes the shortcut.** A few late attention heads, layers 41–47 (L44H10, L47H2, L45H1, L41H0, L41H11, …),
+  write it directly; the top 10 together write +36 logits of "C's own sentence points the asked way", more than the
+  model's net +22, and the rest of the model writes −14 against it. These heads read mostly from the question and
+  template tokens and from C's name in the question and the object list, not from C's sentence. So the decision has
+  already been moved onto the question tokens before layer 41. They are also the main writers of M's step, and they
+  weigh it a little *more* than C's own step per unit (L41H0: d1 +0.54, d2 +0.26). M's step is not missing from the
+  read-out; it is outweighed by a step of about +22 logits for "C's sentence says so".
+- **Why the ablation was ineffective.** Replacing these heads with their mean output changes each answer a lot (sd
+  8.8 logits for the top 10, against 0.7–1.2 for the matched random control), but 81–86% of that change is explained
+  by which two names C and R are. The heads copy names to the output, so their average output adds an average-name
+  bias rather than a neutral value. Meanwhile the shortcut coefficient comes back at full size (clean +19.8, top 10
+  ablated +21.3; only top 20 lowers it, to +12.4), although under a linear reading removing them should take off
+  about +36. Something downstream at the final position rewrites the shortcut when its main writers are removed
+  (self-repair; the final norm and later heads are candidates; not tested here).
+- **No sign of a correct path in any condition**, though this test cannot rule one out: on the decisive questions the
+  logit difference never tracks the truth better than clean. AUC on *first step only* goes from 0.62 clean to 0.53–0.55
+  ablated; on *conflict, M larger* from 0.16 (the shortcut, against the truth) toward 0.25. The ablations add name noise
+  and weaken the shortcut a little; they do not uncover a read-out that combines the two steps.
+
+Next: an ablation that keeps the names (replace each head's output by its average over the question and the same
+question with C's own step flipped), and the attribution re-run under ablation, to see who rewrites the shortcut.
