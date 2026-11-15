@@ -1799,3 +1799,60 @@ where recency is right and wrong elsewhere (0.06–0.18 for ℓ ≥ 6). In the p
 65–76% of the time and almost never solves the 2-move control (0.01–0.04). Exploratory, not preregistered: the
 "answer depends on the true target" lift is +0.00 [−0.02, +0.02] (user) and −0.07 [−0.10, −0.05] (prefill). Per the
 amendment: walk tracking without written reasoning is absent up to 70B in this task; the next step is the author's.
+
+## 2026-11-15 18:43 · Sum-of-parts test: does the model combine the two sentences? (gemma3-12b) — preregistered
+Model **gemma3-12b**. 3000 new scenes (seed 1501), 3551 two-step objects (2847 train / 704 test rows, split by scene). Targets relative to the root, none a sum of the stated offsets. *Parts baseline*: one one-hot code per sentence over its joint (dx, dy), the object's own and its parent's (the best a side-by-side store can do). *Gap* = probe − baseline, held-out R², paired 95% scene-bootstrap CI.
+
+| site | layer | target | probe R² | parts baseline R² | gap [95% CI] |
+|---|---|---|---|---|---|
+| list mention | 21 | dist | 0.29 | 0.15 | +0.14 [+0.07, +0.22] |
+| list mention | 21 | abs_x | 0.23 | 0.21 | +0.02 [-0.05, +0.09] |
+| list mention | 21 | abs_y | 0.24 | 0.21 | +0.03 [-0.05, +0.11] |
+| sentence end | 24 | dist | 0.61 | 0.15 | +0.45 [+0.38, +0.53] |
+| sentence end | 24 | abs_x | 0.53 | 0.21 | +0.32 [+0.25, +0.40] |
+| sentence end | 24 | abs_y | 0.56 | 0.21 | +0.35 [+0.27, +0.43] |
+
+True-position reference (x, y, x², y², xy): distance 0.95, |x| 0.91, |y| 0.92.
+
+- list mention (layer 21): shuffled-target control R² 0.00; test rows with an (own, parent) offset pair unseen in training: 253, probe R² 0.24, baseline -0.03
+- sentence end (layer 24): shuffled-target control R² 0.01; test rows with an (own, parent) offset pair unseen in training: 253, probe R² 0.51, baseline -0.03
+
+Distance, layer sweep (probe R² / gap):
+
+| layer | list mention | sentence end |
+|---|---|---|
+| 0 | -0.00 / -0.16 | -0.00 / -0.15 |
+| 6 | -0.01 / -0.16 | 0.12 / -0.03 |
+| 12 | -0.00 / -0.16 | 0.36 / +0.21 |
+| 14 | 0.03 / -0.12 | 0.41 / +0.26 |
+| 16 | 0.07 / -0.08 | 0.46 / +0.31 |
+| 18 | 0.21 / +0.06 | 0.47 / +0.32 |
+| 21 | 0.29 / +0.14 | 0.59 / +0.44 |
+| 24 | 0.32 / +0.17 | 0.61 / +0.45 |
+| 27 | 0.27 / +0.12 | 0.60 / +0.45 |
+| 30 | 0.24 / +0.09 | 0.54 / +0.39 |
+| 36 | 0.18 / +0.03 | 0.43 / +0.28 |
+| 42 | 0.10 / -0.05 | 0.34 / +0.19 |
+| 48 | 0.10 / -0.05 | 0.33 / +0.18 |
+
+Preregistered verdict: **composed by the model**. Sites: sentence end. Rules: docs/preregistration_compose.md.
+
+*Hand note (2026-11-15).* **Preregistered verdict: composed by the model, at the sentence end.** At the end of a
+two-step object's own sentence (layer 24) its distance to the root is readable with R² 0.61 against 0.15 for the best
+side-by-side store of the two sentences (gap +0.45 [+0.38, +0.53]); |x| and |y| show the same (+0.32, +0.35). The gap
+is positive from layer 12 on and peaks at 21–27. It holds on test rows whose pair of offsets never occurs in training
+(253 rows: probe 0.51, baseline −0.03), so the probe is not reading a lookup code of seen pairs. Shuffled targets give
+0.00–0.01.
+
+At the list mention the composition is weak: distance 0.29 vs 0.15 (gap +0.14 [+0.07, +0.22], just under the 0.15
+threshold, CI above 0), and |x|, |y| no better than the baseline. This is lower than the exploratory P2d (0.62 at the
+same site and layer). The likely cause is a design difference, not checked here: P2d trained the probe on all non-root
+objects (one-step and two-step, about 2.5× the rows, with one-step distances that the baseline fits at 0.91) and scored
+two-step objects; this test trains on two-step objects only, as preregistered. So P2d's list-mention number probably
+borrowed a distance direction learned from one-step objects. The sentence end does not need that help.
+
+Reading: the model does combine the two sentences, and the combined position is clearest at the end of the object's
+own sentence, which is the site whose patching moves the answers (P3). Yet on the conflict questions the answer follows
+the object's own step (0.34 when the parent's step is larger and opposite). The composed information is therefore
+present where the answers read, and the read-out takes the one-sentence part. The failure is in the read-out, not in
+building the map. Probes, one model (12B); presence, not use.
