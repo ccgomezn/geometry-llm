@@ -1856,3 +1856,120 @@ own sentence, which is the site whose patching moves the answers (P3). Yet on th
 the object's own step (0.34 when the parent's step is larger and opposite). The composed information is therefore
 present where the answers read, and the read-out takes the one-sentence part. The failure is in the read-out, not in
 building the map. Probes, one model (12B); presence, not use.
+
+## 2026-11-15 20:33 · Flow map: where is the first step lost on the way to the answer? (gemma3-12b) — preregistered
+Model **gemma3-12b**. 2400 new C–R axis questions (seed 1601) on 859 chains R → M → C; d1 = M's step from R on the asked axis, d2 = C's own step, truth = sign(d1 + d2). Probes: ridge, fitted separately for east and north questions, held-out scenes (80/20).
+
+**Clean accuracy:** own step only 0.99, agree 0.97, first step only 0.50, conflict, C larger 0.89, conflict, M larger 0.40
+
+**Where each step is present** (held-out R², first step d1 / own step d2):
+
+| layer | M_end | C_end | Q_C | Q_R | Q_after | final |
+|---|---|---|---|---|---|---|
+| 0 | -0.02 / -0.02 | -0.02 / -0.02 | -0.02 / -0.02 | -0.02 / -0.01 | -0.02 / -0.02 | -0.02 / -0.02 |
+| 4 | 0.72 / -0.03 | 0.55 / 0.45 | -0.02 / -0.02 | -0.02 / -0.01 | 0.08 / -0.03 | 0.28 / -0.06 |
+| 8 | 0.73 / 0.02 | 0.52 / 0.55 | -0.02 / -0.02 | 0.09 / -0.01 | 0.55 / 0.42 | 0.52 / -0.02 |
+| 12 | 0.72 / 0.01 | 0.49 / 0.63 | 0.09 / 0.16 | 0.36 / 0.27 | 0.66 / 0.60 | 0.57 / 0.40 |
+| 16 | 0.78 / 0.03 | 0.71 / 0.74 | 0.68 / 0.67 | 0.70 / 0.69 | 0.80 / 0.82 | 0.76 / 0.71 |
+| 20 | 0.79 / 0.03 | 0.75 / 0.82 | 0.75 / 0.80 | 0.75 / 0.76 | 0.84 / 0.85 | 0.81 / 0.82 |
+| 24 | 0.77 / -0.00 | 0.75 / 0.82 | 0.79 / 0.87 | 0.80 / 0.83 | 0.82 / 0.86 | 0.82 / 0.86 |
+| 28 | 0.75 / -0.01 | 0.69 / 0.77 | 0.80 / 0.86 | 0.79 / 0.81 | 0.83 / 0.87 | 0.84 / 0.89 |
+| 32 | 0.74 / -0.00 | 0.61 / 0.71 | 0.76 / 0.84 | 0.76 / 0.76 | 0.80 / 0.85 | 0.81 / 0.85 |
+| 36 | 0.68 / -0.00 | 0.44 / 0.61 | 0.73 / 0.80 | 0.73 / 0.73 | 0.77 / 0.81 | 0.76 / 0.81 |
+| 40 | 0.64 / -0.01 | 0.39 / 0.58 | 0.73 / 0.79 | 0.71 / 0.72 | 0.75 / 0.80 | 0.74 / 0.80 |
+| 44 | 0.60 / -0.02 | 0.27 / 0.53 | 0.73 / 0.78 | 0.71 / 0.72 | 0.71 / 0.76 | 0.67 / 0.74 |
+| 48 | 0.66 / -0.02 | 0.16 / 0.54 | 0.69 / 0.75 | 0.69 / 0.69 | 0.65 / 0.69 | 0.64 / 0.70 |
+
+Best d1 R² per hop: C's sentence end (layers 12–32) 0.76, question tokens (16–40) 0.84, final position (28–48) 0.84; d2 at the final position 0.89.
+
+**Right answer at the final position** (truth probe, held-out *conflict, M larger*): best layer 28, 0.86; the model on the same questions 0.32. Truth probe on held-out *first step only*: 1.00.
+
+**Logit lens** (share of questions where the layer's C-vs-R logit points to the right answer; check: last layer vs the model's answer r = 1.000):
+
+| layer | own step only | agree | first step only | conflict, C larger | conflict, M larger |
+|---|---|---|---|---|---|
+| 24 | 0.55 | 0.48 | 0.47 | 0.56 | 0.56 |
+| 28 | 0.56 | 0.53 | 0.45 | 0.52 | 0.52 |
+| 32 | 0.65 | 0.66 | 0.51 | 0.58 | 0.48 |
+| 36 | 0.98 | 0.96 | 0.51 | 0.86 | 0.39 |
+| 40 | 0.98 | 0.96 | 0.50 | 0.87 | 0.38 |
+| 44 | 0.97 | 0.97 | 0.51 | 0.87 | 0.40 |
+| 48 | 0.99 | 0.97 | 0.50 | 0.89 | 0.40 |
+
+**How much the answer moves when one step points the other way** (C-vs-R logit difference, oriented so + = the way the flipped step points; scene-bootstrap 95% CI):
+
+| flipped step | cell | n | full effect |
+|---|---|---|---|
+| own | own step only | 100 | +31.10 [+29.44, +32.80] |
+| own | agree | 98 | +26.77 [+23.57, +30.08] |
+| own | conflict, C larger | 100 | +29.97 [+27.24, +32.32] |
+| own | conflict, M larger | 100 | +20.55 [+17.37, +23.99] |
+| parent | agree | 98 | +9.76 [+7.25, +12.43] |
+| parent | first step only | 100 | +2.64 [+1.65, +3.76] |
+| parent | conflict, C larger | 100 | +5.90 [+3.80, +8.30] |
+| parent | conflict, M larger | 100 | +12.11 [+9.16, +15.07] |
+
+Share of the full effect carried by copying one site at one layer from the run with the own step flipped (all cells pooled; full effect +27.10):
+
+| layer | M_sentence | C_sentence | question | final |
+|---|---|---|---|---|
+| 0 | 0.00 | 1.00 | 0.00 | 0.00 |
+| 4 | 0.00 | 1.00 | -0.00 | 0.00 |
+| 8 | 0.00 | 1.00 | 0.01 | 0.00 |
+| 12 | 0.00 | 1.00 | 0.02 | 0.00 |
+| 16 | 0.00 | 0.91 | 0.11 | 0.00 |
+| 20 | 0.00 | 0.26 | 0.74 | 0.00 |
+| 24 | 0.00 | -0.00 | 0.96 | 0.04 |
+| 28 | 0.00 | -0.00 | 0.49 | 0.51 |
+| 32 | 0.00 | 0.00 | 0.29 | 0.71 |
+| 36 | 0.00 | 0.00 | 0.20 | 0.80 |
+| 40 | 0.00 | 0.00 | 0.20 | 0.80 |
+| 44 | 0.00 | 0.00 | 0.19 | 0.82 |
+| 46 | 0.00 | 0.00 | 0.08 | 0.92 |
+
+Share of the full effect carried by copying one site at one layer from the run with the first step flipped (all cells pooled; full effect +7.59):
+
+| layer | M_sentence | C_sentence | question | final |
+|---|---|---|---|---|
+| 0 | 1.00 | -0.00 | -0.00 | -0.00 |
+| 4 | 1.01 | -0.00 | -0.01 | -0.00 |
+| 8 | 0.98 | 0.04 | 0.01 | -0.00 |
+| 12 | 0.92 | 0.20 | -0.01 | -0.00 |
+| 16 | 0.67 | 0.45 | 0.10 | -0.00 |
+| 20 | 0.22 | 0.29 | 0.53 | -0.00 |
+| 24 | -0.01 | 0.01 | 0.95 | 0.03 |
+| 28 | -0.00 | -0.01 | 0.53 | 0.48 |
+| 32 | 0.00 | -0.01 | 0.33 | 0.67 |
+| 36 | 0.01 | -0.01 | 0.24 | 0.75 |
+| 40 | 0.01 | -0.01 | 0.24 | 0.76 |
+| 44 | 0.00 | -0.00 | 0.22 | 0.78 |
+| 46 | 0.00 | -0.00 | 0.09 | 0.92 |
+
+Preregistered verdict: **reaches the answer position (the read-out ignores it)**. Rules: docs/preregistration_flow.md.
+
+*Hand note (2026-11-15).* **Preregistered verdict: the first step reaches the answer position, and the read-out
+ignores it.** M's step is not lost anywhere on the route. It is as readable as C's own step at every hop (final
+position, layer 28: d1 R² 0.84, d2 0.89), it travels the same route at the same layers (sentences → question tokens at
+layers 20–24 → final position from layer 28; both flips carry 95% of their effect through the question tokens at
+layer 24 and 92% through the final position at layer 46), and at layer 28 the final position holds the right answer:
+a truth probe gets 0.86 on held-out *conflict, M larger* questions, where the model gets 0.32, and 1.00 on *first step
+only*, where the model gets 0.50. (Best layer chosen on the test rows; the gap is far larger than that bias.)
+
+The answer is written late. Before layer 32 the logit lens is at chance in every cell; by layer 36 it holds the final
+answer (own step only 0.98, conflict M larger 0.39). So the decision is made at the final position in layers ~32–36,
+from information that is all there at layer 28.
+
+What the read-out does with it (exploratory, `_items.csv`):
+- **When C's sentence has no step on the asked axis, the model answers R** (98% of *first step only* questions,
+  either question order; mean logit difference −15.4). Its answer is "C is farther east only if C's own sentence says
+  east". M's step shifts this by only 0.5 logits per unit (corr 0.32), never enough to flip it.
+- **When C's sentence has a step, M's step only shades the confidence.** The logit difference toward C's own
+  direction falls from about +17 when M's step agrees or is 0 to about +4 when M's step is 5 units the other way
+  (≈ 1.9 logits per unit against ≈ 9.4 + 1.6·|d2| for the own sign). It shrinks but rarely flips, so *conflict, M
+  larger* stays at 0.40.
+- In counterfactual terms: flipping M's step moves the answer +12.1 logits in *conflict, M larger* and +9.8 in
+  *agree*, but only +2.6 in *first step only*, where it alone decides; flipping C's own step moves it +20 to +31.
+
+Reading: the model carries both steps, and the right answer, to the position where it answers. The final read-out
+(layers ~32–36) uses C's own direction as the answer and M's step only as a weight on its confidence. The next step
+is to find which components in layers 28–40 write that read-out, and how they weigh the two steps (Stage 2).
