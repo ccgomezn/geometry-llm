@@ -1741,3 +1741,61 @@ preregistered: within each cell, how much more often a model names the k-th obje
 it is not is ≈ 0 or slightly negative for every model and format (−0.07 to +0.00; 12B user +0.00 [−0.02, +0.03]), so
 there is no sign that the answers depend on where the walk ended. Qwen3 in the user format puts only 0.28–0.38 of its
 probability on the four lowercase candidates (most likely it would capitalise the answer), so those cells say less.
+
+## 2026-11-15 18:12 · Walk pilot: does the model know which landmark a long walk came back to? (llama3.3-70b) — preregistered
+Model **llama3.3-70b**. 2400 new walks (seed 1401): walk length N ∈ [14, 20, 26] moves × loop length ℓ ∈ [2, 6, 8, 12] (moves since the target landmark was seen), 200 walks per cell, 4 landmarks per walk (chance 0.25), each scored in two formats (*user*: walk in the user message; *prefill*: walk in the model's own turn). ℓ = 2 is the shortcut-sufficient control (one block out and back). Accuracy with a 95% walk-bootstrap CI; *gap* = model − best map-free baseline in that cell, paired over walks. A cell passes at accuracy ≥ 0.60 with gap CI lower bound > 0.
+
+**user**
+
+| N | ℓ | accuracy [95% CI] | best map-free | gap [95% CI] | prob. on answers | passes |
+|---|---|---|---|---|---|---|
+| 14 | 2 | 0.74 [0.69, 0.81] | recency 1.00 | -0.26 [-0.32, -0.20] | 1.00 | no |
+| 14 | 6 | 0.15 [0.11, 0.21] | announced 2 0.67 | -0.51 [-0.59, -0.42] | 1.00 | no |
+| 14 | 8 | 0.09 [0.06, 0.13] | announced 1 0.46 | -0.36 [-0.46, -0.28] | 1.00 | no |
+| 14 | 12 | 0.06 [0.03, 0.09] | announced 1 1.00 | -0.94 [-0.97, -0.91] | 1.00 | no |
+| 20 | 2 | 0.79 [0.73, 0.84] | recency 1.00 | -0.21 [-0.27, -0.15] | 1.00 | no |
+| 20 | 6 | 0.18 [0.13, 0.23] | announced 2 0.57 | -0.39 [-0.49, -0.29] | 1.00 | no |
+| 20 | 8 | 0.10 [0.06, 0.14] | announced 1 0.46 | -0.35 [-0.45, -0.27] | 1.00 | no |
+| 20 | 12 | 0.09 [0.05, 0.13] | announced 1 0.42 | -0.34 [-0.42, -0.26] | 1.00 | no |
+| 26 | 2 | 0.77 [0.71, 0.82] | recency 1.00 | -0.23 [-0.29, -0.17] | 1.00 | no |
+| 26 | 6 | 0.18 [0.13, 0.24] | rank 3 0.57 | -0.39 [-0.47, -0.30] | 1.00 | no |
+| 26 | 8 | 0.09 [0.06, 0.13] | announced 1 0.41 | -0.33 [-0.41, -0.24] | 1.00 | no |
+| 26 | 12 | 0.10 [0.06, 0.14] | announced 1 0.41 | -0.31 [-0.40, -0.23] | 1.00 | no |
+
+**prefill**
+
+| N | ℓ | accuracy [95% CI] | best map-free | gap [95% CI] | prob. on answers | passes |
+|---|---|---|---|---|---|---|
+| 14 | 2 | 0.01 [0.00, 0.03] | recency 1.00 | -0.99 [-1.00, -0.97] | 0.97 | no |
+| 14 | 6 | 0.07 [0.04, 0.10] | announced 2 0.67 | -0.59 [-0.67, -0.52] | 0.96 | no |
+| 14 | 8 | 0.28 [0.21, 0.34] | announced 1 0.46 | -0.17 [-0.24, -0.11] | 0.95 | no |
+| 14 | 12 | 0.58 [0.51, 0.65] | announced 1 1.00 | -0.42 [-0.49, -0.35] | 0.97 | no |
+| 20 | 2 | 0.03 [0.01, 0.04] | recency 1.00 | -0.97 [-0.99, -0.95] | 0.97 | no |
+| 20 | 6 | 0.07 [0.04, 0.10] | announced 2 0.57 | -0.51 [-0.58, -0.43] | 0.95 | no |
+| 20 | 8 | 0.21 [0.15, 0.27] | announced 1 0.46 | -0.24 [-0.31, -0.18] | 0.95 | no |
+| 20 | 12 | 0.26 [0.20, 0.32] | announced 1 0.42 | -0.17 [-0.24, -0.10] | 0.95 | no |
+| 26 | 2 | 0.04 [0.01, 0.06] | recency 1.00 | -0.96 [-0.99, -0.94] | 0.96 | no |
+| 26 | 6 | 0.10 [0.06, 0.14] | rank 3 0.57 | -0.48 [-0.57, -0.39] | 0.95 | no |
+| 26 | 8 | 0.27 [0.21, 0.33] | announced 1 0.41 | -0.14 [-0.22, -0.07] | 0.93 | no |
+| 26 | 12 | 0.25 [0.19, 0.31] | announced 1 0.41 | -0.16 [-0.23, -0.10] | 0.93 | no |
+
+Baseline accuracy by ℓ (all N, user format walks; the same walks in both formats):
+
+| ℓ | recency | primacy | rank 1 | rank 2 | rank 3 | rank 4 | parity guess | announced 1 | announced 2 | announced 3 | announced 4 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 | 1.00 | 0.25 | 0.00 | 0.00 | 0.39 | 0.61 |
+| 6 | 0.00 | 0.00 | 0.00 | 0.47 | 0.54 | 0.00 | 0.25 | 0.07 | 0.57 | 0.35 | 0.00 |
+| 8 | 0.00 | 0.36 | 0.36 | 0.33 | 0.30 | 0.00 | 0.25 | 0.44 | 0.39 | 0.17 | 0.00 |
+| 12 | 0.00 | 0.40 | 0.40 | 0.39 | 0.21 | 0.00 | 0.25 | 0.61 | 0.26 | 0.13 | 0.00 |
+
+Landmark words this tokenizer splits into several tokens (scored over all of them): barrel, fence, kite, piano, shoe.
+
+Preregistered verdict: **fail**. Rules: docs/preregistration_walk_pilot.md, amended by docs/preregistration_walk_ladder.md (extended baselines).
+
+*Note (added by hand, 2026-11-15).* Llama 3.3 70B (8-bit) completes the preregistered ladder (docs/preregistration_walk_ladder.md):
+Gemma 3 12B, Gemma 3 27B, Qwen3-32B and Llama 3.3 70B all **fail**. Llama's 0.74–0.79 on the 2-move control in the user
+format is not tracking: it names the last object seen 67–77% of the time whatever the loop, so it is right exactly
+where recency is right and wrong elsewhere (0.06–0.18 for ℓ ≥ 6). In the prefill format it names the first object
+65–76% of the time and almost never solves the 2-move control (0.01–0.04). Exploratory, not preregistered: the
+"answer depends on the true target" lift is +0.00 [−0.02, +0.02] (user) and −0.07 [−0.10, −0.05] (prefill). Per the
+amendment: walk tracking without written reasoning is absent up to 70B in this task; the next step is the author's.
