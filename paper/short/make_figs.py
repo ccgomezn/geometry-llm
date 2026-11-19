@@ -168,8 +168,66 @@ def fig2():
     fig.savefig(OUT / "fig2_mechanism.png", dpi=200)
 
 
+RAMPS = {"gemma3-12b": ["#86b6ef", "#2a78d6", "#104281"], "gemma3-27b": ["#f29a72", "#eb6834", "#9e3c14"]}
+LABEL_AT = {"gemma3-12b": {"M_sentence": (0.02, 1.06, "left"), "question": (0.53, 0.97, "left"),
+                            "final": (0.98, 0.43, "right")},
+            "gemma3-27b": {"M_sentence": (0.02, 1.08, "left"), "question": (0.66, 0.33, "left"),
+                           "final": (0.98, 1.03, "right")}}
+ROUTE = [("M_sentence", "M's sentence"), ("question", "question tokens"), ("final", "answer position")]
+
+
+def fig0():
+    """(a) the example question on the east axis; (b, c) where M's step travels: the share of its effect on the answer
+    carried by copying one site at one layer from the run where M's step points the other way."""
+    fig, axes = plt.subplots(1, 3, figsize=(6.9, 2.3), gridspec_kw=dict(width_ratios=[1.15, 1, 1]))
+    a = axes[0]
+    pts = {"Amy (R)": 0, "Beth (M)": 4, "Leo (C)": 3}
+    a.axhline(0, color=MUTED, lw=0.8)
+    for (name, x), ha in zip(pts.items(), ["center", "left", "right"]):
+        a.plot(x, 0, "o", ms=6, color=INK, zorder=3)
+        a.text(x + {"center": 0, "left": 0.12, "right": -0.12}[ha], -0.32, name, ha=ha, va="top", fontsize=7.5)
+    a.annotate("", xy=(4, 0.12), xytext=(0, 0.12),
+               arrowprops=dict(arrowstyle="-|>", color=MUTED, lw=1.2, mutation_scale=8,
+                               connectionstyle="arc3,rad=-0.35"))
+    a.text(2, 0.95, "4 units east", ha="center", fontsize=7, color=INK)
+    a.annotate("", xy=(3, 0.12), xytext=(4, 0.12),
+               arrowprops=dict(arrowstyle="-|>", color=MUTED, lw=1.2, mutation_scale=8,
+                               connectionstyle="arc3,rad=0.6"))
+    a.text(3.5, 0.62, "1 unit\nwest", ha="center", fontsize=7, color=INK)
+    a.text(-0.4, -1.05, "Which is farther east, Leo or Amy?", fontsize=7.5, style="italic")
+    a.text(-0.4, -1.5, "Map: Leo (3 > 0).   Shortcut: Amy\n(Leo's own sentence says west).", fontsize=7, va="top")
+    a.set_xlim(-0.6, 4.6)
+    a.set_ylim(-2.3, 1.4)
+    a.set_xticks(range(0, 5))
+    a.tick_params(axis="x", labelsize=6.5, pad=1)
+    a.set_yticks([])
+    a.spines[["top", "right", "left"]].set_visible(False)
+    a.spines["bottom"].set_visible(False)
+    a.tick_params(axis="x", length=0, labelbottom=False)
+    a.set_title("(a) A decisive question", loc="left")
+
+    for ax, (m, name, n, c), tag in zip(axes[1:], MODELS, "bc"):
+        S = pd.read_csv(FLOW / f"{m}_flow_seed1601_flow_summary.csv")
+        S = S[S.kind == "parent"]
+        for (site, label), col in zip(ROUTE, RAMPS[m]):
+            d = S[S.site == site].sort_values("layer")
+            ax.plot(d.layer / n, d.share_of_full, "-", color=col, lw=2)
+            x, y, ha = LABEL_AT[m][site]
+            ax.text(x, y, label, fontsize=6.5, ha=ha, color=INK)
+        ax.set_xlim(0, 1)
+        ax.set_ylim(-0.05, 1.2)
+        ax.set_xlabel("layer (share of depth)")
+        ax.set_title(f"({tag}) Route of M's step, {name.split()[-1]}", loc="left")
+        style(ax)
+    axes[1].set_ylabel("share of M's effect carried")
+    fig.tight_layout(w_pad=1.2)
+    fig.savefig(OUT / "fig0_task_route.pdf")
+    fig.savefig(OUT / "fig0_task_route.png", dpi=200)
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
+    fig0()
     fig1()
     fig2()
     print(OUT)
