@@ -2133,3 +2133,254 @@ Reading, with the flow map: the information needed for the right answer is linea
 layer 28. The answer is then set by about 20 late components that vote on whether C's own sentence points the asked
 way, while others brake that vote. With the vote removed, nothing else in the model turns the combined information
 into an answer. The map is built and carried to the answer, but no component reads it out for this question.
+
+## 2026-11-19 20:55 · Flow map: where is the first step lost on the way to the answer? (gemma3-27b) — preregistered
+Model **gemma3-27b**. 2400 new C–R axis questions (seed 1601) on 859 chains R → M → C; d1 = M's step from R on the asked axis, d2 = C's own step, truth = sign(d1 + d2). Probes: ridge, fitted separately for east and north questions, held-out scenes (80/20).
+
+**Clean accuracy:** own step only 0.99, agree 0.90, first step only 0.55, conflict, C larger 0.96, conflict, M larger 0.23
+
+**Where each step is present** (held-out R², first step d1 / own step d2):
+
+| layer | M_end | C_end | Q_C | Q_R | Q_after | final |
+|---|---|---|---|---|---|---|
+| 0 | -0.02 / -0.02 | -0.02 / -0.02 | -0.02 / -0.02 | -0.02 / -0.01 | -0.02 / -0.02 | -0.02 / -0.02 |
+| 4 | 0.71 / -0.02 | 0.36 / 0.53 | -0.02 / -0.01 | -0.02 / -0.01 | 0.24 / -0.02 | 0.11 / 0.09 |
+| 8 | 0.74 / -0.03 | 0.44 / 0.60 | -0.02 / -0.02 | -0.02 / -0.01 | 0.28 / 0.06 | 0.33 / 0.08 |
+| 12 | 0.75 / 0.02 | 0.60 / 0.67 | -0.05 / -0.01 | -0.02 / -0.01 | 0.52 / 0.36 | 0.47 / 0.28 |
+| 16 | 0.71 / 0.03 | 0.54 / 0.70 | 0.03 / -0.01 | -0.02 / -0.01 | 0.67 / 0.56 | 0.62 / 0.40 |
+| 20 | 0.78 / 0.04 | 0.63 / 0.75 | 0.57 / 0.39 | 0.60 / 0.44 | 0.80 / 0.69 | 0.69 / 0.51 |
+| 24 | 0.81 / 0.04 | 0.72 / 0.82 | 0.75 / 0.79 | 0.78 / 0.75 | 0.86 / 0.89 | 0.79 / 0.74 |
+| 28 | 0.82 / 0.05 | 0.78 / 0.85 | 0.84 / 0.89 | 0.84 / 0.84 | 0.89 / 0.90 | 0.87 / 0.86 |
+| 32 | 0.83 / 0.02 | 0.78 / 0.85 | 0.86 / 0.91 | 0.85 / 0.86 | 0.89 / 0.90 | 0.88 / 0.92 |
+| 36 | 0.80 / 0.03 | 0.77 / 0.84 | 0.85 / 0.91 | 0.84 / 0.84 | 0.88 / 0.92 | 0.89 / 0.92 |
+| 40 | 0.77 / 0.03 | 0.74 / 0.80 | 0.83 / 0.89 | 0.82 / 0.82 | 0.88 / 0.92 | 0.88 / 0.92 |
+| 44 | 0.74 / 0.01 | 0.69 / 0.77 | 0.82 / 0.89 | 0.81 / 0.81 | 0.87 / 0.92 | 0.85 / 0.91 |
+| 48 | 0.73 / -0.01 | 0.54 / 0.68 | 0.79 / 0.87 | 0.79 / 0.78 | 0.85 / 0.89 | 0.84 / 0.89 |
+| 52 | 0.70 / -0.01 | 0.54 / 0.67 | 0.76 / 0.87 | 0.79 / 0.77 | 0.83 / 0.89 | 0.84 / 0.89 |
+| 56 | 0.66 / -0.02 | 0.49 / 0.62 | 0.76 / 0.85 | 0.76 / 0.74 | 0.82 / 0.88 | 0.81 / 0.86 |
+| 60 | 0.57 / -0.02 | 0.46 / 0.61 | 0.76 / 0.84 | 0.75 / 0.73 | 0.78 / 0.85 | 0.79 / 0.84 |
+
+Best d1 R² per hop: C's sentence end (layers 16–42) 0.78, question tokens (20–52) 0.89, final position (36–62) 0.89; d2 at the final position 0.92.
+
+**Right answer at the final position** (truth probe, held-out *conflict, M larger*): best layer 38, 0.98; the model on the same questions 0.25. Truth probe on held-out *first step only*: 1.00.
+
+**Logit lens** (share of questions where the layer's C-vs-R logit points to the right answer; check: last layer vs the model's answer r = 1.000):
+
+| layer | own step only | agree | first step only | conflict, C larger | conflict, M larger |
+|---|---|---|---|---|---|
+| 32 | 0.54 | 0.60 | 0.49 | 0.53 | 0.51 |
+| 36 | 0.54 | 0.58 | 0.55 | 0.54 | 0.49 |
+| 40 | 0.57 | 0.59 | 0.54 | 0.55 | 0.50 |
+| 44 | 0.90 | 0.85 | 0.57 | 0.82 | 0.38 |
+| 48 | 0.97 | 0.89 | 0.54 | 0.90 | 0.31 |
+| 52 | 0.97 | 0.87 | 0.57 | 0.90 | 0.32 |
+| 56 | 0.99 | 0.90 | 0.56 | 0.95 | 0.27 |
+| 60 | 0.99 | 0.90 | 0.55 | 0.96 | 0.23 |
+
+**How much the answer moves when one step points the other way** (C-vs-R logit difference, oriented so + = the way the flipped step points; scene-bootstrap 95% CI):
+
+| flipped step | cell | n | full effect |
+|---|---|---|---|
+| own | own step only | 100 | +58.60 [+56.18, +61.18] |
+| own | agree | 98 | +39.85 [+34.72, +44.95] |
+| own | conflict, C larger | 100 | +49.81 [+46.46, +52.71] |
+| own | conflict, M larger | 100 | +33.02 [+29.40, +36.97] |
+| parent | agree | 98 | +8.68 [+5.87, +11.81] |
+| parent | first step only | 100 | +7.82 [+6.13, +9.55] |
+| parent | conflict, C larger | 100 | +3.59 [+1.47, +6.01] |
+| parent | conflict, M larger | 100 | +12.38 [+8.92, +15.98] |
+
+Share of the full effect carried by copying one site at one layer from the run with the own step flipped (all cells pooled; full effect +45.35):
+
+| layer | M_sentence | C_sentence | question | final |
+|---|---|---|---|---|
+| 0 | 0.00 | 1.00 | 0.00 | 0.00 |
+| 4 | -0.00 | 1.00 | -0.00 | 0.00 |
+| 8 | -0.00 | 1.00 | 0.00 | 0.00 |
+| 12 | -0.00 | 1.00 | 0.00 | 0.00 |
+| 16 | -0.00 | 1.00 | 0.01 | 0.00 |
+| 20 | 0.00 | 0.98 | 0.05 | 0.00 |
+| 24 | -0.00 | 0.61 | 0.44 | 0.00 |
+| 28 | 0.00 | 0.31 | 0.70 | 0.01 |
+| 32 | 0.00 | 0.02 | 0.72 | 0.30 |
+| 36 | 0.00 | 0.00 | 0.29 | 0.74 |
+| 40 | 0.00 | 0.00 | 0.14 | 0.85 |
+| 44 | 0.00 | 0.00 | 0.13 | 0.87 |
+| 48 | 0.00 | -0.00 | 0.12 | 0.87 |
+| 52 | 0.00 | 0.00 | 0.12 | 0.87 |
+| 56 | 0.00 | 0.00 | 0.09 | 0.91 |
+| 60 | 0.00 | 0.00 | 0.04 | 0.96 |
+
+Share of the full effect carried by copying one site at one layer from the run with the first step flipped (all cells pooled; full effect +8.12):
+
+| layer | M_sentence | C_sentence | question | final |
+|---|---|---|---|---|
+| 0 | 1.00 | -0.00 | -0.00 | -0.00 |
+| 4 | 1.00 | -0.00 | -0.00 | -0.00 |
+| 8 | 1.01 | -0.01 | -0.02 | -0.00 |
+| 12 | 1.02 | -0.01 | -0.01 | -0.00 |
+| 16 | 0.94 | 0.07 | 0.01 | -0.00 |
+| 20 | 0.86 | 0.20 | -0.04 | -0.00 |
+| 24 | 0.24 | 0.29 | 0.21 | -0.00 |
+| 28 | 0.10 | 0.24 | 0.57 | 0.03 |
+| 32 | 0.00 | 0.02 | 0.66 | 0.32 |
+| 36 | 0.00 | 0.00 | 0.42 | 0.57 |
+| 40 | 0.00 | 0.00 | 0.25 | 0.68 |
+| 44 | 0.01 | 0.00 | 0.21 | 0.73 |
+| 48 | 0.01 | -0.01 | 0.19 | 0.76 |
+| 52 | 0.01 | -0.00 | 0.19 | 0.77 |
+| 56 | -0.00 | -0.00 | 0.13 | 0.84 |
+| 60 | -0.00 | -0.00 | 0.04 | 0.96 |
+
+Preregistered verdict: **reaches the answer position (the read-out ignores it)**. Rules: docs/preregistration_flow.md.
+
+*Hand note (2026-11-19).* Run on Colab (one GPU, whole model) as part of the preregistered 27B replication
+(`docs/preregistration_replication_27b.md`; layer windows scaled to 62 layers). **Preregistered verdict: reaches the
+answer position (the read-out ignores it)**, as on 12B. Next to 12B (`seed 1601`, same questions): the gap between
+what is decodable and what is answered is larger in the bigger model. *Conflict, M larger* accuracy 0.23 (12B 0.40);
+the truth probe at the final position 0.98 at layer 38 (12B 0.86 at layer 28); M's step at the final position R² 0.89
+(12B 0.84). The route is the same at the same share of depth: C's step leaves its sentence over layers 20–32 for the
+question tokens and reaches the final position by layer 36 (58% of depth); the logit lens is at chance until layer 40
+and the answer appears at layer 44 (71% of depth). Flipping M's step moves the answer by 4–12 logits, flipping C's own
+step by 33–59.
+
+## 2026-11-19 21:03 · Stage 2: which components write the answer? (gemma3-27b) — preregistered
+Model **gemma3-27b**. Discovery: 1500 new C–R axis questions (seed 1701); test: 1900 (seed 1801). Direct contributions to logit(C) − logit(R) at the final position; each component's contribution regressed on own_yes (C's own step points the asked way), d1 (M's step, per unit), d2 (C's step, per unit) and the question order. Logit units.
+
+Checks: components sum to the model's logit difference r = 1.0000 (max |diff| 0.55); head parts by source token sum to the head 0.0275; final logit softcap None.
+
+**The model's answer** (discovery, same regression): own_yes +36.9, d1 +1.70/unit, d2 +1.86/unit, order +5.36.
+
+**Own-direction writers** (top 20 by own_yes; the top 10 carry 92% of the total own_yes weight):
+
+| component | own_yes | d1 | d2 | mean | own_yes comes from |
+|---|---|---|---|---|---|
+| L57H18 | +7.26 | +0.311 | +0.155 | -1.08 | Q_other 0.75, final 0.18 |
+| L59H28 | +5.95 | +0.194 | +0.266 | -0.92 | list 0.23, Q_C 0.23 |
+| L59H27 | +3.47 | +0.128 | +0.186 | -0.50 | list 0.23, Q_C 0.20 |
+| L47H12 | +2.96 | +0.110 | +0.141 | -0.47 | Q_C 0.34, list 0.24 |
+| L58H19 | +2.66 | +0.071 | +0.171 | -0.26 | Q_other 0.73, final 0.24 |
+| L53H11 | +2.60 | +0.022 | +0.006 | -0.35 | list 0.27, Q_C 0.23 |
+| L60H30 | +2.42 | +0.095 | +0.111 | -0.30 | final 0.68, Q_other 0.32 |
+| L55H28 | +2.41 | +0.170 | +0.212 | -0.34 | list 0.34, Q_C 0.21 |
+| L53H27 | +2.18 | +0.167 | +0.157 | -0.78 | list 0.28, Q_R 0.25 |
+| L58H15 | +1.94 | +0.059 | +0.093 | -0.38 | list 0.34, C_sentence 0.21 |
+| MLP52 | +1.91 | +0.090 | +0.018 | -0.36 | – |
+| L54H0 | +1.89 | +0.050 | +0.047 | -0.29 | Q_other 0.78, final 0.14 |
+| MLP54 | +1.88 | +0.124 | +0.109 | -0.30 | – |
+| L53H30 | +1.85 | +0.061 | +0.050 | -0.14 | list 0.29, Q_C 0.26 |
+| L59H4 | +1.71 | +0.043 | +0.087 | -0.38 | Q_C 0.25, list 0.22 |
+| L47H22 | +1.56 | +0.023 | +0.121 | -0.37 | – |
+| L56H1 | +1.56 | +0.032 | +0.052 | -0.33 | – |
+| L55H9 | +1.51 | +0.060 | -0.067 | -0.20 | – |
+| L47H26 | +1.48 | +0.003 | -0.069 | -0.24 | – |
+| L58H9 | +1.48 | -0.013 | +0.015 | -0.14 | – |
+
+**First-step writers** (top 10 by d1):
+
+| component | own_yes | d1 | d2 | d1 comes from |
+|---|---|---|---|---|
+| L57H18 | +7.26 | +0.311 | +0.155 | Q_other 0.70, final 0.23 |
+| L59H28 | +5.95 | +0.194 | +0.266 | Q_C 0.47, list 0.28 |
+| L55H28 | +2.41 | +0.170 | +0.212 | Q_C 0.43, list 0.31 |
+| L53H27 | +2.18 | +0.167 | +0.157 | Q_C 0.46, list 0.26 |
+| L56H21 | +1.11 | +0.161 | +0.210 | Q_other 0.65, final 0.14 |
+| MLP56 | +0.29 | +0.132 | -0.005 | – |
+| L59H27 | +3.47 | +0.128 | +0.186 | Q_C 0.49, list 0.19 |
+| L59H20 | -0.15 | +0.125 | +0.131 | Q_C 0.29, Q_R 0.29 |
+| MLP54 | +1.88 | +0.124 | +0.109 | – |
+| L53H26 | +1.44 | +0.121 | +0.036 | Q_C 0.40, list 0.25 |
+
+Everything except the top 10 own-direction writers, summed: own_yes +3.1, d1 +0.37/unit, d2 +0.36/unit.
+
+**Test set, mean ablation at the final position** (accuracy):
+
+| condition | own step only | agree | first step only | conflict, C larger | conflict, M larger | regression: own_yes / d1 / d2 |
+|---|---|---|---|---|---|---|
+| clean | 0.99 | 0.91 | 0.50 | 0.98 | 0.23 | +35.4 / +1.74 / +2.15 |
+| own5 | 0.99 | 0.91 | 0.50 | 0.98 | 0.23 | +39.1 / +1.85 / +2.40 |
+| own10 | 0.99 | 0.90 | 0.49 | 0.97 | 0.23 | +37.4 / +1.86 / +2.34 |
+| own20 | 0.97 | 0.89 | 0.51 | 0.92 | 0.26 | +35.3 / +1.81 / +2.44 |
+| random | 0.99 | 0.91 | 0.50 | 0.98 | 0.23 | +35.3 / +1.74 / +2.14 |
+| first10 | 0.99 | 0.91 | 0.49 | 0.97 | 0.23 | +42.5 / +2.04 / +2.59 |
+| first10_x3 | 0.99 | 0.90 | 0.50 | 0.97 | 0.23 | +28.9 / +1.48 / +1.87 |
+
+(random = 3 draws of 10 matched components, averaged per question.)
+
+Shortcut-right questions lost beyond the matched control: +0.01. Decisive questions (*conflict, M larger* and *first step only*) with the top 10 ablated: 0.36 [0.33, 0.40]; minus the control -0.00 [-0.01, +0.01].
+
+Preregistered verdict: **ineffective**. Rules: docs/preregistration_components.md.
+
+*Hand note (2026-11-19).* Part of the 27B replication; Stage 2's verdict is reported only, not part of the replication
+criteria. **Preregistered verdict: ineffective**, as on 12B, and for a reason the method already showed on 12B (mean
+ablation of name-copying heads). The writers are of the same kind and place: late heads (layers 47–60, 76–97% of
+depth; 12B 32–47) reading the question tokens, with a few late MLPs. They are more spread out than in 12B:
+the top 20 carry 56% of all shortcut writing (12B 75%), and 80% of it needs 55 components (12B 34). Writers +90.5,
+brakes −53.6, net +36.9 (12B +67.4, −45.2, +22.3).
+
+## 2026-11-19 21:15 · Stage 2b: removing the shortcut while keeping the names; who rewrites it? (gemma3-27b) — preregistered
+Model **gemma3-27b**. 1474 new C–R axis questions (seed 1901; 26 dropped because the twin collides), each with a twin: the same question with C's own step on the asked axis negated. Components fixed from Stage 2. *Twin mean* = each component's value at the final position replaced by the average of its clean values on the question and the twin; *swap* = by its value in the twin. Shortcut = own_yes coefficient of logit(C) − logit(R), regressed on own_yes, truth, d1, d2, order. Matched controls: 3 draws each (same kind and layer).
+
+| condition | own step only | agree | conflict, C larger | conflict, M larger | shortcut | truth | d1 | d2 |
+|---|---|---|---|---|---|---|---|---|
+| clean | 0.98 | 0.86 | 0.98 | 0.21 | +33.3 | +6.1 | -0.16 | +0.59 |
+| twinmean_top20 | 0.98 | 0.86 | 0.96 | 0.29 | +18.6 | +4.4 | +0.10 | +0.60 |
+| twinmean_rand20 | 0.98 | 0.86 | 0.98 | 0.21 | +33.8 | +6.1 | -0.12 | +0.64 |
+| twinmean_top10 | 0.98 | 0.86 | 0.97 | 0.27 | +21.1 | +4.7 | +0.05 | +0.53 |
+| twinmean_rand10 | 0.98 | 0.86 | 0.98 | 0.21 | +33.4 | +6.2 | -0.16 | +0.58 |
+| swap_top20 | 0.63 | 0.73 | 0.51 | 0.58 | +1.0 | +1.5 | +0.70 | +0.27 |
+| swap_top10 | 0.91 | 0.83 | 0.79 | 0.43 | +7.2 | +2.7 | +0.47 | +0.43 |
+| linear prediction | 0.76 | 0.65 | 0.58 | 0.51 | 0 | | | |
+
+Shortcut with scene-bootstrap 95% CI: clean +33.3 [+30.0, +36.7]; twinmean_top20 +18.6 [+15.9, +21.4]; twinmean_rand20 +33.8 [+30.5, +37.1].
+
+*Linear prediction* = the clean logit difference minus the clean shortcut term: the answers if the shortcut were removed and nothing else changed.
+
+**Swap**, share of answers that follow the twin's shortcut (C iff the twin's C step points the asked way): swap_top20: own step only 0.37, agree 0.27, conflict, C larger 0.47, conflict, M larger 0.59; swap_top10: own step only 0.08, agree 0.17, conflict, C larger 0.20, conflict, M larger 0.43; clean: own step only 0.02, agree 0.14, conflict, C larger 0.02, conflict, M larger 0.21.
+
+**top 20** (twin mean vs matched control): shortcut +18.6 vs +33.8 (ratio 0.55); *conflict, M larger* accuracy 0.29 [0.26, 0.33], minus control +0.08 [+0.06, +0.10]; rule gives *ineffective*.
+**top 10** (twin mean vs matched control): shortcut +21.1 vs +33.4 (ratio 0.63); *conflict, M larger* accuracy 0.27 [0.23, 0.30], minus control +0.06 [+0.04, +0.07]; rule gives *ineffective*.
+
+**Who rewrites the shortcut** (exact attribution on 600 test questions, 150 per cell; attribution sums to the model, max |diff| 0.456 clean). Change in the own_yes coefficient by group, with the removal; components taken at the clean run's final-norm scale, the rescaling by the final norm counted separately:
+
+| removed | shortcut clean → removed | removed components | other heads, same layers | later components | earlier (should be 0) | final norm | final-norm scale removed ÷ clean |
+|---|---|---|---|---|---|---|---|
+| top20 | +36.9 → +21.9 | -52.6 | +11.4 | +22.8 | +0.00 | +3.4 | 1.159 |
+| top10 | +36.9 → +24.4 | -37.1 | +4.5 | +17.4 | +0.00 | +2.6 | 1.098 |
+
+Components whose shortcut grows most when the top20 are removed: MLP60 +7.22, MLP59 +7.12, MLP58 +3.38, MLP61 +2.40, L57H19 +2.01, MLP57 +1.69, L58H21 +1.65, MLP55 +0.92, L55H12 +0.81, MLP56 +0.74.
+
+Components whose shortcut grows most when the top10 are removed: MLP60 +6.09, MLP59 +5.50, MLP58 +2.36, MLP61 +1.92, L57H19 +1.37, L58H21 +0.70, MLP57 +0.63, L54H1 +0.50, L60H31 +0.45, L59H9 +0.41.
+
+Preregistered verdict (top 20): **ineffective**. Rules: docs/preregistration_components2.md.
+
+*Hand note (2026-11-19).* **Preregistered verdict (Stage 2b, top 20): ineffective**: the shortcut with the top 20
+removed is 0.55 of the control's (the rule's limit is 0.50). The 12B account therefore **replicates partially** on 27B
+under the criteria of `docs/preregistration_replication_27b.md`:
+
+1. Behaviour, **holds**: *conflict, M larger* accuracy 0.23 in the flow run (limit 0.5).
+2. Flow map, **holds**: *reaches the answer position (the read-out ignores it)*.
+3. Stage 2b, **does not hold**: verdict *ineffective*, not *no correct path underneath the shortcut*; given the twin's
+   values, the answer follows the twin's shortcut on 0.37 of *own step only* questions (required 0.80; 12B 0.98).
+
+What failed is the claim that a fixed set of 20 components carries the shortcut. Exploratory, not part of the
+criteria:
+- **The shortcut is spread over more components.** From Stage 2's table, the top 20 do 56% of the shortcut's writing
+  (12B 75%). Twin-mean removal takes −52.6 out directly; +37.6 comes back (71%; 12B 67%), so +21.9 of +36.9 remains
+  (12B +4.3 of +18.1).
+- **The self-repair works the same way as in 12B.** About 78% of what comes back is brakes letting go (components
+  that pushed against the shortcut in the clean run and move towards zero; 12B 78%), mostly the last MLPs: MLP60
+  −6.3 → +1.0, MLP59 −6.5 → +0.7, MLP58 −3.8 → −0.5, L57H19 −4.8 → −2.8 (`gemma3-27b_components2_repair_top20.csv`).
+  Heads in the removed layers +11.4, later components +22.8, final norm +3.4, earlier components 0.0.
+- **Swap cancels the shortcut instead of reversing it.** With the twin's values in the top 20 the shortcut
+  coefficient falls from +33.3 to +1.0 (12B: reversed, to −10.8). This is the one condition with the shortcut near
+  zero. There accuracy is 0.63 / 0.73 / 0.51 / 0.58 (*own step only*, *agree*, *conflict, C larger*, *conflict, M
+  larger*), with truth +1.5, d1 +0.70, d2 +0.27. The linear prediction (shortcut subtracted, nothing else changed)
+  gives *conflict, M larger* 0.51 (12B 0.47). Neither shows a read-out that turns the two steps into the right answer,
+  but neither is the preregistered test, and swap is not a clean removal.
+
+Reading: on 27B the map is built, carried to the answer position and decodable there better than on 12B, and the
+model follows the one-sentence shortcut more strongly. The shortcut is written late by heads that read the question
+tokens and is damped by late brakes that let go when the writers are removed, as on 12B. What does not replicate is
+the count: 20 components are not enough to remove it or to set it in the bigger model. Whether there is a correct path
+underneath it on 27B is not settled by a preregistered test.
