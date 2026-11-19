@@ -1,0 +1,196 @@
+% Short paper skeleton. Build: cd paper/short && latexmk -pdf main.tex
+% The red boxes are yours: write the text in your words, then delete the \slot{...}{...}.
+% The grey lists inside each box are the facts that section must carry (numbers from results/RESULTS.md).
+% Body target: 4 pages (abstract to the end of Section 5). References and appendix do not count.
+% For a venue, swap the documentclass/style for its template; the content does not depend on it.
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype,amsmath,amssymb,graphicx,booktabs,xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{slotred}{HTML}{B3261E}
+\definecolor{slotgrey}{HTML}{55554F}
+% \slot{word budget}{facts to carry}: a red box for the author's text.
+\newcommand{\slot}[2]{\par\smallskip\noindent\fcolorbox{slotred}{white}{\begin{minipage}{0.97\linewidth}
+  \small\textcolor{slotred}{\textbf{Your text, about #1 words.}}\par\color{slotgrey}\footnotesize #2\end{minipage}}\par\smallskip}
+
+\title{\textcolor{slotred}{[Title: your choice. Options: \emph{The Model Knows Better Than It Answers} (+ subtitle,
+  e.g. ``Gemma 3 carries a composed spatial map to the answer and answers from one sentence''); \emph{Carried but
+  Not Read}]}}
+\author{Cristhian G\'omez Neira}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\slot{150}{\begin{itemize}\setlength\itemsep{0pt}
+  \item The question: does a pretrained LLM use the spatial map it builds from text?
+  \item Task: R $\to$ M $\to$ C, each placed by one sentence; ``which is farther east, C or R?'' needs both steps.
+  \item Behaviour: answers from C's sentence alone; 0.34 [0.30, 0.37] when M's step is larger and opposite (12B, 5,250 questions).
+  \item At the answer position a linear probe gets those questions right: 0.86 vs the model's 0.32 (12B), 0.98 vs 0.25 (27B), on the same held-out questions.
+  \item Late heads write the shortcut, others damp it; removing the writers (names kept) leaves 0.46 (linear prediction 0.47): nothing underneath.
+  \item 27B: the gap widens; the 20-component removal does not replicate (shortcut spread over more components).
+  \item All tests preregistered.
+\end{itemize}}
+\end{abstract}
+
+\section{Introduction}
+\slot{350}{\begin{itemize}\setlength\itemsep{0pt}
+  \item Probes find space, time and world state in LLMs \citep{gurnee2023space,li2023othello}; decodable is not the same as used \citep{ravichander2021probing,orgad2025know}.
+  \item The task in one sentence and the decisive case (M's step larger and opposite to C's).
+  \item Finding 1: a one-sentence shortcut, below chance on the decisive case.
+  \item Finding 2: the composed information reaches the answer position, and a linear probe there beats the model by 0.54 (12B) and 0.73 (27B) on the same held-out questions.
+  \item Finding 3: about 20 late components write the shortcut, brakes damp it; with them removed (names kept) no read-out gets the decisive case right (12B). Swapping their values flips 98\% of answers.
+  \item Finding 4: on 27B the same picture with a larger gap; the shortcut is spread over more components, so the 20-component removal does not replicate.
+  \item Contribution in one line: the failure is in the read-out, not in building the map, and we locate it.
+\end{itemize}}
+
+\section{Setup}
+\slot{250}{\begin{itemize}\setlength\itemsep{0pt}
+  \item Scenes: generated text, integer offsets, one sentence per object, chain R $\to$ M $\to$ C. $d_1$ = M's step on the asked axis, $d_2$ = C's own step, truth = $\mathrm{sign}(d_1+d_2)$.
+  \item Five cells on the asked axis: own step only ($d_1=0$), agree, first step only ($d_2=0$), conflict with C's step larger, conflict with M's step larger (decisive: shortcut and truth disagree).
+  \item Models: Gemma 3 12B and 27B instruct \citep{gemma2025gemma3} (48 / 62 layers), bfloat16, eager attention.
+  \item Measure: $\mathrm{logit}(C)-\mathrm{logit}(R)$ at the final position.
+  \item Methods, one line each: ridge probes, held-out scenes; copying activations between runs that differ in one step; logit lens; exact direct logit attribution through Gemma's sandwich norms, per head and MLP (sums to the model's logit difference, $r=1.000$); \emph{twin-mean} removal (a component's value replaced by the average of its values on the question and its twin, the same question with C's step negated, so names stay).
+  \item Shortcut = coefficient of own\_yes (C's step points the asked way) in a regression of the logit difference on own\_yes, truth, $d_1$, $d_2$, order. Truth is included so a correct read-out is not counted as shortcut.
+  \item All decision rules preregistered (Appendix~\ref{app:prereg}).
+\end{itemize}}
+
+\section{Results}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig1_behaviour_probe.pdf}
+  \caption{\textcolor{slotred}{[Your caption, about 50 words.]} \textcolor{slotgrey}{\footnotesize Facts: same 2,400
+  questions (seed 1601) for both models; bars = accuracy by cell, scene-bootstrap 95\% CI; dotted = chance. (b) decisive
+  cell only: solid = held-out linear truth probe at the final position, dashed = the model's own read-out at that layer
+  (logit lens); x = layer / number of layers.}}
+  \label{fig:behaviour}
+\end{figure}
+
+\subsection{A one-sentence shortcut}
+\slot{200}{\begin{itemize}\setlength\itemsep{0pt}
+  \item Fig.~\ref{fig:behaviour}a. 12B on 5,250 further questions: 0.98 / 0.97 / 0.53 / 0.88 / 0.34 [0.30, 0.37] (cells in order); follows C's step on 77\% of conflict answers.
+  \item Chance when the answer is only in M's sentence: M's sentence alone is not used.
+  \item 27B is more extreme: 0.23 on the decisive cell (flow set).
+  \item Name the set for each number: 0.40 (12B) / 0.23 (27B) are the Fig.~1 set; 0.34 is the 5,250-question set.
+  \item Context: shortcut learning \citep{geirhos2020shortcut}, bags of heuristics \citep{nikankin2025heuristics}.
+\end{itemize}}
+
+\subsection{The answer position holds the right answer}
+\slot{350}{\begin{itemize}\setlength\itemsep{0pt}
+  \item The model composes: at the end of C's sentence (12B, layer 24) C's distance to R reads at $R^2$ 0.61 vs 0.15 for the best side-by-side store of the two sentences (gap +0.45 [+0.38, +0.53]); 0.51 vs $-0.03$ on offset pairs never seen in training.
+  \item M's step reaches the final position: $R^2$ 0.84 (12B) / 0.89 (27B). Route: sentences $\to$ question tokens $\to$ final position, same share of depth in both models.
+  \item Truth probe at the final position, decisive cell, held out, best layer in the preregistered window: 12B 0.86 (layer 28; window 28--48) vs model 0.32 on the same held-out questions; 27B 0.98 (layer 38; window 36--62) vs model 0.25. (Whole cell: 0.40 / 0.23.) First step only: 1.00 both. (Fig.~\ref{fig:behaviour}b; the curve shows all layers, the numbers are the preregistered window.)
+  \item Written late: logit lens at chance through 12B layer 28 / 27B layer 40, answer set by layer 36 (75\% of depth) / 44 (71\%).
+  \item Preregistered verdict, both models: \emph{reaches the answer position (the read-out ignores it)}.
+\end{itemize}}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig2_mechanism.pdf}
+  \caption{\textcolor{slotred}{[Your caption, about 60 words.]} \textcolor{slotgrey}{\footnotesize Facts: (a) 12B,
+  exact attribution on 600 questions; dot = component's shortcut coefficient in the clean run, arrow head = with the
+  top 20 writers replaced by their twin mean; top 8 writers and the 6 brakes that change most. (b) Stage 2b set (1,474
+  questions, seed 1901), decisive cell; random = 3 matched draws of 20; linear prediction = clean logit difference
+  minus the clean shortcut term; dashed = preregistered bar for a correct path (0.65); scene-bootstrap 95\% CI.}}
+  \label{fig:mechanism}
+\end{figure}
+
+\subsection{Who writes the answer}
+\slot{450}{\begin{itemize}\setlength\itemsep{0pt}
+  \item Writers (12B): late heads in layers 41--47 (L44H10, L47H2, L45H1, L41H0, \dots). Top 10 write +36 logits; the model's net is +22; the rest of the model $-14$. They read the question tokens, not C's sentence.
+  \item Mean ablation fails for name-copying heads: 81--86\% of its effect is a name bias, and the shortcut came back in full (preregistered \emph{ineffective}). Hence the twin mean.
+  \item Twin mean of the top 20: shortcut 20.3 $\to$ 6.2 [4.5, 8.0] (matched random control 28.0). Decisive cell 0.32 $\to$ 0.46 [0.41, 0.51]; linear prediction 0.47. Verdict: \emph{no correct path underneath the shortcut} (Fig.~\ref{fig:mechanism}b).
+  \item Sufficiency: with the twin's values swapped in, the answer follows the twin's shortcut on 98\% of own-step-only questions (93--99\% across cells; 72\% on agree).
+  \item Self-repair is brakes letting go: of the removed $-46.3$, $+31.2$ comes back; 78\% of that from components that pushed against the shortcut and move to zero (MLP47 $-6.6\to-0.3$, L44H11 $-4.9\to-0.3$, MLP46 $-3.4\to+1.0$, L42H1 $-2.6\to-0.1$). Few backup writers (Fig.~\ref{fig:mechanism}a).
+  \item Relate to: IOI's backup and negative name movers \citep{wang2022ioi}, self-repair \citep{mcgrath2023hydra,rushing2024selfrepair}. ``Similar to'', not ``the same''.
+\end{itemize}}
+
+\subsection{Replication on Gemma 3 27B}
+\slot{250}{\begin{itemize}\setlength\itemsep{0pt}
+  \item Criteria fixed before any 27B data (Table~\ref{tab:replication}); layer windows scaled by depth; components chosen by the 12B rule on 27B's own data.
+  \item Result: partial. Behaviour and flow map hold, more strongly; the 20-component claims do not.
+  \item Why: the top 20 do 56\% of the shortcut writing (12B 75\%); 80\% of it needs 55 components (12B 34). Removing the top 20 leaves +21.9 of +36.9. Same places (layers 47--60, 76--97\% of depth), same repair (78\% brakes letting go, mostly MLP57--61).
+  \item Exploratory, one sentence: with the shortcut cancelled (swap, coefficient +1.0) accuracy is about 0.6; linear prediction on the decisive cell 0.51. No sign of a correct path, but not preregistered.
+\end{itemize}}
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Preregistered replication criteria (\texttt{docs/preregistration\_replication\_27b.md}, committed before
+  any 27B data).}
+  \label{tab:replication}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    criterion & 12B & 27B & holds \\
+    \midrule
+    shortcut: accuracy on conflict, M larger $<0.5$ & 0.40 & 0.23 & yes \\
+    flow map: reaches the answer position, read-out ignores it & yes & yes & yes \\
+    removing the top 20 shows no correct path underneath & yes & ineffective (0.55 $>$ 0.50) & no \\
+    swapping the top 20 sets the answer ($\ge 0.80$, own step only) & 0.98 & 0.37 & no \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Related work}
+\slot{200}{\begin{itemize}\setlength\itemsep{0pt}
+  \item Decodable vs used: \citet{ravichander2021probing}, \citet{orgad2025know}; maps used in models trained from scratch \citep{li2023othello}; incoherent world models \citep{vafa2024world}.
+  \item Spatial representations in pretrained LLMs: \citet{gurnee2023space}; Gemma 3 struggles to use representations learned in context \citep{lepori2026incontext}.
+  \item Closest: \citet{ma2026lexical}, in multimodal LLMs the correct spatial relation stays available and a lexical bias overrides it. What is new here: text only, a composed position (not a stated relation), the overriding components located, removal showing nothing underneath, the gap growing with scale.
+  \item Shortcuts and self-repair: \citet{geirhos2020shortcut,nikankin2025heuristics,wang2022ioi,mcgrath2023hydra,rushing2024selfrepair}.
+\end{itemize}}
+
+\section{Limitations and conclusion}
+\slot{250}{\begin{itemize}\setlength\itemsep{0pt}
+  \item One family, two sizes, instruct models; one task family (three-object 2-D chains).
+  \item Direct effects at the final position only; the hop of C's step onto the question tokens is not intervened on.
+  \item A linear probe shows presence and an upper bound on a linear read-out, not that the model could use it.
+  \item Components chosen by regression; on 27B 20 are not enough.
+  \item Conclusion: the failure is in the read-out, not in building the map; a larger model builds a better map and still does not read it.
+\end{itemize}}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\section{Preregistration}\label{app:prereg}
+Each design and decision rule was committed before its data
+(\url{https://github.com/ccgomezn/geometry-llm}, file \texttt{docs/preregistration\_*.md}).
+
+\begin{center}
+\small
+\begin{tabular}{@{}llll@{}}
+  \toprule
+  test & document & committed & verdict \\
+  \midrule
+  shortcut (5,250 questions, 12B) & \texttt{axis\_bulk} & 7a91a8d, 2026-11-14 & follows C's own step \\
+  composition (12B) & \texttt{compose} & 7b5a958, 2026-11-15 & composed by the model \\
+  flow map (12B) & \texttt{flow} & e550537, 2026-11-15 & reaches the answer position \\
+  writers, mean ablation (12B) & \texttt{components} & bcb15f5, 2026-11-15 & ineffective \\
+  writers, twin-mean removal (12B) & \texttt{components2} & 9ebc6f8, 2026-11-15 & no correct path underneath \\
+  replication (27B) & \texttt{replication\_27b} & f0fbfbd, 2026-11-19 & partial (Table~\ref{tab:replication}) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\slot{100}{Optional, one paragraph: why mean ablation failed (name bias 81--86\%, shortcut restored); the Stage 2b random
+control is not neutral (its draws include brakes, so it raises the shortcut to 28; against the clean run the result is
+the same).}
+
+\section*{AI assistance}
+\slot{60}{Disclosure in your words. v1's text, to adapt: ``The author used Claude (Anthropic) to help write the
+experiment code, run analyses, and draft and edit this text. The research questions, the preregistered designs and
+decision rules, and the conclusions were set and checked by the author, who takes responsibility for all content.
+Every number comes from the result files in the public repository.'' This time the text is yours, so ``draft and
+edit this text'' may no longer apply.}
+
+\section*{Code and data}
+Code, preregistrations with their commit history, and all result files:
+\url{https://github.com/ccgomezn/geometry-llm}. Figures: \texttt{paper/short/make\_figs.py}.
+
+\end{document}
