@@ -37,27 +37,44 @@
 \end{abstract}
 
 \section{Introduction}
-% Author's dictation (2026-11-19), transcription cleaned only. Citations to place where you want them:
-% \citep{shepard1971rotation} (mental rotation), \citep{kosslyn1978scanning} (scanning a mental map).
-Humans represent geometric objects in their minds, and in a sense they can see them. This is where this work started
-for me. When I solve a mathematical problem that involves geometry, I do not only use the axioms and the text of the
-problem: I represent each object in my mind and, in a way, see it. A transformation, a movement, a position on a map:
-each is represented visually.
+% Draft from the author's dictation (2026-11-19). Edit freely.
+Humans represent geometric objects in their minds, and in a sense they can see them. When we solve a problem that
+involves geometry, we do not only use the axioms and the text of the problem: we represent each object and, in a way,
+see it. A transformation, a movement, a position on a map: each is represented visually. People rotate imagined
+objects at a steady rate \citep{shepard1971rotation} and scan an imagined map in a time that grows with the distance
+\citep{kosslyn1978scanning}.
 
-The main question of this paper, and of the series it starts, is whether LLMs do something similar: whether they
-represent geometry internally, as we do with mental images, in a way that helps them solve these problems more easily.
+The question of this paper, and of the series it starts, is whether LLMs do something similar: whether they represent
+geometry internally in a way that helps them solve these problems. The question has two parts. A representation is
+\emph{present} if the information can be decoded from the model's activations. It is \emph{used} if changing that
+information changes the answer. The debate on mental imagery in psychology was about the second part, not the first
+\citep{kosslyn1978scanning,pylyshyn2002imagery}. In LLMs, probes have found space, time and the state of a board game
+\citep{gurnee2023space,li2023othello}, but information that can be decoded is not always used
+\citep{ravichander2021probing,orgad2025know}.
 
-\slot{250}{\begin{itemize}\setlength\itemsep{0pt}
-  \item Bridge (idea, your words): the question has two parts, \emph{is the geometry represented} and \emph{is it used to answer}. The imagery debate in psychology was about the second, not the first \citep{kosslyn1978scanning,pylyshyn2002imagery}.
-  \item What is known, 1--2 sentences: probes find space and world state in LLMs \citep{gurnee2023space,li2023othello}, but decodable is not the same as used \citep{ravichander2021probing,orgad2025know}.
-  \item The task in one sentence and the decisive case (M's step larger and opposite to C's).
-  \item Finding 1: a one-sentence shortcut, below chance on the decisive case.
-  \item Finding 2: the composed information reaches the answer position, and a linear probe there beats the model by 0.54 (12B) and 0.73 (27B) on the same held-out questions.
-  \item Finding 3: about 20 late components write the shortcut, brakes damp it; with them removed (names kept) no read-out gets the decisive case right (12B). Swapping their values flips 98\% of answers.
-  \item Finding 4: on 27B the same picture with a larger gap; the shortcut is spread over more components, so the 20-component removal does not replicate.
-  \item Contribution in one line: the failure is in the read-out, not in building the map, and we locate it.
-  \item Close with the series: this paper tests the simplest case (three objects on a plane); later papers go deeper.
-\end{itemize}}
+We test both parts on the simplest case we could build. A text places three objects on a plane, each relative to the
+previous one: R, then M relative to R, then C relative to M. We ask which is farther east (or north), C or R. The
+answer needs both steps. It also has a shortcut: the direction of C's own sentence, which gives the right answer
+unless M's step is larger and points the other way. On those questions, a model that reads its map is right and a
+model that takes the shortcut is wrong.
+
+We study Gemma 3 12B and 27B \citep{gemma2025gemma3}, and preregister every test. We find:
+\begin{itemize}\setlength\itemsep{0pt}
+  \item \textbf{The model takes the shortcut.} When M's step is larger and points the other way, Gemma 3 12B is right
+    on 0.34 of questions, below chance.
+  \item \textbf{The geometry is there.} The model combines the two sentences into C's position and carries the
+    information to the position where the answer is written. There, a linear probe answers those same questions
+    correctly: 0.86 against the model's 0.32 (12B), 0.98 against 0.25 (27B).
+  \item \textbf{A few late components write the answer.} Attention heads in the last layers read C's direction from the
+    question and vote for it, while other components damp the vote. Removing the 20 strongest voters, and nothing
+    else, does not reveal a correct answer underneath: accuracy rises only to 0.46. Giving them the values of a flipped
+    question flips 98\% of the answers when only C moves.
+  \item \textbf{The gap grows with size.} In 27B the probe is better and the model worse; the shortcut is written by
+    more components, so removing 20 of them is not enough there.
+\end{itemize}
+
+The map is built and carried to the answer, but not read: the failure is in the read-out, not in building the map.
+This paper tests the simplest case, three objects on a plane; the next papers in the series go further.
 
 \section{Setup}
 \slot{250}{\begin{itemize}\setlength\itemsep{0pt}
@@ -193,11 +210,11 @@ control is not neutral (its draws include brakes, so it raises the shortcut to 2
 the same).}
 
 \section*{AI assistance}
-\slot{60}{Disclosure in your words. v1's text, to adapt: ``The author used Claude (Anthropic) to help write the
-experiment code, run analyses, and draft and edit this text. The research questions, the preregistered designs and
-decision rules, and the conclusions were set and checked by the author, who takes responsibility for all content.
-Every number comes from the result files in the public repository.'' This time the text is yours, so ``draft and
-edit this text'' may no longer apply.}
+% Adapted from v1's disclosure; it applies again because Claude drafts text from the author's dictation. Edit freely.
+The author used Claude (Anthropic) to help write the experiment code, run analyses, and draft and edit this text from
+the author's dictated ideas. The research questions, the preregistered designs and decision rules, and the conclusions
+were set and checked by the author, who takes responsibility for all content. Every number comes from the result files
+in the public repository.
 
 \section*{Code and data}
 Code, preregistrations with their commit history, and all result files:
