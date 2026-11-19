@@ -37,14 +37,26 @@
 \end{abstract}
 
 \section{Introduction}
-\slot{350}{\begin{itemize}\setlength\itemsep{0pt}
-  \item Probes find space, time and world state in LLMs \citep{gurnee2023space,li2023othello}; decodable is not the same as used \citep{ravichander2021probing,orgad2025know}.
+% Author's dictation (2026-11-19), transcription cleaned only. Citations to place where you want them:
+% \citep{shepard1971rotation} (mental rotation), \citep{kosslyn1978scanning} (scanning a mental map).
+Humans represent geometric objects in their minds, and in a sense they can see them. This is where this work started
+for me. When I solve a mathematical problem that involves geometry, I do not only use the axioms and the text of the
+problem: I represent each object in my mind and, in a way, see it. A transformation, a movement, a position on a map:
+each is represented visually.
+
+The main question of this paper, and of the series it starts, is whether LLMs do something similar: whether they
+represent geometry internally, as we do with mental images, in a way that helps them solve these problems more easily.
+
+\slot{250}{\begin{itemize}\setlength\itemsep{0pt}
+  \item Bridge (idea, your words): the question has two parts, \emph{is the geometry represented} and \emph{is it used to answer}. The imagery debate in psychology was about the second, not the first \citep{kosslyn1978scanning,pylyshyn2002imagery}.
+  \item What is known, 1--2 sentences: probes find space and world state in LLMs \citep{gurnee2023space,li2023othello}, but decodable is not the same as used \citep{ravichander2021probing,orgad2025know}.
   \item The task in one sentence and the decisive case (M's step larger and opposite to C's).
   \item Finding 1: a one-sentence shortcut, below chance on the decisive case.
   \item Finding 2: the composed information reaches the answer position, and a linear probe there beats the model by 0.54 (12B) and 0.73 (27B) on the same held-out questions.
   \item Finding 3: about 20 late components write the shortcut, brakes damp it; with them removed (names kept) no read-out gets the decisive case right (12B). Swapping their values flips 98\% of answers.
   \item Finding 4: on 27B the same picture with a larger gap; the shortcut is spread over more components, so the 20-component removal does not replicate.
   \item Contribution in one line: the failure is in the read-out, not in building the map, and we locate it.
+  \item Close with the series: this paper tests the simplest case (three objects on a plane); later papers go deeper.
 \end{itemize}}
 
 \section{Setup}
