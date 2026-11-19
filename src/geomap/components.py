@@ -320,3 +320,11 @@ def verdict_components2(ratio: float, acc: float, acc_hi: float, gain: float, ga
     if acc_hi < none_max:
         return "no correct path underneath the shortcut"
     return "undecided"
+
+
+def rank_components(C, k_own: int = 20, k_first: int = 10) -> tuple[list, list]:
+    """From a Stage 2 component table: the top k_own by own_yes coefficient and the top k_first by d1 coefficient
+    (heads and MLPs; the embedding excluded), as (kind, layer, head)."""
+    C = C[C.kind != "emb"]
+    rank = lambda col, k: [(r.kind, int(r.layer), int(r.head)) for r in C.sort_values(col, ascending=False).head(k).itertuples()]
+    return rank("b_own_yes", k_own), rank("b_d1", k_first)

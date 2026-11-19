@@ -90,8 +90,18 @@ def axis_predict(X, y, ax, groups, tr) -> np.ndarray:
     return p
 
 
+def layer_grid(n_layers: int) -> tuple[list[int], list[int], dict]:
+    """Probed layers (every second), copied layers (every fourth up to n − 4, plus n − 2) and the rule's layer windows
+    as the same share of the depth as on the 48-layer 12B model, rounded to the probed (even) layers."""
+    ev = lambda x: 2 * round(x / 2)
+    n = n_layers
+    win = {"C_end": (ev(n / 4), ev(2 * n / 3)), "question": (ev(n / 3), ev(5 * n / 6)), "final": (ev(7 * n / 12), n)}
+    return list(range(0, n + 1, 2)), list(range(0, n - 3, 4)) + [n - 2], win
+
+
 def verdict_flow(p1: float, p2: float) -> str:
-    """p1, p2: best held-out R² of the first step (d1) and of C's own step (d2) at the final position, layers 28-48."""
+    """p1, p2: best held-out R² of the first step (d1) and of C's own step (d2) at the final position, over the final
+    window of layer_grid (layers 28-48 on 12B)."""
     if p2 < ANCHOR:
         return "uninformative (C's own step is not readable at the answer position either)"
     if p1 < LOST:

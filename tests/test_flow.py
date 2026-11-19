@@ -72,3 +72,13 @@ def test_where_lost_is_the_first_hop_below_threshold():
     assert where_lost({"C_end": 0.6, "question": 0.1, "final": 0.05}) == "question"
     assert where_lost({"C_end": 0.1, "question": 0.1, "final": 0.05}) == "C_end"
     assert where_lost({"C_end": 0.6, "question": 0.5, "final": 0.4}) is None
+
+
+def test_layer_grid_reproduces_12b_and_scales_by_depth():
+    from geomap.flow import layer_grid
+    layers, players, win = layer_grid(48)
+    assert layers == list(range(0, 49, 2)) and players == list(range(0, 45, 4)) + [46]
+    assert win == {"C_end": (12, 32), "question": (16, 40), "final": (28, 48)}
+    layers, players, win = layer_grid(62)
+    assert layers == list(range(0, 63, 2)) and players == list(range(0, 57, 4)) + [60]
+    assert win == {"C_end": (16, 42), "question": (20, 52), "final": (36, 62)}

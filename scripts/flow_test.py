@@ -17,7 +17,7 @@ from geomap.analysis import bootstrap_ci
 from geomap.axis import CELLS, axis_bulk_items
 from geomap.cache import cache_prefix
 from geomap.checkpoint import notify
-from geomap.flow import (PATCH_SITES, SITES, axis_of, axis_predict, axis_r2, flip_step, patch_positions,
+from geomap.flow import (PATCH_SITES, SITES, axis_of, axis_predict, axis_r2, flip_step, layer_grid, patch_positions,
                          site_positions, steps, verdict_flow, where_lost)
 from geomap.models import load
 from geomap.patching import full_acts, patch_edit
@@ -30,9 +30,6 @@ SEED = 1601
 SIZES = {"own step only": 400, "agree": 400, "first step only": 600, "conflict, C larger": 400,
          "conflict, M larger": 600}
 FLOW_N = 100
-LAYERS = list(range(0, 49, 2))
-PATCH_LAYERS = list(range(0, 45, 4)) + [46]
-WIN = {"C_end": (12, 32), "question": (16, 40), "final": (28, 48)}
 
 
 def lens_ld(m, H: torch.Tensor, c_ids, r_ids) -> np.ndarray:
@@ -61,13 +58,11 @@ def main():
     ap.add_argument("--out", default=None, help="output folder (default results/flow)")
     ap.add_argument("--acts-dir", default=None, help="where to cache the ~3 GB of residuals (default: the output folder)")
     a = ap.parse_args()
-    out, sizes, layers, players, flow_n, n_boot = ROOT / "results" / "flow", dict(SIZES), LAYERS, PATCH_LAYERS, FLOW_N, 1000
-    win = dict(WIN)
+    out, sizes, flow_n, n_boot = ROOT / "results" / "flow", dict(SIZES), FLOW_N, 1000
     if a.smoke:
         import tempfile
         a.model, out, sizes = "tiny", Path(tempfile.mkdtemp()), {c: 10 for c in CELLS}
-        layers, players, flow_n, n_boot = [0, 1, 2], [0, 1], 2, 50
-        win = {k: (0, 2) for k in WIN}
+        flow_n, n_boot = 2, 50
     out = Path(a.out) if a.out else out
     out.mkdir(parents=True, exist_ok=True)
     run = f"{a.model}_flow_seed{SEED}"
@@ -78,6 +73,10 @@ def main():
     t0 = time.time()
     log = lambda msg: print(f"[flow] {msg} ({time.time() - t0:.0f}s)", flush=True)
     m = load(a.model)
+    # layers and rule windows scaled to the depth (docs/preregistration_replication_27b.md; 12B: as preregistered)
+    layers, players, win = layer_grid(m.n_layers)
+    if a.smoke:
+        layers, players, win = [0, 1, 2], [0, 1], {k: (0, 2) for k in win}
 
     # ---- questions ----
     items = axis_bulk_items(m, sizes, seed=SEED)

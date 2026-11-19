@@ -173,3 +173,11 @@ def test_stage2b_components_match_the_stage2_ranking():
     C = C[C.kind != "emb"]
     rank = lambda col, k: [(r.kind, int(r.layer), int(r.head)) for r in C.sort_values(col, ascending=False).head(k).itertuples()]
     assert c2.OWN20 == rank("b_own_yes", 20) and c2.FIRST10 == rank("b_d1", 10)
+
+
+def test_rank_components_from_a_stage2_table():
+    from geomap.components import rank_components
+    C = pd.DataFrame(dict(kind=["emb", "head", "head", "mlp", "head"], layer=[-1, 5, 6, 7, 8], head=[-1, 1, 2, -1, 3],
+                          b_own_yes=[99.0, 3.0, 1.0, 2.0, -1.0], b_d1=[99.0, 0.1, 0.5, -0.2, 0.3]))
+    own, first = rank_components(C, k_own=3, k_first=2)
+    assert own == [("head", 5, 1), ("mlp", 7, -1), ("head", 6, 2)] and first == [("head", 6, 2), ("head", 8, 3)]

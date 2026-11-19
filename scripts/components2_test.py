@@ -15,7 +15,7 @@ from geomap.analysis import bootstrap_ci
 from geomap.axis import axis_bulk_items
 from geomap.checkpoint import notify
 from geomap.components import (GROUPS, ablation_ctx, betas, capture_final, component_dla, design_truth, group_ids,
-                               head_shape, pick_matched, repair_groups, verdict_components2)
+                               head_shape, pick_matched, rank_components, repair_groups, verdict_components2)
 from geomap.flow import axis_of, flip_step, steps
 from geomap.models import load
 from geomap.prompts import build_prompt
@@ -110,6 +110,11 @@ def main():
     if a.smoke:
         own20 = [("head", L - 1, 0), ("head", L - 1, 1), ("mlp", L - 1, -1), ("head", 0, 2)]
         first10 = [("head", L - 1, 3)]
+    elif a.model != "gemma3-12b":       # other models: Stage 2's rule on their own discovery set (replication prereg)
+        tab = out / f"{a.model}_components_components.csv"
+        assert tab.exists(), f"run scripts/components_test.py --model {a.model} first ({tab} missing)"
+        own20, first10 = rank_components(pd.read_csv(tab))
+    log("components: " + ", ".join(name(c) for c in own20))
     own10 = own20[:max(1, len(own20) // 2)]
     tok1 = lambda names: [candidate_ids(m.tok, n)[0] for n in names]
 
