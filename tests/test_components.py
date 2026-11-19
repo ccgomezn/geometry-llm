@@ -93,3 +93,83 @@ def test_verdict_components():
     assert verdict_components(drop=0.4, acc=0.72, acc_hi=0.78, gain=0.25, gain_lo=0.1).startswith("a correct path")
     assert verdict_components(drop=0.4, acc=0.5, acc_hi=0.55, gain=0.0, gain_lo=-0.05).startswith("no correct path")
     assert verdict_components(drop=0.4, acc=0.62, acc_hi=0.66, gain=0.1, gain_lo=0.02) == "undecided"
+
+
+@pytest.mark.parametrize("kind", ["qwen", "gemma"])
+def test_capture_final_matches_the_attribution_means(kind):
+    from geomap.components import capture_final, component_dla
+    m = _tiny(kind)
+    ids, groups, c, r = _batch(2, n=3)
+    cap = capture_final(m, ids, [("head", 1, 2), ("mlp", 0, -1)], batch_size=2)
+    assert cap[("head", 1, 2)].shape == (3, 16) and cap[("mlp", 0, -1)].shape == (3, 64)
+    d = component_dla(m, ids, groups, 4, c, r, batch_size=3)
+    assert np.allclose(cap[("head", 1, 2)].mean(0), d["z_mean"][1, 32:48], atol=1e-4)
+    assert np.allclose(cap[("mlp", 0, -1)].mean(0), d["mlp_mean"][0], atol=1e-4)
+
+
+@pytest.mark.parametrize("kind", ["qwen", "gemma"])
+def test_per_item_refs_and_attribution_under_ablation(kind):
+    from geomap.components import ablation_ctx, capture_final, component_dla
+    m = _tiny(kind)
+    ids, groups, c, r = _batch(3, n=4)
+    finals = [len(x) - 1 for x in ids]
+    sel = [("head", 1, 0), ("head", 1, 3), ("mlp", 1, -1)]
+    cap = capture_final(m, ids, sel, batch_size=2)
+    clean = component_dla(m, ids, groups, 4, c, r, batch_size=2)
+    own = ablation_ctx(m, finals, {1: {0: torch.tensor(cap[("head", 1, 0)]), 3: torch.tensor(cap[("head", 1, 3)])}},
+                       {1: torch.tensor(cap[("mlp", 1, -1)])})
+    same = component_dla(m, ids, groups, 4, c, r, batch_size=2, batch_ctx=own)        # per-item own values: no change
+    assert np.allclose(same["ld"], clean["ld"], atol=1e-3)
+    rng = np.random.default_rng(0)
+    other = ablation_ctx(m, finals, {1: {0: torch.tensor(rng.normal(size=(4, 16)), dtype=torch.float32)}},
+                         {1: torch.tensor(rng.normal(size=(4, 64)), dtype=torch.float32)})
+    d = component_dla(m, ids, groups, 4, c, r, batch_size=2, batch_ctx=other)
+    assert np.abs(d["ld"] - clean["ld"]).max() > 1e-3
+    total = d["emb"] + d["heads"].sum((1, 2)) + d["mlp"].sum(1)                     # attribution sees the ablated run
+    assert np.allclose(total, d["ld"], atol=1e-3)
+    assert d["rf"].shape == (4,) and np.all(d["rf"] > 0)
+    up = lambda x: x["heads"][:, 0] / x["rf"][:, None]                             # layer 0 is upstream: unchanged
+    assert np.allclose(up(d), up(clean), atol=1e-3)                                 # up to the final norm's scale
+
+
+def test_design_truth():
+    from geomap.components import design_truth
+    meta = pd.DataFrame(dict(d1=[3, -2, 0], d2=[-1, 1, 2], truth=[1, -1, 1], c_first=[True, False, True]))
+    F = design_truth(meta)
+    assert F.tolist() == [[1, 0, 1, 3, -1, 1], [1, 1, -1, -2, 1, -1], [1, 1, 1, 0, 2, 1]]
+
+
+def test_repair_groups():
+    from geomap.components import repair_groups
+    comps = [("emb", -1, -1), ("head", 0, 0), ("head", 0, 1), ("head", 1, 0), ("head", 1, 1), ("head", 2, 0),
+             ("mlp", 0, -1), ("mlp", 1, -1), ("mlp", 2, -1)]
+    delta = np.array([0, 0.1, 0.2, -5, 1.5, 2.0, 0.3, 0.7, 1.0])
+    g = repair_groups(delta, comps, removed=[("head", 1, 0)])
+    assert g == pytest.approx(dict(removed=-5, same_layer_heads=1.5, later=2.0 + 0.7 + 1.0, earlier=0.1 + 0.2 + 0.3))
+
+
+def test_verdict_components2():
+    from geomap.components import verdict_components2
+    assert verdict_components2(ratio=0.7, acc=0.8, acc_hi=0.85, gain=0.3, gain_lo=0.2) == "ineffective"
+    assert verdict_components2(ratio=0.3, acc=0.7, acc_hi=0.75, gain=0.2, gain_lo=0.05).startswith("a correct path")
+    assert verdict_components2(ratio=0.3, acc=0.5, acc_hi=0.58, gain=0.1, gain_lo=0.0).startswith("no correct path")
+    assert verdict_components2(ratio=0.5, acc=0.62, acc_hi=0.66, gain=0.1, gain_lo=0.02) == "undecided"
+
+
+def test_pick_matched_mlp_in_a_model_shallower_than_the_radius():
+    from geomap.components import pick_matched
+    out = pick_matched([("mlp", 1, -1)], n_layers=2, n_heads=4, rng=np.random.default_rng(0), exclude={("mlp", 1, -1)})
+    assert out == [("mlp", 0, -1)]
+
+
+def test_stage2b_components_match_the_stage2_ranking():
+    import importlib.util
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("c2", root / "scripts" / "components2_test.py")
+    c2 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(c2)
+    C = pd.read_csv(root / "results" / "components" / "gemma3-12b_components_components.csv")
+    C = C[C.kind != "emb"]
+    rank = lambda col, k: [(r.kind, int(r.layer), int(r.head)) for r in C.sort_values(col, ascending=False).head(k).itertuples()]
+    assert c2.OWN20 == rank("b_own_yes", 20) and c2.FIRST10 == rank("b_d1", 10)
