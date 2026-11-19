@@ -2066,3 +2066,70 @@ exploratory and not part of the rule (per-question logit differences in `gemma3-
 
 Next: an ablation that keeps the names (replace each head's output by its average over the question and the same
 question with C's own step flipped), and the attribution re-run under ablation, to see who rewrites the shortcut.
+
+## 2026-11-19 11:10 · Stage 2b: removing the shortcut while keeping the names; who rewrites it? (gemma3-12b) — preregistered
+Model **gemma3-12b**. 1474 new C–R axis questions (seed 1901; 26 dropped because the twin collides), each with a twin: the same question with C's own step on the asked axis negated. Components fixed from Stage 2. *Twin mean* = each component's value at the final position replaced by the average of its clean values on the question and the twin; *swap* = by its value in the twin. Shortcut = own_yes coefficient of logit(C) − logit(R), regressed on own_yes, truth, d1, d2, order. Matched controls: 3 draws each (same kind and layer).
+
+| condition | own step only | agree | conflict, C larger | conflict, M larger | shortcut | truth | d1 | d2 |
+|---|---|---|---|---|---|---|---|---|
+| clean | 0.95 | 0.97 | 0.86 | 0.32 | +20.3 | +1.5 | +1.06 | +0.81 |
+| twinmean_top20 | 0.89 | 0.89 | 0.71 | 0.46 | +6.2 | +0.4 | +1.11 | +0.19 |
+| twinmean_rand20 | 0.96 | 0.98 | 0.87 | 0.29 | +28.0 | +2.1 | +1.01 | +1.02 |
+| twinmean_top10 | 0.93 | 0.96 | 0.82 | 0.39 | +11.0 | +0.8 | +1.08 | +0.41 |
+| twinmean_rand10 | 0.96 | 0.97 | 0.86 | 0.31 | +22.0 | +1.7 | +1.05 | +0.87 |
+| swap_top20 | 0.02 | 0.28 | 0.01 | 0.93 | -10.8 | -1.4 | +1.23 | -0.52 |
+| swap_top10 | 0.29 | 0.57 | 0.18 | 0.76 | -1.2 | -0.5 | +1.21 | -0.19 |
+| linear prediction | 0.59 | 0.61 | 0.54 | 0.47 | 0 | | | |
+
+Shortcut with scene-bootstrap 95% CI: clean +20.3 [+17.7, +23.0]; twinmean_top20 +6.2 [+4.5, +8.0]; twinmean_rand20 +28.0 [+24.8, +31.2].
+
+*Linear prediction* = the clean logit difference minus the clean shortcut term: the answers if the shortcut were removed and nothing else changed.
+
+**Swap**, share of answers that follow the twin's shortcut (C iff the twin's C step points the asked way): swap_top20: own step only 0.98, agree 0.72, conflict, C larger 0.99, conflict, M larger 0.93; swap_top10: own step only 0.71, agree 0.43, conflict, C larger 0.80, conflict, M larger 0.76; clean: own step only 0.05, agree 0.03, conflict, C larger 0.14, conflict, M larger 0.32.
+
+**top 20** (twin mean vs matched control): shortcut +6.2 vs +28.0 (ratio 0.22); *conflict, M larger* accuracy 0.46 [0.41, 0.51], minus control +0.17 [+0.14, +0.20]; rule gives *no correct path underneath the shortcut*.
+**top 10** (twin mean vs matched control): shortcut +11.0 vs +22.0 (ratio 0.50); *conflict, M larger* accuracy 0.39 [0.34, 0.44], minus control +0.08 [+0.06, +0.10]; rule gives *ineffective*.
+
+**Who rewrites the shortcut** (exact attribution on 600 test questions, 150 per cell; attribution sums to the model, max |diff| 0.303 clean). Change in the own_yes coefficient by group, with the removal; components taken at the clean run's final-norm scale, the rescaling by the final norm counted separately:
+
+| removed | shortcut clean → removed | removed components | other heads, same layers | later components | earlier (should be 0) | final norm | final-norm scale removed ÷ clean |
+|---|---|---|---|---|---|---|---|
+| top20 | +18.1 → +4.3 | -46.3 | +15.7 | +15.5 | -0.00 | +1.3 | 1.119 |
+| top10 | +18.1 → +9.2 | -34.2 | +9.3 | +14.2 | -0.00 | +1.9 | 1.143 |
+
+Components whose shortcut grows most when the top20 are removed: MLP47 +6.29, L44H11 +4.57, MLP46 +4.41, L42H1 +2.53, L46H11 +2.38, MLP45 +1.70, MLP44 +1.24, L43H13 +1.22, L45H0 +1.06, L42H3 +0.88.
+
+Components whose shortcut grows most when the top10 are removed: MLP47 +5.23, MLP46 +3.70, L44H11 +3.19, L46H11 +2.02, L42H1 +1.99, MLP45 +1.52, L43H13 +1.09, MLP44 +0.97, L45H0 +0.79, L42H3 +0.75.
+
+Preregistered verdict (top 20): **no correct path underneath the shortcut**. Rules: docs/preregistration_components2.md.
+
+*Hand note (2026-11-19).* Run on Colab (A100). **Preregistered verdict: no correct path underneath the shortcut.** The
+removal worked this time: removing the top 20 by twin mean (names kept) cuts the shortcut from +20.3 to +6.2. Accuracy
+on *conflict, M larger* rises only to 0.46 [0.41, 0.51], close to the linear prediction (0.47). What else the run shows,
+exploratory and not part of the rule:
+
+- **These 20 components set the answer.** Given the twin's values (swap), the answer follows the twin's shortcut in
+  93–99% of questions (72% on *agree*); on *conflict, M larger* accuracy goes to 0.93 because there the twin's shortcut
+  agrees with the truth. Twenty components at the final position, mostly heads in layers 32–47, are sufficient to set
+  the answer.
+- **The self-repair is mostly brakes letting go, not backup writers.** About two thirds of the removed shortcut comes
+  back (top 20: −46.3 removed, +31.2 back). The components that account for it pushed *against* the shortcut in the
+  clean run and stop doing so once the vote is gone: MLP47 −6.6 → −0.3, L44H11 −4.9 → −0.3, MLP46 −3.4 → +1.0, L42H1
+  −2.6 → −0.1 (own_yes coefficients, clean → removed, `gemma3-12b_components2_repair_top20.csv`). Only L46H11 (−0.3 →
+  +2.1) and L43H13 (−0.8 → +0.4) turn into writers. These brakes are the "−14 from the rest of the model" of Stage 2:
+  they scale the vote's confidence back. The final norm adds little (+1.3), and heads in layer 32, which only the
+  post-attention norm could change, are unchanged (0.0).
+- **The random control is not neutral, for the same reason.** Its draws include brakes (L42H1, L41H2, MLP45, MLP46;
+  Stage 2 shortcut coefficients summing to −3 to −12 per draw), so averaging them raises the shortcut to +28. Against
+  the clean run instead of the control, the result is the same: shortcut 20.3 → 6.2, *conflict, M larger* 0.32 → 0.46,
+  CI upper bound below 0.60.
+- **What is left after the removal is weak and biased, not a hidden correct read-out.** On *conflict, M larger* the
+  logit difference ranks by the truth with AUC 0.67 (clean 0.16, control 0.06); M's step still counts about 1.1 logits
+  per unit, C's step almost nothing (0.19; the removed components carried it), and a bias towards answering R remains
+  (intercept −8). Even with the remaining shortcut term subtracted, accuracy there is 0.52. A linear probe on the same
+  final position at layer 28 gets 0.86 (flow map).
+
+Reading, with the flow map: the information needed for the right answer is linearly present at the final position by
+layer 28. The answer is then set by about 20 late components that vote on whether C's own sentence points the asked
+way, while others brake that vote. With the vote removed, nothing else in the model turns the combined information
+into an answer. The map is built and carried to the answer, but no component reads it out for this question.
