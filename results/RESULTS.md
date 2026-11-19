@@ -2315,7 +2315,7 @@ Preregistered verdict: **ineffective**. Rules: docs/preregistration_components.m
 criteria. **Preregistered verdict: ineffective**, as on 12B, and for a reason the method already showed on 12B (mean
 ablation of name-copying heads). The writers are of the same kind and place: late heads (layers 47–60, 76–97% of
 depth; 12B 32–47) reading the question tokens, with a few late MLPs. They are more spread out than in 12B:
-the top 20 carry 56% of all shortcut writing (12B 75%), and 80% of it needs 55 components (12B 34). Writers +90.5,
+the top 20 carry 56% of all shortcut writing (12B 75%), and 80% of it needs 44 components (12B 25; corrected 2026-11-19, an earlier count kept adding past the positive contributions). Writers +90.5,
 brakes −53.6, net +36.9 (12B +67.4, −45.2, +22.3).
 
 ## 2026-11-19 21:15 · Stage 2b: removing the shortcut while keeping the names; who rewrites it? (gemma3-27b) — preregistered

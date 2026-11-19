@@ -14,6 +14,7 @@ from geomap.components import betas, design_truth
 
 ROOT = Path(__file__).resolve().parents[2]
 FLOW, COMP, OUT = ROOT / "results/flow", ROOT / "results/components", Path(__file__).resolve().parent / "figures"
+PROBE_LAYER = {"gemma3-12b": 28, "gemma3-27b": 38}  # best layer in the preregistered window, quoted in the text
 MODELS = [("gemma3-12b", "Gemma 3 12B", 48, "#2a78d6"), ("gemma3-27b", "Gemma 3 27B", 62, "#eb6834")]
 CELLS = ["own step only", "agree", "first step only", "conflict, C larger", "conflict, M larger"]
 CELL_LABELS = ["own step\nonly", "agree", "first step\nonly", "conflict,\nC larger", "conflict,\nM larger"]
@@ -78,12 +79,14 @@ def fig1():
         ln = pd.read_csv(FLOW / f"{m}_flow_seed1601_lens.csv")
         ln = ln[ln.cell == DEC]
         b.plot(pr.layer / n, pr.truth_conflict_m, "-", color=c, lw=2, label=f"{name}: linear probe")
+        q = pr[pr.layer == PROBE_LAYER[m]]
+        b.plot(q.layer / n, q.truth_conflict_m, "o", ms=5, color=c, mec="white", mew=1, zorder=4)
         b.plot(ln.layer / n, ln.acc, "--", color=c, lw=2, label=f"{name}: model (logit lens)")
     b.axhline(0.5, color=MUTED, lw=0.8, ls=":")
     b.set_xlim(0, 1)
     b.set_ylim(0, 1.05)
     b.set_xlabel("layer (share of depth)")
-    b.set_ylabel("accuracy on conflict, M larger")
+    b.set_ylabel("accuracy on decisive questions")
     b.set_title("(b) Final position: decodable vs answered", loc="left")
     b.text(0.97, 0.66, "linear probe", ha="right", fontsize=7, color=INK)
     b.text(0.97, 0.12, "model's read-out", ha="right", fontsize=7, color=INK)
@@ -159,7 +162,7 @@ def fig2():
     b.text(-0.45, 0.665, "preregistered bar for a correct path (0.65)", fontsize=6.5, color=INK)
     b.set_xticks(np.arange(len(conds)), ["clean", "random 20\nremoved", "top 20\nremoved", "linear\nprediction"])
     b.set_ylim(0, 0.85)
-    b.set_ylabel("accuracy on conflict, M larger")
+    b.set_ylabel("accuracy on decisive questions")
     b.set_title("(b) Without the shortcut writers", loc="left")
     b.legend(frameon=False, loc="upper right", ncol=2, bbox_to_anchor=(1.0, 1.02))
     style(b)
@@ -195,7 +198,7 @@ def fig0():
                                connectionstyle="arc3,rad=0.6"))
     a.text(3.5, 0.62, "1 unit\nwest", ha="center", fontsize=7, color=INK)
     a.text(-0.4, -1.05, "Which is farther east, Leo or Amy?", fontsize=7.5, style="italic")
-    a.text(-0.4, -1.5, "Map: Leo (3 > 0).   Shortcut: Amy\n(Leo's own sentence says west).", fontsize=7, va="top")
+    a.text(-0.4, -1.5, "Geometry: Leo at 3, Amy at 0, so Leo.\nShortcut: Leo's sentence says west, so Amy.", fontsize=7, va="top")
     a.set_xlim(-0.6, 4.6)
     a.set_ylim(-2.3, 1.4)
     a.set_xticks(range(0, 5))

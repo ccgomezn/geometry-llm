@@ -1,6 +1,6 @@
 % Every entry checked against the arXiv API on 2026-11-19 (authors, title, year).
 % Venues given only where arXiv's comment / journal-ref or a checked proceedings page states them;
-% the others are cited as arXiv preprints. Check the "venue?" notes before camera-ready.
+% McGrath et al. (Hydra) has no confirmed venue and is cited as a preprint.
 
 @inproceedings{ravichander2021probing,
   author    = {Ravichander, Abhilasha and Belinkov, Yonatan and Hovy, Eduard},
@@ -26,12 +26,13 @@
   note      = {arXiv:2210.13382}
 }
 
-% venue? NeurIPS 2024 (not stated on arXiv; check the proceedings page)
-@misc{vafa2024world,
-  author = {Vafa, Keyon and Chen, Justin Y. and Rambachan, Ashesh and Kleinberg, Jon and Mullainathan, Sendhil},
-  title  = {Evaluating the World Model Implicit in a Generative Model},
-  year   = {2024},
-  note   = {arXiv:2406.03689}
+% venue confirmed: NeurIPS 2024 proceedings page
+@inproceedings{vafa2024world,
+  author    = {Vafa, Keyon and Chen, Justin Y. and Rambachan, Ashesh and Kleinberg, Jon and Mullainathan, Sendhil},
+  title     = {Evaluating the World Model Implicit in a Generative Model},
+  booktitle = {Advances in Neural Information Processing Systems 37 (NeurIPS)},
+  year      = {2024},
+  note      = {arXiv:2406.03689}
 }
 
 % venue confirmed on Semantic Scholar (ICLR)
@@ -43,12 +44,14 @@
   note      = {arXiv:2310.02207}
 }
 
-% venue? ACL 2026 per our research notes (not stated on arXiv)
-@misc{lepori2026incontext,
-  author = {Lepori, Michael A. and Linzen, Tal and Yuan, Ann and Filippova, Katja},
-  title  = {Language Models Struggle to Use Representations Learned In-Context},
-  year   = {2026},
-  note   = {arXiv:2602.04212}
+% venue confirmed: ACL Anthology 2026.acl-long.676 (DOI checked on Crossref)
+@inproceedings{lepori2026incontext,
+  author    = {Lepori, Michael A. and Linzen, Tal and Yuan, Ann and Filippova, Katja},
+  title     = {Language Models Struggle to Use Representations Learned In-Context},
+  booktitle = {Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  pages     = {14841--14857},
+  year      = {2026},
+  doi       = {10.18653/v1/2026.acl-long.676}
 }
 
 @inproceedings{ma2026lexical,
@@ -63,6 +66,7 @@
   author  = {Geirhos, Robert and Jacobsen, J{\"o}rn-Henrik and Michaelis, Claudio and Zemel, Richard and Brendel, Wieland and Bethge, Matthias and Wichmann, Felix A.},
   title   = {Shortcut Learning in Deep Neural Networks},
   journal = {Nature Machine Intelligence},
+  volume  = {2}, number = {11}, pages = {665--673},
   year    = {2020},
   doi     = {10.1038/s42256-020-00257-z},
   note    = {arXiv:2004.07780}
@@ -76,12 +80,13 @@
   note      = {arXiv:2410.21272}
 }
 
-% venue? ICLR 2023 (not stated on arXiv; check the proceedings page)
-@misc{wang2022ioi,
-  author = {Wang, Kevin and Variengien, Alexandre and Conmy, Arthur and Shlegeris, Buck and Steinhardt, Jacob},
-  title  = {Interpretability in the Wild: a Circuit for Indirect Object Identification in {GPT-2} small},
-  year   = {2022},
-  note   = {arXiv:2211.00593}
+% venue confirmed: ICLR 2023 poster (iclr.cc/virtual/2023/poster/11341)
+@inproceedings{wang2022ioi,
+  author    = {Wang, Kevin and Variengien, Alexandre and Conmy, Arthur and Shlegeris, Buck and Steinhardt, Jacob},
+  title     = {Interpretability in the Wild: a Circuit for Indirect Object Identification in {GPT-2} Small},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2023},
+  note      = {arXiv:2211.00593}
 }
 
 @misc{mcgrath2023hydra,
@@ -132,4 +137,43 @@
   journal = {Behavioral and Brain Sciences},
   volume  = {25}, number = {2}, pages = {157--182}, year = {2002},
   doi     = {10.1017/S0140525X02000043}
+}
+
+% added after the citation audit (2026-11-19); checked against arXiv / Crossref
+@article{pylyshyn1981debate,
+  author  = {Pylyshyn, Zenon W.},
+  title   = {The Imagery Debate: Analogue Media Versus Tacit Knowledge},
+  journal = {Psychological Review},
+  volume  = {88}, number = {1}, pages = {16--45}, year = {1981},
+  doi     = {10.1037/0033-295X.88.1.16}
+}
+
+@inproceedings{shi2022stepgame,
+  author    = {Shi, Zhengxiang and Zhang, Qiang and Lipani, Aldo},
+  title     = {{StepGame}: A New Benchmark for Robust Multi-Hop Spatial Reasoning in Texts},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  year      = {2022},
+  note      = {arXiv:2204.08292}
+}
+
+@article{yamada2024spatial,
+  author  = {Yamada, Yutaro and Bao, Yihan and Lampinen, Andrew K. and Kasai, Jungo and Yildirim, Ilker},
+  title   = {Evaluating Spatial Understanding of Large Language Models},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2024},
+  note    = {arXiv:2310.14540}
+}
+
+@misc{nanda2023linear,
+  author = {Nanda, Neel and Lee, Andrew and Wattenberg, Martin},
+  title  = {Emergent Linear Representations in World Models of Self-Supervised Sequence Models},
+  year   = {2023},
+  note   = {arXiv:2309.00941}
+}
+
+@misc{mcdougall2023copy,
+  author = {McDougall, Callum and Conmy, Arthur and Rushing, Cody and McGrath, Thomas and Nanda, Neel},
+  title  = {Copy Suppression: Comprehensively Understanding an Attention Head},
+  year   = {2023},
+  note   = {arXiv:2310.04625}
 }
