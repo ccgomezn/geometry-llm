@@ -1,6 +1,6 @@
 % Short paper skeleton. Build: cd paper/short && latexmk -pdf main.tex
-% The red boxes are yours: write the text in your words, then delete the \slot{...}{...}.
-% The grey lists inside each box are the facts that section must carry (numbers from results/RESULTS.md).
+% Full draft (2026-11-19), written by Claude from the author's dictation and the results; the author edits.
+% Numbers are from results/RESULTS.md; check any change against it.
 % Body target: 4 pages (abstract to the end of Section 5). References and appendix do not count.
 % For a venue, swap the documentclass/style for its template; the content does not depend on it.
 \documentclass[11pt]{article}
@@ -25,15 +25,15 @@
 \maketitle
 
 \begin{abstract}
-\slot{150}{\begin{itemize}\setlength\itemsep{0pt}
-  \item The question: does a pretrained LLM use the spatial map it builds from text?
-  \item Task: R $\to$ M $\to$ C, each placed by one sentence; ``which is farther east, C or R?'' needs both steps.
-  \item Behaviour: answers from C's sentence alone; 0.34 [0.30, 0.37] when M's step is larger and opposite (12B, 5,250 questions).
-  \item At the answer position a linear probe gets those questions right: 0.86 vs the model's 0.32 (12B), 0.98 vs 0.25 (27B), on the same held-out questions.
-  \item Late heads write the shortcut, others damp it; removing the writers (names kept) leaves 0.46 (linear prediction 0.47): nothing underneath.
-  \item 27B: the gap widens; the 20-component removal does not replicate (shortcut spread over more components).
-  \item All tests preregistered.
-\end{itemize}}
+Humans solve geometry problems with the help of mental images. We ask whether large language models build an internal
+geometric representation from text, and whether they use it to answer. A short text places three objects on a plane,
+each relative to the previous one, and asks which of the first and the last is farther east or north; the answer
+needs both steps. Gemma 3 12B answers from the last sentence alone: when the first step is larger and points the
+other way, it is right on 0.34 of questions, below chance. Yet the model combines the two steps and carries the
+result to where the answer is written: a linear probe there answers the same questions correctly (0.86 against the
+model's 0.32; in Gemma 3 27B, 0.98 against 0.25). About twenty late components write the shortcut while others damp
+it, and in 12B removing them reveals no correct answer underneath. The map is built but not read, and the gap grows
+with size. All tests were preregistered.
 \end{abstract}
 
 \section{Introduction}
@@ -77,74 +77,123 @@ The map is built and carried to the answer, but not read: the failure is in the 
 This paper tests the simplest case, three objects on a plane; the next papers in the series go further.
 
 \section{Setup}
-\slot{250}{\begin{itemize}\setlength\itemsep{0pt}
-  \item Scenes: generated text, integer offsets, one sentence per object, chain R $\to$ M $\to$ C. $d_1$ = M's step on the asked axis, $d_2$ = C's own step, truth = $\mathrm{sign}(d_1+d_2)$.
-  \item Five cells on the asked axis: own step only ($d_1=0$), agree, first step only ($d_2=0$), conflict with C's step larger, conflict with M's step larger (decisive: shortcut and truth disagree).
-  \item Models: Gemma 3 12B and 27B instruct \citep{gemma2025gemma3} (48 / 62 layers), bfloat16, eager attention.
-  \item Measure: $\mathrm{logit}(C)-\mathrm{logit}(R)$ at the final position.
-  \item Methods, one line each: ridge probes, held-out scenes; copying activations between runs that differ in one step; logit lens; exact direct logit attribution through Gemma's sandwich norms, per head and MLP (sums to the model's logit difference, $r=1.000$); \emph{twin-mean} removal (a component's value replaced by the average of its values on the question and its twin, the same question with C's step negated, so names stay).
-  \item Shortcut = coefficient of own\_yes (C's step points the asked way) in a regression of the logit difference on own\_yes, truth, $d_1$, $d_2$, order. Truth is included so a correct read-out is not counted as shortcut.
-  \item All decision rules preregistered (Appendix~\ref{app:prereg}).
-\end{itemize}}
+\paragraph{Task.} Each prompt describes three objects, one sentence each. Every object is placed relative to the
+previous one by whole units east or west and north or south. The list of objects and a question follow:
+\begin{quote}\small
+Beth is 4 units east of Amy. Leo is 1 unit west of Beth. The objects are: Leo, Beth, Amy.
+Which is farther east, Leo or Amy? Answer with one word.
+\end{quote}
+We call the objects R (Amy), M (Beth) and C (Leo). On the asked axis, $d_1$ is M's step from R and $d_2$ is C's own
+step from M; C is the correct answer if $d_1+d_2>0$. In the example $d_1=4$ and $d_2=-1$: Leo is farther east, but
+Leo's own sentence says west. We group the questions by how the two steps combine: \emph{own step only} ($d_1=0$),
+\emph{agree}, \emph{first step only} ($d_2=0$), and two kinds of conflict, \emph{C larger} and \emph{M larger}. The
+last is the decisive case: there the rule ``C if its own sentence points the asked way'' gives the wrong answer. Names
+are single tokens (people or objects); questions ask about east or north and name C or R first, balanced.
+
+\paragraph{Models and measure.} Gemma 3 12B and 27B instruct (48 and 62 layers), in bfloat16. The model's answer is
+the sign of $\mathrm{logit}(C)-\mathrm{logit}(R)$ at the final position.
+
+\paragraph{Methods.} \emph{Probes} are ridge regressions on the residual stream, fitted and tested on different
+scenes. \emph{Copying} replaces the activation at one site and layer with its value in a run where one step points
+the other way; the share of the full effect each copy carries shows where the information flows. The \emph{logit
+lens} reads the C-vs-R logit difference at each layer. \emph{Direct attribution} splits the final logit difference
+exactly into the contributions of each attention head, MLP and the embeddings, through Gemma's normalisations (the
+parts sum to the model's logit difference, $r=1.000$). \emph{Twin-mean removal}: every question has a twin, the same
+question with C's step negated; a component's output at the final position is replaced by the average of its outputs
+on the question and its twin. This removes what follows C's direction and keeps the names and everything else. The
+\emph{shortcut} is the coefficient of own\_yes (C's step points the asked way) in a regression of the logit difference
+on own\_yes, the correct answer, $d_1$, $d_2$ and the name order; the correct answer is in the regression so that a
+read-out turning towards it is not counted as shortcut. Every test and decision rule was preregistered
+(Appendix~\ref{app:prereg}).
 
 \section{Results}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/fig1_behaviour_probe.pdf}
-  \caption{\textcolor{slotred}{[Your caption, about 50 words.]} \textcolor{slotgrey}{\footnotesize Facts: same 2,400
-  questions (seed 1601) for both models; bars = accuracy by cell, scene-bootstrap 95\% CI; dotted = chance. (b) decisive
-  cell only: solid = held-out linear truth probe at the final position, dashed = the model's own read-out at that layer
-  (logit lens); x = layer / number of layers.}}
+  \caption{Behaviour, and what the answer position holds. (a) Accuracy by how the two steps combine on the asked
+  axis, for the same 2,400 questions in both models; error bars are 95\% scene-bootstrap intervals, the dotted line
+  is chance. (b) Decisive questions only (M's step larger and opposite). Solid: a linear probe for the correct answer
+  at the final position, tested on held-out scenes. Dashed: the model's own answer read at that layer (logit lens).
+  Layers are shown as a share of depth.}
   \label{fig:behaviour}
 \end{figure}
 
-\subsection{A one-sentence shortcut}
-\slot{200}{\begin{itemize}\setlength\itemsep{0pt}
-  \item Fig.~\ref{fig:behaviour}a. 12B on 5,250 further questions: 0.98 / 0.97 / 0.53 / 0.88 / 0.34 [0.30, 0.37] (cells in order); follows C's step on 77\% of conflict answers.
-  \item Chance when the answer is only in M's sentence: M's sentence alone is not used.
-  \item 27B is more extreme: 0.23 on the decisive cell (flow set).
-  \item Name the set for each number: 0.40 (12B) / 0.23 (27B) are the Fig.~1 set; 0.34 is the 5,250-question set.
-  \item Context: shortcut learning \citep{geirhos2020shortcut}, bags of heuristics \citep{nikankin2025heuristics}.
-\end{itemize}}
+\subsection{The model answers from one sentence}
+Figure~\ref{fig:behaviour}a shows accuracy by case. Both models are right on 0.89 to 0.99 of the questions where C's
+own sentence gives the answer (own step only, agree, conflict with C's step larger) and at chance where only M's
+sentence does (first step only). When the steps conflict and M's is larger, both fall below chance: 0.40 (12B) and
+0.23 (27B). A separate preregistered test on 5,250 new questions gives 0.34 [0.30, 0.37] for 12B; across all conflict
+questions the model follows C's own step in 77\% of answers. The model behaves as if it answered from one sentence:
+C is farther east if C's sentence says east. M's step shifts the model's confidence but rarely its answer. This is a
+shortcut in the usual sense \citep{geirhos2020shortcut}: a rule that agrees with the truth on most questions and fails
+exactly where both steps are needed.
 
 \subsection{The answer position holds the right answer}
-\slot{350}{\begin{itemize}\setlength\itemsep{0pt}
-  \item The model composes: at the end of C's sentence (12B, layer 24) C's distance to R reads at $R^2$ 0.61 vs 0.15 for the best side-by-side store of the two sentences (gap +0.45 [+0.38, +0.53]); 0.51 vs $-0.03$ on offset pairs never seen in training.
-  \item M's step reaches the final position: $R^2$ 0.84 (12B) / 0.89 (27B). Route: sentences $\to$ question tokens $\to$ final position, same share of depth in both models.
-  \item Truth probe at the final position, decisive cell, held out, best layer in the preregistered window: 12B 0.86 (layer 28; window 28--48) vs model 0.32 on the same held-out questions; 27B 0.98 (layer 38; window 36--62) vs model 0.25. (Whole cell: 0.40 / 0.23.) First step only: 1.00 both. (Fig.~\ref{fig:behaviour}b; the curve shows all layers, the numbers are the preregistered window.)
-  \item Written late: logit lens at chance through 12B layer 28 / 27B layer 40, answer set by layer 36 (75\% of depth) / 44 (71\%).
-  \item Preregistered verdict, both models: \emph{reaches the answer position (the read-out ignores it)}.
-\end{itemize}}
+\paragraph{The model composes.} Before the question, at the end of C's own sentence (12B, layer 24), C's distance to
+R can be read with $R^2=0.61$, against 0.15 for the best probe on a side-by-side code of the two sentences (gap
++0.45 [+0.38, +0.53]); on pairs of steps never seen in training, 0.51 against $-0.03$. The model does not just store
+the two sentences; it combines them.
+
+\paragraph{The information reaches the answer.} Copying activations traces both steps from their sentences to the
+question tokens (12B layers 20--24, 27B layers 24--32) and then to the final position, where M's step reads with
+$R^2=0.84$ (12B) and 0.89 (27B).
+
+\paragraph{The right answer is there.} A linear probe for the correct answer at the final position, fitted on other
+scenes, is right on 0.86 of the held-out decisive questions (12B, layer 28), where the model is right on 0.32; for
+27B, 0.98 (layer 38) against 0.25. On first-step-only questions, where the model is at chance, the probe is right on
+all of them. Figure~\ref{fig:behaviour}b shows both curves by depth. The probe rises over the first half of the
+network and stays high; the model's own read-out is at chance until about 60\% of depth and then turns to the
+shortcut, by layer 36 in 12B and 44 in 27B. The preregistered verdict for both models: the information reaches the
+answer position, and the read-out ignores it.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/fig2_mechanism.pdf}
-  \caption{\textcolor{slotred}{[Your caption, about 60 words.]} \textcolor{slotgrey}{\footnotesize Facts: (a) 12B,
-  exact attribution on 600 questions; dot = component's shortcut coefficient in the clean run, arrow head = with the
-  top 20 writers replaced by their twin mean; top 8 writers and the 6 brakes that change most. (b) Stage 2b set (1,474
-  questions, seed 1901), decisive cell; random = 3 matched draws of 20; linear prediction = clean logit difference
-  minus the clean shortcut term; dashed = preregistered bar for a correct path (0.65); scene-bootstrap 95\% CI.}}
+  \caption{The components that write the answer. (a) Gemma 3 12B: each component's shortcut coefficient in the
+  normal run (dot) and with the 20 strongest writers removed by twin mean (arrow head), for the 8 largest writers and
+  the 6 brakes that change most. The writers lose their vote; the brakes relax towards zero. (b) Accuracy on the
+  decisive questions (1,474-question test set): normal run, 20 matched random components removed, the 20 writers
+  removed, and the prediction from subtracting the shortcut term. Dashed: the preregistered bar for a correct
+  read-out. Error bars are 95\% scene-bootstrap intervals.}
   \label{fig:mechanism}
 \end{figure}
 
-\subsection{Who writes the answer}
-\slot{450}{\begin{itemize}\setlength\itemsep{0pt}
-  \item Writers (12B): late heads in layers 41--47 (L44H10, L47H2, L45H1, L41H0, \dots). Top 10 write +36 logits; the model's net is +22; the rest of the model $-14$. They read the question tokens, not C's sentence.
-  \item Mean ablation fails for name-copying heads: 81--86\% of its effect is a name bias, and the shortcut came back in full (preregistered \emph{ineffective}). Hence the twin mean.
-  \item Twin mean of the top 20: shortcut 20.3 $\to$ 6.2 [4.5, 8.0] (matched random control 28.0). Decisive cell 0.32 $\to$ 0.46 [0.41, 0.51]; linear prediction 0.47. Verdict: \emph{no correct path underneath the shortcut} (Fig.~\ref{fig:mechanism}b).
-  \item Sufficiency: with the twin's values swapped in, the answer follows the twin's shortcut on 98\% of own-step-only questions (93--99\% across cells; 72\% on agree).
-  \item Self-repair is brakes letting go: of the removed $-46.3$, $+31.2$ comes back; 78\% of that from components that pushed against the shortcut and move to zero (MLP47 $-6.6\to-0.3$, L44H11 $-4.9\to-0.3$, MLP46 $-3.4\to+1.0$, L42H1 $-2.6\to-0.1$). Few backup writers (Fig.~\ref{fig:mechanism}a).
-  \item Relate to: IOI's backup and negative name movers \citep{wang2022ioi}, self-repair \citep{mcgrath2023hydra,rushing2024selfrepair}. ``Similar to'', not ``the same''.
-\end{itemize}}
+\subsection{A few late components write the answer}
+\paragraph{Writers and brakes.} We split the logit difference at the final position into the contribution of each
+component and regress each contribution on the question variables. The shortcut is written by attention heads in
+the last layers (12B: layers 41--47; L44H10, L47H2, L45H1, L41H0, \dots). The ten largest write +36 logits of
+shortcut, the model's total is +22, and the rest of the model contributes $-14$: other components push against the
+vote. We call them brakes. The writers read the question tokens, where C's direction has arrived, not C's sentence.
+
+\paragraph{Removing the writers.} Replacing these heads by their average output does not remove the shortcut. They
+copy names, so their average adds a bias that depends on which names C and R are (81--86\% of the change it causes),
+and the shortcut comes back in full (preregistered verdict: ineffective). We therefore remove only what follows C's
+direction, with the twin mean. With the top 20 components removed, the shortcut falls from 20.3 to 6.2 [4.5, 8.0]
+logits (20 matched random components: 28.0). If a correct read-out were hidden under the shortcut, accuracy on the
+decisive questions should now rise. It rises from 0.32 to 0.46 [0.41, 0.51]: what subtracting the shortcut term alone
+predicts (0.47), and far below the preregistered bar of 0.65 (Figure~\ref{fig:mechanism}b). The preregistered
+verdict: no correct path underneath the shortcut.
+
+\paragraph{These components set the answer.} Giving the 20 components their values from the twin flips the answer to
+the twin's shortcut on 98\% of own-step-only questions (93--99\% in every case except agree, 72\%).
+
+\paragraph{Self-repair is brakes letting go.} About two thirds of the removed shortcut comes back ($-46.3$ removed,
+$+31.2$ back). Most of it, 78\%, comes from brakes relaxing towards zero once the vote is gone (MLP47 $-6.6\to-0.3$,
+L44H11 $-4.9\to-0.3$; Figure~\ref{fig:mechanism}a), not from backup writers taking over. This resembles the backup
+and negative heads of the IOI circuit \citep{wang2022ioi} and self-repair in other models
+\citep{mcgrath2023hydra,rushing2024selfrepair}.
 
 \subsection{Replication on Gemma 3 27B}
-\slot{250}{\begin{itemize}\setlength\itemsep{0pt}
-  \item Criteria fixed before any 27B data (Table~\ref{tab:replication}); layer windows scaled by depth; components chosen by the 12B rule on 27B's own data.
-  \item Result: partial. Behaviour and flow map hold, more strongly; the 20-component claims do not.
-  \item Why: the top 20 do 56\% of the shortcut writing (12B 75\%); 80\% of it needs 55 components (12B 34). Removing the top 20 leaves +21.9 of +36.9. Same places (layers 47--60, 76--97\% of depth), same repair (78\% brakes letting go, mostly MLP57--61).
-  \item Exploratory, one sentence: with the shortcut cancelled (swap, coefficient +1.0) accuracy is about 0.6; linear prediction on the decisive cell 0.51. No sign of a correct path, but not preregistered.
-\end{itemize}}
+Table~\ref{tab:replication} lists the criteria, fixed before any 27B data. Layer windows were scaled to depth, and the
+components were chosen by the 12B rule on 27B's own data. The behaviour and the flow of information replicate, more
+strongly than in 12B (Figure~\ref{fig:behaviour}). The component-level result does not: removing the top 20 leaves
++21.9 of +36.9 logits of shortcut (0.55 of the control; the rule needs less than 0.50), and swapping them flips only
+0.37 of own-step-only answers. The reason is spread, not a different mechanism. In 27B the top 20 do 56\% of all
+shortcut writing, against 75\% in 12B, and 80\% of it needs 55 components, against 34. The writers sit in the same
+place (layers 47--60, 76--97\% of depth), and the shortcut comes back the same way (78\% from brakes relaxing, mostly
+the last MLPs). Where the shortcut is cancelled (swap, coefficient +1.0), accuracy is about 0.6, and subtracting the
+shortcut term predicts 0.51 on the decisive questions: no sign of a correct path, but this part is exploratory.
 
 \begin{table}[t]
   \centering
@@ -165,21 +214,36 @@ This paper tests the simplest case, three objects on a plane; the next papers in
 \end{table}
 
 \section{Related work}
-\slot{200}{\begin{itemize}\setlength\itemsep{0pt}
-  \item Decodable vs used: \citet{ravichander2021probing}, \citet{orgad2025know}; maps used in models trained from scratch \citep{li2023othello}; incoherent world models \citep{vafa2024world}.
-  \item Spatial representations in pretrained LLMs: \citet{gurnee2023space}; Gemma 3 struggles to use representations learned in context \citep{lepori2026incontext}.
-  \item Closest: \citet{ma2026lexical}, in multimodal LLMs the correct spatial relation stays available and a lexical bias overrides it. What is new here: text only, a composed position (not a stated relation), the overriding components located, removal showing nothing underneath, the gap growing with scale.
-  \item Shortcuts and self-repair: \citet{geirhos2020shortcut,nikankin2025heuristics,wang2022ioi,mcgrath2023hydra,rushing2024selfrepair}.
-\end{itemize}}
+\paragraph{Represented is not used.} Probing accuracy does not show that a model uses the information
+\citep{ravichander2021probing}, and LLMs can encode the correct answer and still generate a wrong one
+\citep{orgad2025know}. In models trained from scratch on one task the decoded world state is used: editing
+Othello-GPT's board changes its moves \citep{li2023othello}. Generative models can also predict well with an
+incoherent world model \citep{vafa2024world}.
+
+\paragraph{Space in pretrained LLMs.} LLMs encode geographic coordinates and dates linearly \citep{gurnee2023space}.
+Gemma 3 builds the structure of a grid presented in context but struggles to use it \citep{lepori2026incontext}.
+Closest to us, \citet{ma2026lexical} find in multimodal LLMs that the correct spatial relation stays available inside
+the model while a lexical bias overrides it. We show the same pattern in text, for a position the model must compose
+rather than a stated relation; we locate the components that override it, show that nothing correct remains when
+they are removed, and find that the gap grows with size.
+
+\paragraph{Shortcuts and self-repair.} The shortcut fits the wider picture of shortcut learning
+\citep{geirhos2020shortcut} and of LLMs that solve tasks with a bag of heuristics \citep{nikankin2025heuristics}. The
+brakes and their release resemble backup and negative heads \citep{wang2022ioi} and self-repair
+\citep{mcgrath2023hydra,rushing2024selfrepair}.
 
 \section{Limitations and conclusion}
-\slot{250}{\begin{itemize}\setlength\itemsep{0pt}
-  \item One family, two sizes, instruct models; one task family (three-object 2-D chains).
-  \item Direct effects at the final position only; the hop of C's step onto the question tokens is not intervened on.
-  \item A linear probe shows presence and an upper bound on a linear read-out, not that the model could use it.
-  \item Components chosen by regression; on 27B 20 are not enough.
-  \item Conclusion: the failure is in the read-out, not in building the map; a larger model builds a better map and still does not read it.
-\end{itemize}}
+\paragraph{Limitations.} We study one model family at two sizes, in their instruct versions, and one task: three
+objects on a plane and one kind of question. We intervene only at the final position; the step where C's direction
+moves onto the question tokens is not tested. A linear probe shows that the information is present and bounds what a
+linear read-out could achieve; it does not show that the model could learn to use it. Components were selected by
+regression, and in 27B twenty are not enough to remove the shortcut.
+
+\paragraph{Conclusion.} Gemma 3 builds the geometry: it combines two relative positions into one and carries the
+result to the place where the answer is written. Then it answers from one sentence. The failure is in the read-out,
+not in building the map, and a larger model builds a better map without reading it. In the terms of the imagery
+debate, the image is there, but on this task it does no work. The next papers in the series test richer geometry and
+ask what, if anything, makes a model read its map.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
@@ -205,9 +269,14 @@ Each design and decision rule was committed before its data
 \end{tabular}
 \end{center}
 
-\slot{100}{Optional, one paragraph: why mean ablation failed (name bias 81--86\%, shortcut restored); the Stage 2b random
-control is not neutral (its draws include brakes, so it raises the shortcut to 28; against the clean run the result is
-the same).}
+\paragraph{Mean ablation.} Replacing a writer's output by its mean over questions changed the answers mostly through
+the names: 81--86\% of the change it caused was explained by which names C and R were, and the shortcut coefficient
+was restored in full.
+
+\paragraph{The random control in the twin-mean test.} The matched random components include brakes (their
+coefficients sum to $-3$ to $-12$ per draw), so removing them raises the shortcut to 28.0. Compared with the normal
+run instead, the conclusion is the same: shortcut 20.3 to 6.2, decisive accuracy 0.32 to 0.46, with the upper bound
+of its interval below 0.60.
 
 \section*{AI assistance}
 % Adapted from v1's disclosure; it applies again because Claude drafts text from the author's dictation. Edit freely.
