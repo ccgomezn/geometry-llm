@@ -64,6 +64,8 @@ def main():
     ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--smoke", action="store_true", help="tiny model, few questions; writes to a temp dir")
     ap.add_argument("--out", default=None, help="output folder (default results/order)")
+    ap.add_argument("--device", default=None, help='"auto" spreads the model over GPU and CPU memory (same bfloat16 '
+                                                   'weights, slower), for GPUs too small to hold it')
     a = ap.parse_args()
     out, sizes, n_boot = ROOT / "results" / "order", dict(SIZES), 1000
     if a.smoke:
@@ -78,7 +80,7 @@ def main():
         return
     t0 = time.time()
     log = lambda msg: print(f"[order] {msg} ({time.time() - t0:.0f}s)", flush=True)
-    m = load(a.model)
+    m = load(a.model, device=a.device)
 
     path = out / f"{run}_items.csv"
     if path.exists():
