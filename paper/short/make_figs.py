@@ -13,8 +13,13 @@ import pandas as pd
 from geomap.components import betas, design_truth
 from geomap.probes import scene_split
 
+import os
+
 ROOT = Path(__file__).resolve().parents[2]
-FLOW, COMP, OUT = ROOT / "results/flow", ROOT / "results/components", Path(__file__).resolve().parent / "figures"
+FLOW, COMP = ROOT / "results/flow", ROOT / "results/components"
+# FIG_W / FIG_OUT: figure width in inches and output folder (defaults: 6.9 in, paper/short/figures)
+FIG_W = float(os.environ.get("FIG_W", 6.9))
+OUT = Path(os.environ.get("FIG_OUT", Path(__file__).resolve().parent / "figures"))
 PROBE_LAYER = {"gemma3-12b": 28, "gemma3-27b": 38}  # best layer in the preregistered window, quoted in the text
 MODELS = [("gemma3-12b", "Gemma 3 12B", 48, "#2a78d6"), ("gemma3-27b", "Gemma 3 27B", 62, "#eb6834")]
 CELLS = ["own step only", "agree", "first step only", "conflict, C larger", "conflict, M larger"]
@@ -51,7 +56,7 @@ def style(ax):
 def fig1():
     """(a) accuracy by cell, both models, the same 2,400 questions; (b) on *conflict, M larger*: the truth probe at the
     final position vs the model's own read-out (logit lens) by depth."""
-    fig, (a, b) = plt.subplots(1, 2, figsize=(6.9, 2.45), gridspec_kw=dict(width_ratios=[1.25, 1]))
+    fig, (a, b) = plt.subplots(1, 2, figsize=(FIG_W, 2.45), gridspec_kw=dict(width_ratios=[1.25, 1]))
     w = 0.38
     for i, (m, name, n, c) in enumerate(MODELS):
         it = pd.read_csv(FLOW / f"{m}_flow_seed1601_items.csv")
@@ -126,7 +131,7 @@ def stage2b_acc(m: str) -> dict:
 def fig2():
     """(a) 12B: shortcut coefficient of each component, clean vs top 20 removed (writers and brakes); (b) both models:
     accuracy on *conflict, M larger* with the shortcut writers removed."""
-    fig, (a, b) = plt.subplots(1, 2, figsize=(6.9, 2.6), gridspec_kw=dict(width_ratios=[1.15, 1]))
+    fig, (a, b) = plt.subplots(1, 2, figsize=(FIG_W, 2.6), gridspec_kw=dict(width_ratios=[1.15, 1]))
     R = pd.read_csv(COMP / "gemma3-12b_components2_repair_top20.csv")
     rem = R[R.component.isin(OWN20["gemma3-12b"])].nlargest(8, "b_own_clean")
     brk = R[~R.component.isin(OWN20["gemma3-12b"]) & (R.b_own_clean < 0)].nlargest(6, "change")
@@ -193,7 +198,7 @@ ROUTE = [("M_sentence", "M's sentence"), ("C_sentence", "C's sentence"), ("quest
 def fig0():
     """(a) the example question on the east axis; (b, c) where M's step travels: the share of its effect on the answer
     carried by copying one site at one layer from the run where M's step points the other way."""
-    fig, axes = plt.subplots(1, 3, figsize=(6.9, 2.7), gridspec_kw=dict(width_ratios=[1.15, 1, 1]))
+    fig, axes = plt.subplots(1, 3, figsize=(FIG_W, 2.7), gridspec_kw=dict(width_ratios=[1.15, 1, 1]))
     a = axes[0]
     pts = {"Amy (R)\nat 0": 0, "Beth (M)\nat 4": 4, "Leo (C)\nat 3": 3}
     a.axhline(0, color=MUTED, lw=0.8)
