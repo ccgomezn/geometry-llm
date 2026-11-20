@@ -51,8 +51,8 @@ of the removal set, measure every component at the clean run's final-norm scale,
 norm separately (Tables~\ref{tab:app-repair12} and~\ref{tab:app-repair27}).
 
 \section{Compute}\label{app:compute}
-All runs used one GPU on Google Colab (A100 40 GB for 12B, H100 or 80 GB-class GPUs for 27B, and an L4 with part of
-the 12B model in CPU memory for the order-and-voice control) with bfloat16 weights; attribution used the eager
+All runs used one GPU on Google Colab (A100 40 GB for 12B, H100 or 80 GB-class GPUs for 27B, an L4 with part of
+the 12B model in CPU memory for the order-and-voice control, and an L4 for Qwen3-8B and Llama 3.1 8B) with bfloat16 weights; attribution used the eager
 attention implementation so that attention weights are available. Each test took between about fifteen minutes and a
 few hours.
 

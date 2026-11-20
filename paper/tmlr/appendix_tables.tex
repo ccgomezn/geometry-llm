@@ -541,3 +541,33 @@ MC-subj & 1 & 1 & 1 & 756 & 0.68 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{Cross-family check (Qwen3-8B, Llama 3.1 8B): the preregistered criteria. Probe and model on the same held-out decisive questions, Wilson 95\% intervals.}
+\label{tab:app-families-full}
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+model & layers & \begin{tabular}[b]{@{}c@{}}decisive\\{}accuracy\end{tabular} & \begin{tabular}[b]{@{}c@{}}R² d1 / d2 at the\\{}final position\end{tabular} & \begin{tabular}[b]{@{}c@{}}probe (best\\{}layer)\end{tabular} & \begin{tabular}[b]{@{}c@{}}model, same\\{}questions\end{tabular} & n & verdict \\
+\midrule
+Qwen3-8B & 36 & 0.36 & 0.78 / 0.75 & 0.86 [0.78, 0.91] (layer 24) & 0.25 [0.18, 0.34] & 104 & \textbf{replicates} \\
+Llama 3.1 8B & 32 & 0.18 & 0.81 / 0.83 & 0.91 [0.84, 0.95] (layer 18) & 0.14 [0.09, 0.22] & 104 & \textbf{replicates} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{Cross-family check: clean accuracy by kind of question.}
+\label{tab:app-families-acc}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+model & own step only & agree & \begin{tabular}[b]{@{}c@{}}first\\{}step only\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}C larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}M larger\end{tabular} \\
+\midrule
+Qwen3-8B & 0.70 & 0.77 & 0.54 & 0.69 & 0.36 \\
+Llama 3.1 8B & 0.76 & 0.89 & 0.48 & 0.93 & 0.18 \\
+\bottomrule
+\end{tabular}
+\end{table}

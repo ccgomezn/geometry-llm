@@ -25,7 +25,7 @@ which of the first and the last lies farther east or north, a question that requ
 middle object is larger and points the other way, the model is right on only 34\% of these questions. Yet the
 information needed for the right answer reaches the position where the answer is produced: on held-out questions of
 this kind, a linear probe at that position is right 86\% of the time, whereas the model is right 32\% of the time (in
-Gemma 3 27B, 98\% versus 25\%). What overrides it is a set of about twenty late components, mostly attention heads, which impose the one-sentence rule while others counteract it. When we remove what these components carry about the last object's direction, a weak
+Gemma 3 27B, 98\% versus 25\%), and the same holds in Qwen3-8B and Llama 3.1 8B. What overrides it is a set of about twenty late components, mostly attention heads, which impose the one-sentence rule while others counteract it. When we remove what these components carry about the last object's direction, a weak
 signal in favour of the correct answer appears, but it is too weak to overcome the default. In short, the map is carried to the answer and outvoted there. All main tests were preregistered.
 \end{abstract}
 
@@ -64,7 +64,9 @@ linear probe answers the decisive questions correctly far more often than the mo
 98\% versus 25\% in 27B). What overrides this information is a set of about twenty components in the last layers,
 mostly attention heads, which impose the rule while other components push against them. If we remove what these
 components carry about C's direction, the model's logit differences start to rank the questions weakly in the right
-order, but a default of about 8 logits towards R still keeps most answers wrong. The same picture holds in 27B, where the gap between probe and model is larger still and the rule is spread over more components.
+order, but a default of about 8 logits towards R still keeps most answers wrong. The same picture holds in 27B, where the gap between probe and model is larger still and the rule is spread over more components. Two models from other families, Qwen3-8B \citep{yang2025qwen3} and Llama 3.1 8B
+\citep{grattafiori2024llama3}, show the same rule and the same gap: a probe at the answer position is right on 86\% and 91\% of the
+held-out decisive questions, the models on 25\% and 14\%.
 
 A similar split between what a model holds and what it answers has been found for spatial relations in multimodal
 models, where a spatial word added to the answer options overrides a relation the model still represents
@@ -352,6 +354,40 @@ the rule in 27B remains open.
   \end{tabular}
 \end{table}
 
+\subsection{Two other model families}\label{sec:families}
+To test whether this is a property of Gemma, we ran the flow measurements unchanged on two instruct models from other
+families, Qwen3-8B \citep{yang2025qwen3} and Llama 3.1 8B \citep{grattafiori2024llama3}, again with layer windows
+scaled to depth and with criteria fixed before any data. Both models fail the decisive questions, and in both the
+information needed to answer them reaches the final position (Table~\ref{tab:families}). Llama is the more extreme
+case, since it answers only 18\% of the decisive questions correctly while a probe at the answer position is right on
+91\% of the held-out ones. The rule is also the same (exploratory): Llama answers C on 84\% of the questions where C's
+own sentence points in the asked direction, on 15\% where it points away and on none where C's step is zero, which is
+the default towards R, whereas Qwen follows the same pattern less cleanly (75\%, 38\% and 23\%) and gives M's step some
+weight. Moreover, as in Gemma 3 12B, the probe for the right answer is strongest before the last layers and weakens
+towards the output in Llama (95\% at layer 14, 72\% at the last layer). We did not look for the components that write
+the rule in these two models, since exact attribution through the normalisations has to be rebuilt for each
+architecture.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{The behaviour and the read-out in four models (flow set). Decisive accuracy is over all 600 decisive
+  questions; the probe and the model are compared on the same 104 held-out decisive questions, with Wilson 95\%
+  intervals and the probe at the best layer of the preregistered final window. The Qwen3-8B and Llama 3.1 8B criteria
+  were committed before their data.}
+  \label{tab:families}
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    model & layers & decisive accuracy & $R^2$ of M's step & probe & model \\
+    \midrule
+    Gemma 3 12B & 48 & 0.40 & 0.84 & 0.86 [0.78, 0.91] & 0.32 [0.24, 0.41] \\
+    Gemma 3 27B & 62 & 0.23 & 0.89 & 0.98 [0.93, 0.99] & 0.25 [0.18, 0.34] \\
+    Qwen3-8B & 36 & 0.36 & 0.78 & 0.86 [0.78, 0.91] & 0.25 [0.18, 0.34] \\
+    Llama 3.1 8B & 32 & 0.18 & 0.81 & 0.91 [0.84, 0.95] & 0.14 [0.09, 0.22] \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \section{Discussion}
 Gemma 3 does not lack the geometry. Before any question it holds a joint code of the two steps, both steps then
 reach the position where the answer is written, and there they can be read out well enough to answer the decisive
@@ -359,7 +395,8 @@ questions far better than the model does. What decides the answer, however, is a
 implement a one-sentence rule with a default towards R, so the geometry enters only as a weak veto; even when the rule
 is removed, the weak correct signal that appears is still outweighed by the default. The map is thus carried to the
 answer and outvoted there, and in 27B, where the answer position holds the right answer more clearly, it is outvoted
-more often. In the terms of the imagery debate, the representation exists and is even consulted, but on this task it
+more often. Qwen3-8B and Llama 3.1 8B behave in the same way, so this is not a quirk of one model
+family. In the terms of the imagery debate, the representation exists and is even consulted, but on this task it
 is not what produces the answer.
 
 Our results join other cases in which models hold information they do not act on. For example, LLMs can encode the correct answer
@@ -370,8 +407,9 @@ complement the finding that generative models can predict well with an incoheren
 The rule itself is an input-pattern heuristic, like those LLMs have been found to combine when they do arithmetic
 \citep{nikankin2025heuristics}.
 
-These conclusions rest on a narrow base. We study one model family at two sizes, in their instruct versions with
-one-word answers, and test neither chain of thought nor base models. We also use a single task, three objects on a
+These conclusions rest on a narrow base. We trace the mechanism in one model family at two sizes and check the behaviour and the read-out in two
+more models of about 8B parameters, all in their instruct versions with one-word answers, and we test neither chain
+of thought nor base models. We also use a single task, three objects on a
 plane with one kind of question, and although a control rules out recency, the model's poor reading of the object voice leaves open how far the rule follows C's actual step rather than the direction word of its sentence.
 Several analyses are partial as well. The composition test was run in 12B only, and it shows a joint code rather than a
 metric map. Because the component removals act at the final position only, they do not identify the heads that move
@@ -412,6 +450,7 @@ repository (\texttt{docs/preregistration\_*.md}).
   writers, twin-mean removal & \texttt{components2} & 9ebc6f8, 2026-11-15 & no correct path underneath \\
   order and voice & \texttt{order\_voice} & 7047eea, 2026-11-20 & follows the direction word$^{d}$ \\
   replication (27B) & \texttt{replication\_27b} & f0fbfbd, 2026-11-19 & partial (Table~\ref{tab:replication}) \\
+  two other families & \texttt{cross\_family} & 2d7b70c, 2026-11-20 & holds in both (Table~\ref{tab:families}) \\
   \bottomrule
 \end{tabular}
 

@@ -63,6 +63,8 @@ TABLES = [
     ("Order and voice", 2, "Order-and-voice control: share of answers C by own\\_yes, word\\_yes and last\\_yes.",
      "ov-split"),
     ("Order and voice", 3, "Order-and-voice control: decisive questions by rendering.", "ov-dec"),
+    ("Cross-family check", 0, "Cross-family check (Qwen3-8B, Llama 3.1 8B): the preregistered criteria. Probe and model on the same held-out decisive questions, Wilson 95\\% intervals.", "families-full"),
+    ("Cross-family check", 1, "Cross-family check: clean accuracy by kind of question.", "families-acc"),
 ]
 
 
