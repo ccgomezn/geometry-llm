@@ -1,0 +1,63 @@
+% Methods appendix for the TMLR version (prose; the tables are in appendix_tables.tex).
+
+\section{Task and data}\label{app:data}
+Each scene is a chain of three objects, R, M and C, on an integer grid bounded at $\pm 6$. M is placed relative to R
+and C relative to M, each by one to five units along one axis (with probability 0.7) or along both axes (0.3), and no
+two objects share a position. Each placement is written with one of four templates (``X is d of Y'', ``X lies d of
+Y'', ``X sits d of Y'', ``X is located d of Y''), where d is an offset such as ``4 units east'' or ``2 units north and
+1 unit west''. Names are single tokens in the Gemma 3 tokenizer, drawn from a pool of person names and a pool of object
+names that alternate between scenes. The description is followed by the object list in random order (``The objects
+are: \dots'') and by one question, ``Which is farther east, X or Y?'' or ``Which is farther north, X or Y?'', with C and
+R in both orders, then ``Answer with one word.'' The whole text is wrapped in the model's chat template. We keep only
+questions in which C and R differ by at least one unit on the asked axis, and fill each kind of question (own step only,
+agree, first step only, conflict with C's step larger, conflict with M's step larger) up to its preregistered size. The
+model's answer is the sign of the difference between the logits of the two names, which are single tokens, at the
+final position.
+
+\section{Probes}\label{app:probes}
+Probes are ridge regressions on the residual stream, fitted separately on east and on north questions. The scenes are
+split once into 80\% for training and 20\% for testing (fixed seed), so that every question of a test scene is
+unseen, and the ridge penalty is chosen by cross-validation grouped by scene within the training scenes. The step
+probes predict $d_1$ and $d_2$ and are scored by held-out $R^2$, averaged over the two axes. The truth probe predicts
+the correct answer coded as $\pm 1$ and is scored by the sign of its prediction. The probed sites are the last token of
+M's sentence and of C's sentence, C's and R's names in the question, the token after the second of those names, and the
+final position, at every second layer (Tables~\ref{tab:app-flow12-r2} and~\ref{tab:app-flow27-r2}). In the
+composition test (Table~\ref{tab:app-compose}) the target is the distance between a two-step object and the first
+object, and the additive baseline is a ridge regression on a one-hot code of each of the two sentences' offsets.
+
+\section{Activation patching}\label{app:patching}
+For each kind of question and each of the two steps, 100 questions are paired with a counterfactual in which that step
+is negated on the asked axis; objects placed relative to the moved one move with it, and the words are otherwise
+unchanged. We copy the residual stream of the counterfactual run into the clean run at one site and one layer (every
+fourth layer and the last but two) and report the change in the logit difference as a share of the full
+counterfactual change (Tables~\ref{tab:app-copy12own}--\ref{tab:app-copy27first}). The four sites are all tokens of
+M's sentence, all tokens of C's sentence, all tokens between the object list and the final position (the question,
+``Answer with one word.'' and the chat-template tokens), and the final position.
+
+\section{Direct attribution and interventions}\label{app:attribution}
+Direct attribution writes the final logit difference as a sum over the embeddings, each attention head (its slice of
+the attention output passed through the output projection) and each MLP, with every normalisation scale taken from the
+run itself, including Gemma's post-attention and post-MLP norms and the final norm. Each head's contribution is further
+split by source token using its attention weights and value vectors, and the sources are grouped into M's sentence, C's
+sentence, the object list, C's and R's names in the question, the other question and template tokens, and the final
+position. On the discovery set each component's contribution is regressed on own\_yes, $d_1$, $d_2$ and the name order,
+and the components are ranked by their own\_yes coefficient (Tables~\ref{tab:app-writers12}
+and~\ref{tab:app-writers27}). The interventions act on the same quantities at the final position only: \emph{mean
+ablation} replaces a component's output by its mean over questions, \emph{twin-mean removal} by the average of its
+outputs on the question and on its twin, and a \emph{swap} by its output on the twin. Matched random controls draw
+components of the same kind from the same layers (MLPs within four layers), excluding the top writers, in three draws.
+To see where the removed shortcut comes back, we repeat the attribution with the intervention in place on 600 questions
+of the removal set, measure every component at the clean run's final-norm scale, and count the rescaling by the final
+norm separately (Tables~\ref{tab:app-repair12} and~\ref{tab:app-repair27}).
+
+\section{Compute}\label{app:compute}
+All runs used one GPU on Google Colab (A100 40 GB for 12B, H100 or 80 GB-class GPUs for 27B, and an L4 with part of
+the 12B model in CPU memory for the order-and-voice control) with bfloat16 weights; attribution used the eager
+attention implementation so that attention weights are available. Each test took between about fifteen minutes and a
+few hours.
+
+\section{Result tables}\label{app:tables}
+The tables below are generated directly from the project's result log, so that every number matches the released
+result files.
+
+\input{appendix_tables}
