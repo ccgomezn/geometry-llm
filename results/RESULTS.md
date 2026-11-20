@@ -2384,3 +2384,80 @@ model follows the one-sentence shortcut more strongly. The shortcut is written l
 tokens and is damped by late brakes that let go when the writers are removed, as on 12B. What does not replicate is
 the count: 20 components are not enough to remove it or to set it in the bigger model. Whether there is a correct path
 underneath it on 27B is not settled by a preregistered test.
+
+## 2026-11-20 08:01 · Order and voice: what does the one-sentence rule follow? (gemma3-12b) — preregistered
+Model **gemma3-12b**. 1800 new C–R axis questions (seed 2001), each in four renderings of the same scene: sentence order MC (C's sentence last, as before) or CM (C's sentence first), and C's relation in subject voice ("C is d east of M") or object voice ("M is d west of C"). Answer = sign of logit(C) − logit(R). Scene-bootstrap 95% CIs.
+
+**Rule coefficients** (pooled regression of the logit difference on own_yes, word_yes, last_yes, d1, d2, name order, order and voice):
+
+| feature | coefficient [95% CI] |
+|---|---|
+| own_yes | +8.03 [+6.85, +9.20] |
+| word_yes | +11.19 [+10.66, +11.72] |
+| last_yes | -1.32 [-1.84, -0.78] |
+
+| difference | estimate [95% CI] |
+|---|---|
+| own − word | -3.15 [-4.52, -1.88] |
+| own − last | +9.36 [+8.09, +10.60] |
+| word − last | +12.51 [+11.60, +13.33] |
+
+Other coefficients: d1 +0.43/unit, d2 +0.72/unit, C named first -0.40, CM order +6.10, object voice +5.04.
+
+**Accuracy** by kind of question and rendering:
+
+| kind | MC-subj | CM-subj | MC-obj | CM-obj |
+|---|---|---|---|---|
+| own step only | 0.97 | 0.97 | 0.41 | 0.47 |
+| agree | 0.95 | 0.91 | 0.59 | 0.54 |
+| first step only | 0.49 | 0.52 | 0.45 | 0.44 |
+| conflict, C larger | 0.86 | 0.88 | 0.35 | 0.62 |
+| conflict, M larger | 0.31 | 0.18 | 0.54 | 0.38 |
+
+**Share answering C**, by the three features (own, word, last):
+
+| rendering | own | word | last | n | answers C |
+|---|---|---|---|---|---|
+| CM-obj | 0 | 0 | 0 | 140 | 0.49 |
+| CM-obj | 0 | 0 | 1 | 160 | 0.38 |
+| CM-obj | 0 | 1 | 0 | 288 | 0.81 |
+| CM-obj | 0 | 1 | 1 | 456 | 0.61 |
+| CM-obj | 1 | 0 | 0 | 590 | 0.87 |
+| CM-obj | 1 | 0 | 1 | 166 | 0.69 |
+| CM-subj | 0 | 0 | 0 | 428 | 0.02 |
+| CM-subj | 0 | 0 | 1 | 616 | 0.04 |
+| CM-subj | 1 | 1 | 0 | 590 | 0.75 |
+| CM-subj | 1 | 1 | 1 | 166 | 0.85 |
+| MC-obj | 0 | 0 | 0 | 300 | 0.03 |
+| MC-obj | 0 | 1 | 1 | 744 | 0.33 |
+| MC-obj | 1 | 0 | 0 | 756 | 0.25 |
+| MC-subj | 0 | 0 | 0 | 1044 | 0.01 |
+| MC-subj | 1 | 1 | 1 | 756 | 0.68 |
+
+**Decisive questions** (M's step larger and opposite) by rendering:
+
+| rendering | accuracy | right when C correct | right when R correct | AUC |
+|---|---|---|---|---|
+| MC-subj | 0.31 | 0.01 | 0.65 | 0.14 |
+| CM-subj | 0.18 | 0.00 | 0.39 | 0.09 |
+| MC-obj | 0.54 | 0.21 | 0.92 | 0.57 |
+| CM-obj | 0.38 | 0.54 | 0.20 | 0.37 |
+
+Weight of M's step (d1 coefficient, logits/unit) by rendering: MC-subj +1.20, CM-subj +0.51, MC-obj +0.18, CM-obj -0.42.
+
+Preregistered verdict: **the rule follows the direction word**. Rules: docs/preregistration_order_voice.md.
+
+*Hand note (2026-11-20).* Run on Colab (L4, part of the model in CPU memory; same bfloat16 weights). **Preregistered
+verdict: the rule follows the direction word** (word_yes +11.2 vs own_yes +8.0, difference CI [−4.5, −1.9] for own −
+word; last sentence −1.3). Two parts of this need to be kept apart:
+- **Not recency, solidly.** In subject voice, putting C's sentence first instead of last leaves the behaviour unchanged:
+  own-step-only accuracy 0.97 in both orders, and the model still answers C on 0.01 (C's step away) vs 0.94–0.95 (C's
+  step the asked way) of these questions. The last-sentence coefficient is slightly negative.
+- **Word vs C's actual step, weakly.** The contrast between the direction word and C's true step comes only from the
+  object-voice renderings ("M is d west of C"), and the model mostly fails to read those. On own-step-only questions
+  in CM-obj it answers C on 0.93–0.96 whatever the direction; in MC-obj it answers C on 0.66 when the word points the
+  asked way and 0.47 when C's true step does. So the rule is tied to the sentence that places C and leans on its
+  direction word, but the object voice also disrupts parsing (the limit stated in the preregistration), and the
+  separation from C's true step is weaker than the verdict alone suggests.
+- Moving M's sentence to the end lowers the weight of M's step (d1 1.20 → 0.51 logits/unit in subject voice), and
+  decisive accuracy drops from 0.31 to 0.18: being the last sentence does not make M's step more influential.
