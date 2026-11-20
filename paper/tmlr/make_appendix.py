@@ -83,13 +83,22 @@ def cell(s: str) -> str:
     return s
 
 
+def head(c: str) -> str:
+    """Long column headers on two lines, split at the space nearest the middle."""
+    if len(c) <= 14 or " " not in c:
+        return c
+    spaces = [i for i, ch in enumerate(c) if ch == " "]
+    k = min(spaces, key=lambda i: abs(i - len(c) / 2))
+    return r"\begin{tabular}[b]{@{}c@{}}" + c[:k] + r"\\{}" + c[k + 1:] + r"\end{tabular}"
+
+
 def render(md: str, caption: str, label: str) -> str:
     rows = [r for r in md.strip().splitlines() if not re.match(r"^\|\s*:?-", r)]
     cells = [[cell(c) for c in r.strip().strip("|").split("|")] for r in rows]
     n = len(cells[0])
     lines = [r"\begin{table}[htbp]", r"\centering", r"\scriptsize", rf"\caption{{{caption}}}",
              rf"\label{{tab:app-{label}}}", r"\begin{tabular}{@{}l" + "r" * (n - 1) + "@{}}", r"\toprule",
-             " & ".join(cells[0]) + r" \\", r"\midrule"]
+             " & ".join(head(c) for c in cells[0]) + r" \\", r"\midrule"]
     lines += [" & ".join(r + [""] * (n - len(r))) + r" \\" for r in cells[1:]]
     lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
     return "\n".join(lines)

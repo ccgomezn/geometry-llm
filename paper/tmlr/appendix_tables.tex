@@ -7,7 +7,7 @@
 \label{tab:app-bulk}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-cell & n & clean & map erased & fair random & excess drop [95\% CI] \\
+cell & n & clean & map erased & fair random & \begin{tabular}[b]{@{}c@{}}excess drop\\{}[95\% CI]\end{tabular} \\
 \midrule
 own step only & 750 & 0.98 & 0.89 & 0.94 & +0.048 [+0.023, +0.075] \\
 agree & 750 & 0.97 & 0.91 & 0.94 & +0.027 [+0.007, +0.047] \\
@@ -26,7 +26,7 @@ all (balanced pool) & 5250 & 0.70 & 0.65 & 0.70 & +0.041 [+0.029, +0.052] \\
 \label{tab:app-compose}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-site & layer & target & probe R² & parts baseline R² & gap [95\% CI] \\
+site & layer & target & probe R² & \begin{tabular}[b]{@{}c@{}}parts\\{}baseline R²\end{tabular} & gap [95\% CI] \\
 \midrule
 list mention & 21 & dist & 0.29 & 0.15 & +0.14 [+0.07, +0.22] \\
 list mention & 21 & abs\_x & 0.23 & 0.21 & +0.02 [-0.05, +0.09] \\
@@ -100,7 +100,7 @@ layer & M\_end & C\_end & Q\_C & Q\_R & Q\_after & final \\
 \label{tab:app-lens12}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-layer & own step only & agree & first step only & conflict, C larger & conflict, M larger \\
+layer & own step only & agree & \begin{tabular}[b]{@{}c@{}}first\\{}step only\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}C larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}M larger\end{tabular} \\
 \midrule
 24 & 0.55 & 0.48 & 0.47 & 0.56 & 0.56 \\
 28 & 0.56 & 0.53 & 0.45 & 0.52 & 0.52 \\
@@ -120,7 +120,7 @@ layer & own step only & agree & first step only & conflict, C larger & conflict,
 \label{tab:app-lens27}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-layer & own step only & agree & first step only & conflict, C larger & conflict, M larger \\
+layer & own step only & agree & \begin{tabular}[b]{@{}c@{}}first\\{}step only\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}C larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}M larger\end{tabular} \\
 \midrule
 32 & 0.54 & 0.60 & 0.49 & 0.53 & 0.51 \\
 36 & 0.54 & 0.58 & 0.55 & 0.54 & 0.49 \\
@@ -293,7 +293,7 @@ layer & M\_sentence & C\_sentence & question & final \\
 \label{tab:app-writers12}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-component & own\_yes & d1 & d2 & mean & own\_yes comes from \\
+component & own\_yes & d1 & d2 & mean & \begin{tabular}[b]{@{}c@{}}own\_yes\\{}comes from\end{tabular} \\
 \midrule
 L44H10 & +6.61 & +0.357 & +0.195 & -1.69 & Q\_other 0.80, final 0.13 \\
 L47H2 & +4.64 & +0.213 & +0.125 & -1.40 & Q\_C 0.30, list 0.27 \\
@@ -326,7 +326,7 @@ L32H7 & +1.12 & +0.050 & +0.036 & -0.32 & – \\
 \label{tab:app-writers27}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-component & own\_yes & d1 & d2 & mean & own\_yes comes from \\
+component & own\_yes & d1 & d2 & mean & \begin{tabular}[b]{@{}c@{}}own\_yes\\{}comes from\end{tabular} \\
 \midrule
 L57H18 & +7.26 & +0.311 & +0.155 & -1.08 & Q\_other 0.75, final 0.18 \\
 L59H28 & +5.95 & +0.194 & +0.266 & -0.92 & list 0.23, Q\_C 0.23 \\
@@ -359,7 +359,7 @@ L58H9 & +1.48 & -0.013 & +0.015 & -0.14 & – \\
 \label{tab:app-meanabl12}
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-condition & own step only & agree & first step only & conflict, C larger & conflict, M larger & regression: own\_yes / d1 / d2 \\
+condition & own step only & agree & \begin{tabular}[b]{@{}c@{}}first\\{}step only\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}C larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}M larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}regression:\\{}own\_yes / d1 / d2\end{tabular} \\
 \midrule
 clean & 0.98 & 0.98 & 0.47 & 0.92 & 0.34 & +19.8 / +1.25 / +1.37 \\
 own5 & 0.95 & 0.98 & 0.47 & 0.86 & 0.34 & +19.2 / +1.19 / +1.40 \\
@@ -379,7 +379,7 @@ first10\_x3 & 0.98 & 0.98 & 0.47 & 0.90 & 0.34 & +17.4 / +1.08 / +1.15 \\
 \label{tab:app-meanabl27}
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-condition & own step only & agree & first step only & conflict, C larger & conflict, M larger & regression: own\_yes / d1 / d2 \\
+condition & own step only & agree & \begin{tabular}[b]{@{}c@{}}first\\{}step only\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}C larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}M larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}regression:\\{}own\_yes / d1 / d2\end{tabular} \\
 \midrule
 clean & 0.99 & 0.91 & 0.50 & 0.98 & 0.23 & +35.4 / +1.74 / +2.15 \\
 own5 & 0.99 & 0.91 & 0.50 & 0.98 & 0.23 & +39.1 / +1.85 / +2.40 \\
@@ -399,7 +399,7 @@ first10\_x3 & 0.99 & 0.90 & 0.50 & 0.97 & 0.23 & +28.9 / +1.48 / +1.87 \\
 \label{tab:app-removal12}
 \begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
-condition & own step only & agree & conflict, C larger & conflict, M larger & shortcut & truth & d1 & d2 \\
+condition & own step only & agree & \begin{tabular}[b]{@{}c@{}}conflict,\\{}C larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}M larger\end{tabular} & shortcut & truth & d1 & d2 \\
 \midrule
 clean & 0.95 & 0.97 & 0.86 & 0.32 & +20.3 & +1.5 & +1.06 & +0.81 \\
 twinmean\_top20 & 0.89 & 0.89 & 0.71 & 0.46 & +6.2 & +0.4 & +1.11 & +0.19 \\
@@ -420,7 +420,7 @@ linear prediction & 0.59 & 0.61 & 0.54 & 0.47 & 0 &  &  &  \\
 \label{tab:app-removal27}
 \begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
-condition & own step only & agree & conflict, C larger & conflict, M larger & shortcut & truth & d1 & d2 \\
+condition & own step only & agree & \begin{tabular}[b]{@{}c@{}}conflict,\\{}C larger\end{tabular} & \begin{tabular}[b]{@{}c@{}}conflict,\\{}M larger\end{tabular} & shortcut & truth & d1 & d2 \\
 \midrule
 clean & 0.98 & 0.86 & 0.98 & 0.21 & +33.3 & +6.1 & -0.16 & +0.59 \\
 twinmean\_top20 & 0.98 & 0.86 & 0.96 & 0.29 & +18.6 & +4.4 & +0.10 & +0.60 \\
@@ -441,7 +441,7 @@ linear prediction & 0.76 & 0.65 & 0.58 & 0.51 & 0 &  &  &  \\
 \label{tab:app-repair12}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-removed & shortcut clean → removed & removed components & other heads, same layers & later components & earlier (should be 0) & final norm & final-norm scale removed ÷ clean \\
+removed & \begin{tabular}[b]{@{}c@{}}shortcut clean\\{}→ removed\end{tabular} & \begin{tabular}[b]{@{}c@{}}removed\\{}components\end{tabular} & \begin{tabular}[b]{@{}c@{}}other heads,\\{}same layers\end{tabular} & \begin{tabular}[b]{@{}c@{}}later\\{}components\end{tabular} & \begin{tabular}[b]{@{}c@{}}earlier\\{}(should be 0)\end{tabular} & final norm & \begin{tabular}[b]{@{}c@{}}final-norm scale\\{}removed ÷ clean\end{tabular} \\
 \midrule
 top20 & +18.1 → +4.3 & -46.3 & +15.7 & +15.5 & -0.00 & +1.3 & 1.119 \\
 top10 & +18.1 → +9.2 & -34.2 & +9.3 & +14.2 & -0.00 & +1.9 & 1.143 \\
@@ -456,7 +456,7 @@ top10 & +18.1 → +9.2 & -34.2 & +9.3 & +14.2 & -0.00 & +1.9 & 1.143 \\
 \label{tab:app-repair27}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-removed & shortcut clean → removed & removed components & other heads, same layers & later components & earlier (should be 0) & final norm & final-norm scale removed ÷ clean \\
+removed & \begin{tabular}[b]{@{}c@{}}shortcut clean\\{}→ removed\end{tabular} & \begin{tabular}[b]{@{}c@{}}removed\\{}components\end{tabular} & \begin{tabular}[b]{@{}c@{}}other heads,\\{}same layers\end{tabular} & \begin{tabular}[b]{@{}c@{}}later\\{}components\end{tabular} & \begin{tabular}[b]{@{}c@{}}earlier\\{}(should be 0)\end{tabular} & final norm & \begin{tabular}[b]{@{}c@{}}final-norm scale\\{}removed ÷ clean\end{tabular} \\
 \midrule
 top20 & +36.9 → +21.9 & -52.6 & +11.4 & +22.8 & +0.00 & +3.4 & 1.159 \\
 top10 & +36.9 → +24.4 & -37.1 & +4.5 & +17.4 & +0.00 & +2.6 & 1.098 \\
@@ -471,7 +471,7 @@ top10 & +36.9 → +24.4 & -37.1 & +4.5 & +17.4 & +0.00 & +2.6 & 1.098 \\
 \label{tab:app-ov-coef}
 \begin{tabular}{@{}lr@{}}
 \toprule
-feature & coefficient [95\% CI] \\
+feature & \begin{tabular}[b]{@{}c@{}}coefficient\\{}[95\% CI]\end{tabular} \\
 \midrule
 own\_yes & +8.03 [+6.85, +9.20] \\
 word\_yes & +11.19 [+10.66, +11.72] \\
@@ -487,7 +487,7 @@ last\_yes & -1.32 [-1.84, -0.78] \\
 \label{tab:app-ov-acc}
 \begin{tabular}{@{}lr@{}}
 \toprule
-difference & estimate [95\% CI] \\
+difference & \begin{tabular}[b]{@{}c@{}}estimate\\{}[95\% CI]\end{tabular} \\
 \midrule
 own − word & -3.15 [-4.52, -1.88] \\
 own − last & +9.36 [+8.09, +10.60] \\
