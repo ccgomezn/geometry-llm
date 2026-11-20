@@ -5,9 +5,9 @@
 @inproceedings{ravichander2021probing,
   author    = {Ravichander, Abhilasha and Belinkov, Yonatan and Hovy, Eduard},
   title     = {Probing the Probing Paradigm: Does Probing Accuracy Entail Task Relevance?},
-  booktitle = {Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics (EACL)},
-  year      = {2021},
-  note      = {arXiv:2005.00719}
+  booktitle = {Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume},
+  pages     = {3363--3377}, year = {2021},
+  doi       = {10.18653/v1/2021.eacl-main.295}
 }
 
 @inproceedings{orgad2025know,
@@ -57,9 +57,9 @@
 @inproceedings{ma2026lexical,
   author    = {Ma, Chuang and Liu, Qianying and Obuchi, Tomoyuki and Cheng, Fei and Yang, Wang and Cai, Sudong and Zheng, Shuyuan and Aizawa, Akiko and Kurohashi, Sadao},
   title     = {Mechanistic Diagnostics of Spatial Lexical Bias in Multimodal Large Language Model Spatial Reasoning},
-  booktitle = {Proceedings of the Conference on Empirical Methods in Natural Language Processing (EMNLP)},
-  year      = {2026},
-  note      = {arXiv:2606.01914}
+  booktitle = {Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {58517--58543}, year = {2026},
+  doi       = {10.18653/2026.emnlp-main.2575}
 }
 
 @article{geirhos2020shortcut,
@@ -152,8 +152,8 @@
   author    = {Shi, Zhengxiang and Zhang, Qiang and Lipani, Aldo},
   title     = {{StepGame}: A New Benchmark for Robust Multi-Hop Spatial Reasoning in Texts},
   booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
-  year      = {2022},
-  note      = {arXiv:2204.08292}
+  volume    = {36}, number = {10}, pages = {11321--11329}, year = {2022},
+  doi       = {10.1609/aaai.v36i10.21383}
 }
 
 @article{yamada2024spatial,
@@ -161,19 +161,78 @@
   title   = {Evaluating Spatial Understanding of Large Language Models},
   journal = {Transactions on Machine Learning Research},
   year    = {2024},
+  url     = {https://openreview.net/forum?id=xkiflfKCw3},
   note    = {arXiv:2310.14540}
 }
 
-@misc{nanda2023linear,
-  author = {Nanda, Neel and Lee, Andrew and Wattenberg, Martin},
-  title  = {Emergent Linear Representations in World Models of Self-Supervised Sequence Models},
-  year   = {2023},
-  note   = {arXiv:2309.00941}
+@inproceedings{nanda2023linear,
+  author    = {Nanda, Neel and Lee, Andrew and Wattenberg, Martin},
+  title     = {Emergent Linear Representations in World Models of Self-Supervised Sequence Models},
+  booktitle = {Proceedings of the 6th BlackboxNLP Workshop: Analyzing and Interpreting Neural Networks for NLP},
+  pages     = {16--30}, year = {2023},
+  doi       = {10.18653/v1/2023.blackboxnlp-1.2}
 }
 
-@misc{mcdougall2023copy,
-  author = {McDougall, Callum and Conmy, Arthur and Rushing, Cody and McGrath, Thomas and Nanda, Neel},
-  title  = {Copy Suppression: Comprehensively Understanding an Attention Head},
+@inproceedings{mcdougall2024copy,
+  author    = {McDougall, Callum and Conmy, Arthur and Rushing, Cody and McGrath, Thomas and Nanda, Neel},
+  title     = {Copy Suppression: Comprehensively Understanding a Motif in Language Model Attention Heads},
+  booktitle = {Proceedings of the 7th BlackboxNLP Workshop: Analyzing and Interpreting Neural Networks for NLP},
+  pages     = {337--363}, year = {2024},
+  doi       = {10.18653/v1/2024.blackboxnlp-1.22}
+}
+
+% methods references, added after the second citation audit (checked against arXiv / Crossref)
+@inproceedings{hewitt2019control,
+  author    = {Hewitt, John and Liang, Percy},
+  title     = {Designing and Interpreting Probes with Control Tasks},
+  booktitle = {Proceedings of EMNLP-IJCNLP},
+  year      = {2019},
+  note      = {arXiv:1909.03368}
+}
+
+@article{elazar2021amnesic,
+  author  = {Elazar, Yanai and Ravfogel, Shauli and Jacovi, Alon and Goldberg, Yoav},
+  title   = {Amnesic Probing: Behavioral Explanation with Amnesic Counterfactuals},
+  journal = {Transactions of the Association for Computational Linguistics},
+  volume  = {9}, pages = {160--175}, year = {2021},
+  doi     = {10.1162/tacl_a_00359}
+}
+
+@inproceedings{meng2022rome,
+  author    = {Meng, Kevin and Bau, David and Andonian, Alex and Belinkov, Yonatan},
+  title     = {Locating and Editing Factual Associations in {GPT}},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022},
+  note      = {arXiv:2202.05262}
+}
+
+@inproceedings{zhang2024patching,
+  author    = {Zhang, Fred and Nanda, Neel},
+  title     = {Towards Best Practices of Activation Patching in Language Models: Metrics and Methods},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024},
+  note      = {arXiv:2309.16042}
+}
+
+@misc{belrose2023tuned,
+  author = {Belrose, Nora and Ostrovsky, Igor and McKinney, Lev and Furman, Zach and Smith, Logan and Halawi, Danny and Biderman, Stella and Steinhardt, Jacob},
+  title  = {Eliciting Latent Predictions from Transformers with the Tuned Lens},
   year   = {2023},
-  note   = {arXiv:2310.04625}
+  note   = {arXiv:2303.08112}
+}
+
+@misc{nostalgebraist2020lens,
+  author = {nostalgebraist},
+  title  = {interpreting {GPT}: the logit lens},
+  year   = {2020},
+  howpublished = {LessWrong},
+  url    = {https://www.lesswrong.com/posts/AcKRB8wDpdaN6v6ru/interpreting-gpt-the-logit-lens}
+}
+
+@misc{elhage2021framework,
+  author = {Elhage, Nelson and Nanda, Neel and Olsson, Catherine and others},
+  title  = {A Mathematical Framework for Transformer Circuits},
+  year   = {2021},
+  howpublished = {Transformer Circuits Thread},
+  url    = {https://transformer-circuits.pub/2021/framework/index.html}
 }
