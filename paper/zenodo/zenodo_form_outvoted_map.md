@@ -2,10 +2,8 @@
 
 ## Before uploading
 
-1. **Push the branch with the preregistration commits** (`study2-pilot`) to GitHub, so that the commits the paper cites
-   are public. Every "preregistered" claim points to them.
-2. Build the PDF: `cd paper/short && latexmk -pdf main.tex`, then copy `paper/short/main.pdf` to
-   `paper/zenodo/Gomez-Neira-2026-The-Outvoted-Map.pdf`.
+Done: the branch `study2-pilot` and the tag `outvoted-map-v1` are on GitHub, so every commit the paper cites is public,
+and the PDF is built: `paper/zenodo/Gomez-Neira-2026-The-Outvoted-Map.pdf` (from `paper/short`, linking to the tag).
 
 ## New record
 
@@ -22,7 +20,7 @@ with a different claim.
 | Description | the abstract below |
 | License | Creative Commons Attribution 4.0 International (CC BY 4.0) |
 | Keywords | mechanistic interpretability; language models; spatial reasoning; world models; probing; activation patching; direct logit attribution; shortcut learning; self-repair; preregistration |
-| Related works | *Is supplemented by*: https://github.com/ccgomezn/geometry-llm (Software). *Obsoletes*: 10.5281/zenodo.24178043 (Publication); if "Obsoletes" is not in the list, use *Continues* |
+| Related works | *Is supplemented by*: https://github.com/ccgomezn/geometry-llm/tree/outvoted-map-v1 (Software). *Obsoletes*: 10.5281/zenodo.24178043 (Publication); if "Obsoletes" is not in the list, use *Continues* |
 | Language | English |
 
 ### Description (copy-paste)
@@ -40,7 +38,7 @@ impose the one-sentence rule while others counteract it. When we remove what the
 object's direction, a weak signal in favour of the correct answer appears, but it is too weak to overcome the default.
 In short, the map is carried to the answer and outvoted there. All main tests were preregistered.
 
-Code, preregistrations (each committed before its data) and all result files: https://github.com/ccgomezn/geometry-llm
+Code, preregistrations (each committed before its data) and all result files: https://github.com/ccgomezn/geometry-llm/tree/outvoted-map-v1
 
 ## Note on v1 (10.5281/zenodo.24178043)
 
