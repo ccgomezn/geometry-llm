@@ -2461,3 +2461,194 @@ word; last sentence −1.3). Two parts of this need to be kept apart:
   separation from C's true step is weaker than the verdict alone suggests.
 - Moving M's sentence to the end lowers the weight of M's step (d1 1.20 → 0.51 logits/unit in subject voice), and
   decisive accuracy drops from 0.31 to 0.18: being the last sentence does not make M's step more influential.
+
+## 2026-11-20 19:37 · Flow map: where is the first step lost on the way to the answer? (qwen3-8b) — preregistered
+Model **qwen3-8b**. 2400 new C–R axis questions (seed 1601) on 859 chains R → M → C; d1 = M's step from R on the asked axis, d2 = C's own step, truth = sign(d1 + d2). Probes: ridge, fitted separately for east and north questions, held-out scenes (80/20).
+
+**Clean accuracy:** own step only 0.70, agree 0.77, first step only 0.54, conflict, C larger 0.69, conflict, M larger 0.36
+
+**Where each step is present** (held-out R², first step d1 / own step d2):
+
+| layer | M_end | C_end | Q_C | Q_R | Q_after | final |
+|---|---|---|---|---|---|---|
+| 0 | -0.02 / -0.02 | -0.02 / -0.02 | -0.02 / -0.02 | -0.02 / -0.01 | -0.02 / -0.02 | -0.02 / -0.02 |
+| 4 | 0.75 / -0.00 | 0.62 / 0.59 | -0.03 / -0.02 | -0.02 / -0.01 | 0.44 / 0.26 | 0.61 / 0.45 |
+| 8 | 0.76 / -0.02 | 0.53 / 0.62 | 0.28 / -0.01 | 0.31 / -0.01 | 0.68 / 0.46 | 0.67 / 0.44 |
+| 12 | 0.82 / 0.02 | 0.63 / 0.76 | 0.45 / 0.39 | 0.53 / 0.44 | 0.70 / 0.60 | 0.65 / 0.41 |
+| 16 | 0.82 / 0.01 | 0.69 / 0.78 | 0.68 / 0.69 | 0.68 / 0.66 | 0.80 / 0.77 | 0.66 / 0.55 |
+| 20 | 0.79 / -0.01 | 0.69 / 0.78 | 0.73 / 0.80 | 0.74 / 0.71 | 0.79 / 0.79 | 0.74 / 0.69 |
+| 24 | 0.78 / -0.03 | 0.67 / 0.70 | 0.73 / 0.79 | 0.73 / 0.72 | 0.80 / 0.80 | 0.78 / 0.75 |
+| 28 | 0.76 / -0.02 | 0.68 / 0.67 | 0.68 / 0.75 | 0.72 / 0.67 | 0.79 / 0.79 | 0.76 / 0.75 |
+| 32 | 0.71 / -0.01 | 0.65 / 0.60 | 0.65 / 0.73 | 0.68 / 0.62 | 0.76 / 0.74 | 0.71 / 0.68 |
+| 36 | 0.63 / -0.01 | 0.58 / 0.49 | 0.62 / 0.70 | 0.68 / 0.59 | 0.75 / 0.71 | 0.64 / 0.59 |
+
+Best d1 R² per hop: C's sentence end (layers 8–24) 0.69, question tokens (12–30) 0.81, final position (20–36) 0.78; d2 at the final position 0.75.
+
+**Right answer at the final position** (truth probe, held-out *conflict, M larger*): best layer 24, 0.86; the model on the same questions 0.25. Truth probe on held-out *first step only*: 1.00.
+
+**Logit lens** (share of questions where the layer's C-vs-R logit points to the right answer; check: last layer vs the model's answer r = 1.000):
+
+| layer | own step only | agree | first step only | conflict, C larger | conflict, M larger |
+|---|---|---|---|---|---|
+| 18 | 0.49 | 0.48 | 0.48 | 0.51 | 0.49 |
+| 22 | 0.48 | 0.49 | 0.53 | 0.51 | 0.52 |
+| 26 | 0.51 | 0.57 | 0.47 | 0.56 | 0.46 |
+| 30 | 0.56 | 0.64 | 0.50 | 0.53 | 0.40 |
+| 34 | 0.67 | 0.77 | 0.53 | 0.67 | 0.37 |
+
+**How much the answer moves when one step points the other way** (C-vs-R logit difference, oriented so + = the way the flipped step points; scene-bootstrap 95% CI):
+
+| flipped step | cell | n | full effect |
+|---|---|---|---|
+| own | own step only | 100 | +8.60 [+7.04, +10.30] |
+| own | agree | 98 | +6.70 [+4.97, +8.60] |
+| own | conflict, C larger | 100 | +8.81 [+7.02, +10.66] |
+| own | conflict, M larger | 100 | +6.31 [+4.86, +7.87] |
+| parent | agree | 98 | +2.10 [+1.45, +2.83] |
+| parent | first step only | 100 | +1.28 [+0.11, +2.46] |
+| parent | conflict, C larger | 100 | +2.59 [+1.69, +3.56] |
+| parent | conflict, M larger | 100 | +3.13 [+2.27, +4.11] |
+
+Share of the full effect carried by copying one site at one layer from the run with the own step flipped (all cells pooled; full effect +7.61):
+
+| layer | M_sentence | C_sentence | question | final |
+|---|---|---|---|---|
+| 0 | 0.00 | 1.00 | 0.00 | 0.00 |
+| 4 | 0.00 | 0.99 | 0.02 | -0.00 |
+| 8 | 0.00 | 0.96 | 0.05 | -0.00 |
+| 12 | 0.00 | 0.91 | 0.08 | -0.00 |
+| 16 | 0.00 | 0.59 | 0.35 | 0.01 |
+| 20 | 0.00 | 0.03 | 0.88 | 0.05 |
+| 24 | 0.00 | 0.01 | 0.44 | 0.52 |
+| 28 | 0.00 | 0.00 | 0.09 | 0.91 |
+| 32 | 0.00 | 0.00 | 0.05 | 0.95 |
+| 34 | 0.00 | -0.00 | 0.03 | 0.97 |
+
+Share of the full effect carried by copying one site at one layer from the run with the first step flipped (all cells pooled; full effect +2.28):
+
+| layer | M_sentence | C_sentence | question | final |
+|---|---|---|---|---|
+| 0 | 1.00 | 0.00 | 0.00 | 0.00 |
+| 4 | 1.02 | 0.06 | -0.00 | -0.00 |
+| 8 | 0.93 | 0.11 | 0.03 | -0.01 |
+| 12 | 0.96 | 0.08 | -0.03 | 0.02 |
+| 16 | 0.51 | 0.06 | 0.23 | 0.04 |
+| 20 | 0.02 | 0.06 | 0.65 | 0.12 |
+| 24 | 0.04 | -0.01 | 0.59 | 0.33 |
+| 28 | 0.01 | -0.01 | 0.14 | 0.84 |
+| 32 | 0.02 | 0.00 | 0.10 | 0.88 |
+| 34 | 0.02 | -0.00 | 0.05 | 0.95 |
+
+Preregistered verdict: **reaches the answer position (the read-out ignores it)**. Rules: docs/preregistration_flow.md.
+
+## 2026-11-20 19:59 · Flow map: where is the first step lost on the way to the answer? (llama3.1-8b) — preregistered
+Model **llama3.1-8b**. 2400 new C–R axis questions (seed 1601) on 859 chains R → M → C; d1 = M's step from R on the asked axis, d2 = C's own step, truth = sign(d1 + d2). Probes: ridge, fitted separately for east and north questions, held-out scenes (80/20).
+
+**Clean accuracy:** own step only 0.76, agree 0.89, first step only 0.48, conflict, C larger 0.93, conflict, M larger 0.18
+
+**Where each step is present** (held-out R², first step d1 / own step d2):
+
+| layer | M_end | C_end | Q_C | Q_R | Q_after | final |
+|---|---|---|---|---|---|---|
+| 0 | -0.02 / -0.02 | -0.02 / -0.02 | -0.02 / -0.02 | -0.02 / -0.01 | -0.02 / -0.02 | -0.02 / -0.02 |
+| 4 | 0.81 / 0.02 | 0.67 / 0.60 | 0.08 / -0.02 | 0.10 / -0.01 | 0.64 / 0.39 | 0.53 / 0.44 |
+| 8 | 0.80 / 0.03 | 0.73 / 0.75 | 0.72 / 0.59 | 0.71 / 0.66 | 0.80 / 0.76 | 0.70 / 0.60 |
+| 12 | 0.76 / 0.03 | 0.69 / 0.66 | 0.80 / 0.81 | 0.79 / 0.74 | 0.82 / 0.81 | 0.81 / 0.76 |
+| 16 | 0.76 / 0.00 | 0.62 / 0.70 | 0.80 / 0.85 | 0.80 / 0.78 | 0.84 / 0.86 | 0.84 / 0.85 |
+| 20 | 0.75 / -0.01 | 0.56 / 0.65 | 0.77 / 0.82 | 0.76 / 0.74 | 0.81 / 0.85 | 0.79 / 0.81 |
+| 24 | 0.72 / -0.02 | 0.55 / 0.60 | 0.73 / 0.79 | 0.72 / 0.70 | 0.78 / 0.82 | 0.74 / 0.77 |
+| 28 | 0.66 / -0.03 | 0.54 / 0.57 | 0.72 / 0.78 | 0.71 / 0.68 | 0.73 / 0.77 | 0.67 / 0.72 |
+| 32 | 0.62 / -0.03 | 0.50 / 0.54 | 0.71 / 0.74 | 0.66 / 0.63 | 0.72 / 0.73 | 0.63 / 0.67 |
+
+Best d1 R² per hop: C's sentence end (layers 8–22) 0.73, question tokens (10–26) 0.84, final position (18–32) 0.81; d2 at the final position 0.83.
+
+**Right answer at the final position** (truth probe, held-out *conflict, M larger*): best layer 18, 0.91; the model on the same questions 0.14. Truth probe on held-out *first step only*: 1.00.
+
+**Logit lens** (share of questions where the layer's C-vs-R logit points to the right answer; check: last layer vs the model's answer r = 1.000):
+
+| layer | own step only | agree | first step only | conflict, C larger | conflict, M larger |
+|---|---|---|---|---|---|
+| 16 | 0.53 | 0.45 | 0.52 | 0.47 | 0.44 |
+| 20 | 0.58 | 0.61 | 0.50 | 0.61 | 0.40 |
+| 24 | 0.66 | 0.67 | 0.49 | 0.65 | 0.34 |
+| 28 | 0.73 | 0.87 | 0.48 | 0.90 | 0.21 |
+| 32 | 0.76 | 0.89 | 0.48 | 0.93 | 0.18 |
+
+**How much the answer moves when one step points the other way** (C-vs-R logit difference, oriented so + = the way the flipped step points; scene-bootstrap 95% CI):
+
+| flipped step | cell | n | full effect |
+|---|---|---|---|
+| own | own step only | 100 | +4.37 [+3.94, +4.80] |
+| own | agree | 98 | +5.39 [+4.58, +6.21] |
+| own | conflict, C larger | 100 | +7.26 [+6.54, +7.92] |
+| own | conflict, M larger | 100 | +4.39 [+3.74, +5.05] |
+| parent | agree | 98 | +0.83 [+0.37, +1.35] |
+| parent | first step only | 100 | -0.10 [-0.42, +0.23] |
+| parent | conflict, C larger | 100 | +0.36 [-0.17, +0.97] |
+| parent | conflict, M larger | 100 | +0.73 [+0.34, +1.09] |
+
+Share of the full effect carried by copying one site at one layer from the run with the own step flipped (all cells pooled; full effect +5.35):
+
+| layer | M_sentence | C_sentence | question | final |
+|---|---|---|---|---|
+| 0 | 0.00 | 1.00 | 0.00 | 0.00 |
+| 4 | 0.00 | 0.98 | 0.02 | -0.00 |
+| 8 | 0.00 | 0.89 | 0.10 | 0.00 |
+| 12 | 0.00 | 0.25 | 0.67 | 0.01 |
+| 16 | -0.00 | 0.00 | 0.16 | 0.82 |
+| 20 | -0.00 | 0.00 | 0.11 | 0.89 |
+| 24 | -0.00 | 0.00 | 0.06 | 0.94 |
+| 28 | -0.00 | -0.00 | 0.04 | 0.97 |
+| 30 | -0.00 | 0.00 | 0.02 | 0.98 |
+
+Share of the full effect carried by copying one site at one layer from the run with the first step flipped (all cells pooled; full effect +0.45):
+
+| layer | M_sentence | C_sentence | question | final |
+|---|---|---|---|---|
+| 0 | 1.00 | -0.00 | -0.00 | -0.00 |
+| 4 | 0.85 | 0.43 | 0.14 | 0.00 |
+| 8 | 0.45 | 0.88 | 0.25 | 0.00 |
+| 12 | 0.26 | 0.80 | -0.71 | -0.01 |
+| 16 | -0.02 | -0.07 | 0.37 | 0.52 |
+| 20 | -0.01 | -0.04 | 0.23 | 0.78 |
+| 24 | -0.01 | -0.05 | 0.20 | 0.81 |
+| 28 | -0.00 | -0.01 | 0.10 | 0.96 |
+| 30 | 0.01 | -0.01 | 0.05 | 0.99 |
+
+Preregistered verdict: **reaches the answer position (the read-out ignores it)**. Rules: docs/preregistration_flow.md.
+
+## 2026-11-20 19:59 · Cross-family check: Qwen3-8B and Llama 3.1 8B — preregistered
+Models from two other families, run through `scripts/flow_test.py` unchanged (seed 1601, same question counts, layers scaled to depth). Criteria: decisive accuracy < 0.5; flow verdict *reaches the answer position*; truth probe's Wilson 95% lower bound above the model's upper bound on the held-out decisive questions. Gemma 3 for comparison: decisive accuracy 12B 0.40, 27B 0.23; probe vs model 12B 0.86 [0.78, 0.91] vs 0.32 [0.24, 0.41], 27B 0.98 [0.93, 0.99] vs 0.25 [0.18, 0.34].
+
+| model | layers | decisive accuracy | R² d1 / d2 at the final position | probe (best layer) | model, same questions | n | verdict |
+|---|---|---|---|---|---|---|---|
+| Qwen3-8B | 36 | 0.36 | 0.78 / 0.75 | 0.86 [0.78, 0.91] (layer 24) | 0.25 [0.18, 0.34] | 104 | **replicates** |
+| Llama 3.1 8B | 32 | 0.18 | 0.81 / 0.83 | 0.91 [0.84, 0.95] (layer 18) | 0.14 [0.09, 0.22] | 104 | **replicates** |
+
+**Clean accuracy by kind:**
+
+| model | own step only | agree | first step only | conflict, C larger | conflict, M larger |
+|---|---|---|---|---|---|
+| Qwen3-8B | 0.70 | 0.77 | 0.54 | 0.69 | 0.36 |
+| Llama 3.1 8B | 0.76 | 0.89 | 0.48 | 0.93 | 0.18 |
+
+Qwen3-8B: flow verdict *reaches the answer position (the read-out ignores it)*; probe at the first layer of the final window (20–36) 0.78, mean over the window 0.81.
+Llama 3.1 8B: flow verdict *reaches the answer position (the read-out ignores it)*; probe at the first layer of the final window (18–32) 0.91, mean over the window 0.81.
+
+Preregistered verdict: **the account holds across families**. Rules: docs/preregistration_cross_family.md; full flow reports in the flow entries of each model.
+
+*Hand note (2026-11-20).* Run on Colab (L4, both models whole on the GPU). **Preregistered verdict: the account holds
+across families.** Both models fail the decisive questions (Qwen3-8B 0.36, Llama 3.1 8B 0.18 on all 600), M's step
+reaches the final position (R² 0.78 and 0.81), and on the 104 held-out decisive questions the truth probe beats the
+model by a wide margin (Qwen 0.86 [0.78, 0.91] vs 0.25 [0.18, 0.34]; Llama 0.91 [0.84, 0.95] vs 0.14 [0.09, 0.22]).
+Recomputed locally from the raw files with the committed summary script: identical.
+
+*Exploratory (not preregistered), same files.* It is the same rule with the same default. Share answering C when C's
+own step points the asked way / away / is zero: Llama 0.84 / 0.15 / 0.00, Qwen 0.75 / 0.38 / 0.23 (Gemma 12B 0.70 /
+0.00 / 0.02, 27B 0.82 / 0.03 / 0.07). Regression of logit(C) − logit(R) on own_yes, d1, d2 and name order: own_yes
++7.13 (Llama) and +8.93 (Qwen) against a logit-difference SD of 4.05 and 7.30, intercept −3.58 and −3.18 (the R default),
+M's step d1 +0.07 and +0.44 per unit; in neither model does the size of C's own step matter (d2 −0.21, −0.10). Qwen
+follows the rule less cleanly (lower accuracy on own-step-only questions, 0.70, and some weight on M's step). The truth
+probe peaks before the end and declines towards the output in Llama (0.95 at layer 14, 0.72 at 32) as in Gemma 12B
+(0.92 at 22, 0.75 at 48); in Qwen it stays near 0.8. Not tested in these models: the components that write the rule
+and their removal (they need exact attribution per architecture).
