@@ -19,10 +19,11 @@ MODELS = {
     "gemma3-12b": "google/gemma-3-12b-it",
     "gemma3-27b": "google/gemma-3-27b-it",
     "llama3.2-3b": "meta-llama/Llama-3.2-3B-Instruct",
+    "llama3.1-8b": "meta-llama/Llama-3.1-8B-Instruct",
     "llama3.3-70b": "meta-llama/Llama-3.3-70B-Instruct",
 }
 FAMILY = {"qwen3-1.7b": "qwen3", "qwen3-4b": "qwen3", "qwen3-8b": "qwen3", "qwen3-14b": "qwen3", "qwen3-32b": "qwen3",
-          "gemma3-4b": "gemma3", "gemma3-12b": "gemma3", "gemma3-27b": "gemma3", "llama3.2-3b": "llama3", "llama3.3-70b": "llama3", "tiny": "qwen3"}
+          "gemma3-4b": "gemma3", "gemma3-12b": "gemma3", "gemma3-27b": "gemma3", "llama3.2-3b": "llama3", "llama3.1-8b": "llama3", "llama3.3-70b": "llama3", "tiny": "qwen3"}
 QUANT = {"llama3.3-70b": {"load_in_8bit": True}}  # 140 GB in bf16; 8-bit weights fit one 80-96 GB GPU
 
 
