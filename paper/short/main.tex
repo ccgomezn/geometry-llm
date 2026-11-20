@@ -123,6 +123,7 @@ Table~\ref{tab:sets} lists the question sets, each of which was generated anew f
     composition & 12B & 3,000 scenes of 3--6 objects, no question & joint code (\S\ref{sec:geometry}) \\
     writers & 12B, 27B & 1,500 discovery + 1,900 test questions & finding the writers (\S\ref{sec:writers}) \\
     removal & 12B, 27B & 1,474 questions, each with its twin & Figure~\ref{fig:mechanism}, Table~\ref{tab:replication} \\
+    order and voice & 12B & 1,800 questions, each in four renderings & what the rule is tied to (\S\ref{sec:behaviour}) \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -217,6 +218,16 @@ answer on 38\% of the decisive questions in 12B and 21\% in 27B. M's step is the
 it can stop the model from answering C and almost never makes it answer C. In the sense of
 \citet{geirhos2020shortcut}, this is a shortcut: a decision rule that works on most questions but is not the intended
 solution, and that fails where the two disagree. One further difference between the models concerns the order of the names: in 27B decisive accuracy is 14\% when C is named first and 32\% when R is, compared with 36\% and 44\% in 12B.
+
+A preregistered control on 1,800 new questions shows what the rule is tied to. We rendered each scene in four ways,
+with C's sentence last or first, and with C's relation in the subject voice (``Leo is 1 unit west of Beth'') or in the
+object voice (``Beth is 1 unit east of Leo''), which states the same fact with the opposite direction word. Putting
+C's sentence first changes nothing: in the subject voice 12B is right on 97\% of own-step-only questions in both
+orders, so the rule is not a preference for the most recent sentence. The object voice, by contrast, separates the
+direction word from C's actual step, and there the preregistered regression gives the word more weight than the step
+(+11.2 versus +8.0 logits), so the rule leans on the direction word of the sentence that places C. This part should be
+read with care, however, because the model mostly fails to parse the object voice: with C's sentence first in that
+voice, it answers C on 93 to 96\% of own-step-only questions whatever the direction.
 
 \subsection{The geometry reaches the answer}\label{sec:geometry}
 Before any question is asked, the model already holds the two steps together. We tested this in a separate
@@ -361,8 +372,7 @@ The rule itself is an input-pattern heuristic, like those LLMs have been found t
 
 These conclusions rest on a narrow base. We study one model family at two sizes, in their instruct versions with
 one-word answers, and test neither chain of thought nor base models. We also use a single task, three objects on a
-plane with one kind of question, in which C's sentence is always the last sentence of the description, so we cannot
-tell whether the rule concerns C's own sentence, the most recent sentence or simply the direction word it contains.
+plane with one kind of question, and although a control rules out recency, the model's poor reading of the object voice leaves open how far the rule follows C's actual step rather than the direction word of its sentence.
 Several analyses are partial as well. The composition test was run in 12B only, and it shows a joint code rather than a
 metric map. Because the component removals act at the final position only, they do not identify the heads that move
 C's direction onto the question tokens, and on non-decisive questions they weaken the correct answer as well. Probes
@@ -400,6 +410,7 @@ repository (\texttt{docs/preregistration\_*.md}).
   flow & \texttt{flow} & e550537, 2026-11-15 & reaches the answer position \\
   writers, mean ablation & \texttt{components} & bcb15f5, 2026-11-15 & ineffective \\
   writers, twin-mean removal & \texttt{components2} & 9ebc6f8, 2026-11-15 & no correct path underneath \\
+  order and voice & \texttt{order\_voice} & 7047eea, 2026-11-20 & follows the direction word$^{d}$ \\
   replication (27B) & \texttt{replication\_27b} & f0fbfbd, 2026-11-19 & partial (Table~\ref{tab:replication}) \\
   \bottomrule
 \end{tabular}
@@ -408,7 +419,7 @@ repository (\texttt{docs/preregistration\_*.md}).
 $^{a}$For C--R axis questions; for composed questions overall, not beyond generic damage. The next test explains the
 effect. $^{b}$Planned with 6,000 questions; the size was changed to 5,250 in c047c74, before any data. $^{c}$Also:
 ``the erased directions support the own-step shortcut, not the composed position'' and ``the C--R axis effect
-replicates''. Timestamps in the result log are UTC and git commits are in local time (UTC+1).
+replicates''. $^{d}$Not recency; the object voice, which separates the word from C's step, is poorly parsed (Section~\ref{sec:behaviour}). Timestamps in the result log are UTC and git commits are in local time (UTC+1).
 \end{center}
 
 \emph{Mean ablation.} Replacing the writers' outputs by their mean over questions left the shortcut coefficient at
@@ -425,7 +436,7 @@ decisive accuracy rises from 32\% to 46\%, with the upper bound of its interval 
 direction of C's sentence (Table~\ref{tab:rule}), the effect of flipping M's step on the answer, the name-order
 effect, the writers' source tokens, the accuracy split by correct answer, the AUCs and the median threshold after
 removal, the split of the restored rule into brakes and writers, the share of shortcut writing in the top 20 and the
-number of components needed for 80\%, the 12B swap results beyond own-step-only questions, and in 27B the AUC after
+number of components needed for 80\%, the 12B swap results beyond own-step-only questions, the answers by rendering in the order-and-voice control, and in 27B the AUC after
 removal.
 
 \end{document}
