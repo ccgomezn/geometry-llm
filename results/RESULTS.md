@@ -2818,3 +2818,47 @@ on the correct side, and every final answer agrees with them. Gemma writes coord
 0.93 with them, 0.80 without); of 26 replies giving both positions, all are correct and 3 then answer against them.
 Llama rarely writes coordinates (8 of 300) and its errors come from long, confused verbal reasoning. Gemma's weakest
 kind under reasoning is *first step only* (0.72), where C's own sentence is silent on the asked axis.
+
+## 2026-11-21 19:14 · Read-back: does written reasoning take M's step from its sentence or the processed state? (qwen3-8b) — preregistered
+Model **qwen3-8b**. 200 decisive questions (flow set's generator, seed 1601) with a valid flipped version (M's step negated on the asked axis, which flips the answer). Greedy step-by-step replies in four conditions: original, flipped, and two mixes in which M's sentence comes from one version and every layer's state at every later position from the other (mixed A: sentence original, state flipped; mixed B: the reverse). Shares over replies with an answer.
+
+| condition | replies with an answer | follows M's sentence | follows the downstream state |
+|---|---|---|---|
+| original | 199 of 200 | 0.99 | (same version) |
+| flipped | 200 of 200 | 1.00 | (same version) |
+| mixed A | 200 of 200 | 0.99 | 0.01 |
+| mixed B | 200 of 200 | 1.00 | 0.00 |
+
+Accuracy original 0.99, flipped 1.00; mixed replies following M's sentence 0.99. **Index** (1 = follows M's sentence, 0 = follows the downstream state): 1.00 [0.99, 1.01].
+
+Exploratory, mixed replies: 273 give M a position relative to R, which follows M's sentence in 1.00; 277 give C one, which follows M's sentence in 1.00; of 269 giving both, 0 mix the versions (M from one, C from the other). No answer: original 1, flipped 0, mixed A 0, mixed B 0.
+
+Preregistered verdict: **the reasoning re-reads the sentence**. Rules: docs/preregistration_readback.md.
+
+## 2026-11-21 21:32 · Read-back: does written reasoning take M's step from its sentence or the processed state? (gemma3-12b-8bit) — preregistered
+Model **gemma3-12b-8bit**. 200 decisive questions (flow set's generator, seed 1601) with a valid flipped version (M's step negated on the asked axis, which flips the answer). Greedy step-by-step replies in four conditions: original, flipped, and two mixes in which M's sentence comes from one version and every layer's state at every later position from the other (mixed A: sentence original, state flipped; mixed B: the reverse). Shares over replies with an answer.
+
+| condition | replies with an answer | follows M's sentence | follows the downstream state |
+|---|---|---|---|
+| original | 198 of 200 | 0.87 | (same version) |
+| flipped | 200 of 200 | 0.99 | (same version) |
+| mixed A | 200 of 200 | 0.79 | 0.21 |
+| mixed B | 200 of 200 | 1.00 | 0.00 |
+
+Accuracy original 0.87, flipped 0.99; mixed replies following M's sentence 0.89. **Index** (1 = follows M's sentence, 0 = follows the downstream state): 0.95 [0.91, 0.99].
+
+Exploratory, mixed replies: 50 give M a position relative to R, which follows M's sentence in 0.90; 25 give C one, which follows M's sentence in 0.96; of 19 giving both, 0 mix the versions (M from one, C from the other). No answer: original 2, flipped 0, mixed A 0, mixed B 0.
+
+Preregistered verdict: **the reasoning re-reads the sentence**. Rules: docs/preregistration_readback.md.
+
+*Hand note (2026-11-21).* Run on Colab (L4; Gemma 3 12B in 8-bit). Recomputed locally from the raw replies with an
+independent parser: identical shares. **Preregistered verdict, both models: the reasoning re-reads the sentence**
+(index Qwen3-8B 1.00 [0.99, 1.01], Gemma 3 12B 0.95 [0.91, 0.99]). When M's sentence and everything the model computed
+after it disagree, the step-by-step reply follows the sentence: Qwen in 99–100% of mixed replies, writing M's and C's
+positions from the sentence in every reply that gives them; Gemma in 79% (mixed A) and 100% (mixed B). So written
+reasoning recomputes from the words; it does not read the composed state that the one-word answer also ignores.
+
+*Exploratory.* Gemma's mixed A (sentence of the decisive version, state of the flipped version, whose answer is also
+the one-sentence rule's answer) follows the sentence 0.075 less often than the plain decisive question (paired, [−0.15,
+−0.005]; 32 questions go right → wrong, 17 wrong → right): a small pull of the processed state, towards the answer the
+rule would give. Nothing comparable in mixed B or in Qwen.
