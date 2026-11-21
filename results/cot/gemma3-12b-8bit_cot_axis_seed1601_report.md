@@ -1,4 +1,4 @@
-## Step by step: does written reasoning fix the one-sentence rule? (gemma3-12b-8bit) — preregistered
+## Step by step: does written reasoning fix the one-sentence rule? (gemma3-12b-8bit) — preregistered, rescored with the corrected answer parser
 
 Model **gemma3-12b-8bit**. 600 C–R axis questions from the flow set's generator (seed 1601; the first 300 decisive and 75 of each other kind). Same weights, two conditions: *one word* (sign of logit(C) − logit(R)) and *step by step* (greedy, up to 1024 new tokens, last 'Answer: <name>' line; none = wrong). Balanced accuracy (mean of the accuracies when the answer is C and when it is R), 95% scene-bootstrap CIs, differences paired.
 

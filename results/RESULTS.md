@@ -2724,3 +2724,97 @@ Exploratory, decisive questions: 71 of 300 replies write (x, y) coordinates (acc
 Check: one-word accuracy on the decisive questions here 0.42; in the bfloat16 flow run of gemma3-12b (all 600) 0.40.
 
 Preregistered verdict: **reasoning fixes the rule**. Rules: docs/preregistration_cot_axis.md.
+
+## 2026-11-21 15:26 · Step by step: does written reasoning fix the one-sentence rule? (llama3.1-8b) — preregistered, rescored with the corrected answer parser
+Model **llama3.1-8b**. 600 C–R axis questions from the flow set's generator (seed 1601; the first 300 decisive and 75 of each other kind). Same weights, two conditions: *one word* (sign of logit(C) − logit(R)) and *step by step* (greedy, up to 1024 new tokens, last 'Answer: <name>' line; none = wrong). Balanced accuracy (mean of the accuracies when the answer is C and when it is R), 95% scene-bootstrap CIs, differences paired.
+
+| questions | step by step | one word | step by step − one word |
+|---|---|---|---|
+| decisive (*conflict, M larger*) | 0.57 [0.52, 0.64] | 0.20 [0.15, 0.25] | 0.37 [0.31, 0.44] |
+| the other four kinds | 0.82 [0.78, 0.86] | 0.72 [0.67, 0.78] | |
+
+**Accuracy by kind:**
+
+| kind | n | step by step | one word |
+|---|---|---|---|
+| own step only | 75 | 0.93 | 0.73 |
+| agree | 75 | 0.93 | 0.83 |
+| first step only | 75 | 0.48 | 0.33 |
+| conflict, C larger | 75 | 0.89 | 0.92 |
+| conflict, M larger | 300 | 0.59 | 0.21 |
+
+No final answer: 60; hit the token limit: 31; median reply length 161 tokens.
+Exploratory, decisive questions: 8 of 300 replies write (x, y) coordinates (accuracy 0.88), 292 do not (accuracy 0.58). Replies giving positions to both C and R: 4; the written positions put C on the correct side in 1.00, and the final answer agrees with them in 1.00.
+Check: one-word accuracy on the decisive questions here 0.21; in the bfloat16 flow run of llama3.1-8b (all 600) 0.18.
+
+Preregistered verdict: **reasoning helps**. Rules: docs/preregistration_cot_axis.md.
+
+## 2026-11-21 15:26 · Step by step: does written reasoning fix the one-sentence rule? (qwen3-8b) — preregistered, rescored with the corrected answer parser
+Model **qwen3-8b**. 600 C–R axis questions from the flow set's generator (seed 1601; the first 300 decisive and 75 of each other kind). Same weights, two conditions: *one word* (sign of logit(C) − logit(R)) and *step by step* (greedy, up to 1024 new tokens, last 'Answer: <name>' line; none = wrong). Balanced accuracy (mean of the accuracies when the answer is C and when it is R), 95% scene-bootstrap CIs, differences paired.
+
+| questions | step by step | one word | step by step − one word |
+|---|---|---|---|
+| decisive (*conflict, M larger*) | 0.99 [0.98, 1.00] | 0.36 [0.29, 0.43] | 0.63 [0.56, 0.71] |
+| the other four kinds | 0.98 [0.96, 1.00] | 0.65 [0.58, 0.71] | |
+
+**Accuracy by kind:**
+
+| kind | n | step by step | one word |
+|---|---|---|---|
+| own step only | 75 | 0.99 | 0.65 |
+| agree | 75 | 1.00 | 0.69 |
+| first step only | 75 | 0.96 | 0.52 |
+| conflict, C larger | 75 | 0.97 | 0.73 |
+| conflict, M larger | 300 | 0.99 | 0.36 |
+
+No final answer: 4; hit the token limit: 1; median reply length 287 tokens.
+Exploratory, decisive questions: 206 of 300 replies write (x, y) coordinates (accuracy 1.00), 94 do not (accuracy 0.98). Replies giving positions to both C and R: 202; the written positions put C on the correct side in 1.00, and the final answer agrees with them in 1.00.
+Check: one-word accuracy on the decisive questions here 0.36; in the bfloat16 flow run of qwen3-8b (all 600) 0.36.
+
+Preregistered verdict: **reasoning fixes the rule**. Rules: docs/preregistration_cot_axis.md.
+
+## 2026-11-21 15:26 · Step by step: does written reasoning fix the one-sentence rule? (gemma3-12b-8bit) — preregistered, rescored with the corrected answer parser
+Model **gemma3-12b-8bit**. 600 C–R axis questions from the flow set's generator (seed 1601; the first 300 decisive and 75 of each other kind). Same weights, two conditions: *one word* (sign of logit(C) − logit(R)) and *step by step* (greedy, up to 1024 new tokens, last 'Answer: <name>' line; none = wrong). Balanced accuracy (mean of the accuracies when the answer is C and when it is R), 95% scene-bootstrap CIs, differences paired.
+
+| questions | step by step | one word | step by step − one word |
+|---|---|---|---|
+| decisive (*conflict, M larger*) | 0.81 [0.76, 0.85] | 0.36 [0.32, 0.40] | 0.44 [0.38, 0.51] |
+| the other four kinds | 0.93 [0.90, 0.96] | 0.81 [0.77, 0.85] | |
+
+**Accuracy by kind:**
+
+| kind | n | step by step | one word |
+|---|---|---|---|
+| own step only | 75 | 0.99 | 0.99 |
+| agree | 75 | 1.00 | 0.91 |
+| first step only | 75 | 0.72 | 0.36 |
+| conflict, C larger | 75 | 1.00 | 0.89 |
+| conflict, M larger | 300 | 0.83 | 0.42 |
+
+No final answer: 5; hit the token limit: 0; median reply length 133 tokens.
+Exploratory, decisive questions: 71 of 300 replies write (x, y) coordinates (accuracy 0.93), 229 do not (accuracy 0.80). Replies giving positions to both C and R: 26; the written positions put C on the correct side in 1.00, and the final answer agrees with them in 0.88.
+Check: one-word accuracy on the decisive questions here 0.42; in the bfloat16 flow run of gemma3-12b (all 600) 0.40.
+
+Preregistered verdict: **reasoning fixes the rule**. Rules: docs/preregistration_cot_axis.md.
+
+*Hand note (2026-11-21).* Run on Colab (L4; Gemma 3 12B in 8-bit weights, its one-word accuracy 0.42 here vs 0.40 in
+the bfloat16 flow run). **Answer-parser bug, fixed before these rescored entries.** The parser let a "### Final
+Answer:" heading take the first word of the next line ("Answer") as the name, so 295 of Qwen3-8B's 600 replies, which
+end "### Final Answer:\nAnswer: <name>", were scored as having no answer. The preregistration defines the answer as
+the name in the last "Answer: …" line, so the fix (name on the same line as its "Answer:"; regression test
+`test_parse_final_name_after_a_final_answer_heading`) implements the preregistered rule; the three entries above,
+marked *rescored*, re-read the saved replies without rerunning the models. Llama 3.1 8B and Gemma 3 12B reproduce
+their original entries exactly; only Qwen3-8B changes (no help → reasoning fixes the rule). A second bug appeared only
+while rescoring locally (a newer pandas stores a missing answer as NaN, which the label code read as "R") and is fixed
+with a test (`test_prediction_label_treats_missing_answers_as_none`); it did not affect the Colab run.
+
+**Preregistered verdicts: Gemma 3 12B, reasoning fixes the rule** (decisive 0.81 [0.76, 0.85] vs one word 0.36);
+**Qwen3-8B, reasoning fixes the rule** (0.99 [0.98, 1.00] vs 0.36); **Llama 3.1 8B, reasoning helps** (0.57 [0.52,
+0.64] vs 0.20; 60 replies without an answer, 31 of them cut at 1024 tokens). Written reasoning composes the two steps
+that the one-word answer ignores.
+
+*Exploratory.* Qwen writes coordinates in 206 of 300 decisive replies; all 202 that give both C and R a position put C
+on the correct side, and every final answer agrees with them. Gemma writes coordinates less often (71 of 300; accuracy
+0.93 with them, 0.80 without); of 26 replies giving both positions, all are correct and 3 then answer against them.
+Llama rarely writes coordinates (8 of 300) and its errors come from long, confused verbal reasoning. Gemma's weakest
+kind under reasoning is *first step only* (0.72), where C's own sentence is silent on the asked axis.

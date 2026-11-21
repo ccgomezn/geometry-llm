@@ -39,6 +39,14 @@ def test_parse_final_name():
     assert parse_final_name("Leo is farther east.", names) is None
 
 
+def test_parse_final_name_after_a_final_answer_heading():
+    # Qwen3 ends with a heading, then the answer line; the heading's "Answer:" must not swallow the next "Answer"
+    names = ("Anna", "Leo")
+    assert parse_final_name("So Anna is north.\n\n### Final Answer:\nAnswer: Anna", names) == "Anna"
+    assert parse_final_name("---\n\n### Final Answer:\n\nAnswer: Leo", names) == "Leo"
+    assert parse_final_name("**Final Answer:**\n**Answer:** Leo", names) == "Leo"
+
+
 def test_named_coords_takes_the_last_position_given_to_each_name():
     text = ("Put Amy at (0, 0). Beth is 2 units east of Amy, so Beth = (2, 0). Leo is 3 units west of Beth: "
             "Leo is at (-1, 0). Correction: Leo: (-1, 1).")
@@ -59,3 +67,12 @@ def test_verdict_rules():
     assert verdict_cot_axis(**{**ok, "others": 0.7}) == "reasoning helps"
     assert verdict_cot_axis(**{**ok, "dec": (0.70, 0.62, 0.78)}) == "reasoning helps"
     assert verdict_cot_axis(**{**ok, "dec": (0.55, 0.45, 0.65), "diff": (0.1, -0.02, 0.2)}) == "no help"
+
+
+def test_prediction_label_treats_missing_answers_as_none():
+    import math
+    from geomap.cot_axis import prediction_label
+    assert prediction_label("Leo", "Leo") == "C"
+    assert prediction_label("Amy", "Leo") == "R"
+    assert prediction_label(None, "Leo") == "none"
+    assert prediction_label(math.nan, "Leo") == "none"       # pandas' string columns turn None into NaN

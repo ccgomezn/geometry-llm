@@ -15,8 +15,8 @@ import torch
 
 from geomap.axis import CELLS, axis_bulk_items
 from geomap.checkpoint import notify
-from geomap.cot_axis import (cot_axis_prompt, named_coords, parse_final_name, select_items, verdict_cot_axis,
-                             written_side)
+from geomap.cot_axis import (cot_axis_prompt, named_coords, parse_final_name, prediction_label, select_items,
+                             verdict_cot_axis, written_side)
 from geomap.flow import axis_of, steps
 from geomap.models import load
 from geomap.prompts import build_prompt
@@ -70,6 +70,8 @@ def main():
     ap.add_argument("--max-new-tokens", type=int, default=1024)
     ap.add_argument("--smoke", action="store_true", help="tiny model, 3 questions per kind, 16 tokens; temp dir")
     ap.add_argument("--out", default=None, help="output folder (default results/cot)")
+    ap.add_argument("--rescore", action="store_true", help="re-read the saved replies (no model) and rewrite "
+                    "the report, e.g. after a parser fix")
     a = ap.parse_args()
     out, sizes, flow_sizes, n_boot = ROOT / "results" / "cot", dict(SIZES), dict(FLOW_SIZES), 1000
     if a.smoke:
@@ -81,6 +83,11 @@ def main():
     run = f"{a.model}_cot_axis_seed{SEED}"
     tag = f"Step by step {a.model}"
     done = out / f"{run}.done"
+    if a.rescore:
+        T = pd.read_parquet(out / f"{run}.parquet")
+        analyse(T, a.model, out, run, n_boot, a.max_new_tokens, a.smoke, tag,
+                lambda msg: print(f"[cot] {msg}", flush=True), rescored=True)
+        return
     if done.exists():
         print(f"[cot] already complete ({done}); delete it to rerun", flush=True)
         return
@@ -115,13 +122,22 @@ def main():
     # ---- step by step ----
     rep = generate_replies(m, prompts, out / f"{run}_replies.parquet", a.max_new_tokens, a.batch_size, tag)
     T["reply"], T["n_tokens"], T["truncated"] = rep.reply.values, rep.n_tokens.values, rep.truncated.values
+    T.to_parquet(out / f"{run}.parquet")
+    analyse(T, a.model, out, run, n_boot, a.max_new_tokens, a.smoke, tag, log)
+
+
+def analyse(T: pd.DataFrame, model: str, out: Path, run: str, n_boot: int, max_new_tokens: int, smoke: bool,
+            tag: str, log, rescored: bool = False):
+    """Reads the replies, applies the preregistered rule and writes the report (also used to rescore saved
+    replies without the model)."""
+    T = T.copy()
+    T["one_pred"] = np.where(T.one_ld > 0, "C", "R")
     T["final"] = [parse_final_name(r.reply, (r.child, r.root)) for r in T.itertuples()]
-    T["cot_pred"] = [("C" if f == r.child else "R") if f else "none" for f, r in zip(T.final, T.itertuples())]
+    T["cot_pred"] = [prediction_label(f, r.child) for f, r in zip(T.final, T.itertuples())]
     T["coords"] = [len(named_coords(r.reply, (r.child, r.root, r.mid))) > 0 for r in T.itertuples()]
     side = [written_side(named_coords(r.reply, (r.child, r.root, r.mid)), r.child, r.root, int(r.axis))
             for r in T.itertuples()]
     T["written_side"] = [np.nan if x is None else x for x in side]
-    T.to_parquet(out / f"{run}.parquet")
 
     # ---- preregistered rule ----
     dec, oth = T[T.cell == DEC], T[T.cell != DEC]
@@ -135,10 +151,10 @@ def main():
     f2 = lambda x: "–" if x is None or (isinstance(x, float) and np.isnan(x)) else f"{x:.2f}"
     ci = lambda t: f"{f2(t[0])} [{f2(t[1])}, {f2(t[2])}]"
     acc = lambda d, col: float(np.mean(d[col] == d.truth)) if len(d) else float("nan")
-    lines = [f"Model **{a.model}**. {len(T)} C–R axis questions from the flow set's generator (seed {SEED}; the first "
+    lines = [f"Model **{model}**. {len(T)} C–R axis questions from the flow set's generator (seed {SEED}; the first "
              f"{SIZES[DEC]} decisive and {SIZES['agree']} of each other kind). Same weights, two conditions: *one word* "
              "(sign of logit(C) − logit(R)) and *step by step* (greedy, up to "
-             f"{a.max_new_tokens} new tokens, last 'Answer: <name>' line; none = wrong). Balanced accuracy (mean of "
+             f"{max_new_tokens} new tokens, last 'Answer: <name>' line; none = wrong). Balanced accuracy (mean of "
              "the accuracies when the answer is C and when it is R), 95% scene-bootstrap CIs, differences paired.", "",
              "| questions | step by step | one word | step by step − one word |", "|---|---|---|---|",
              f"| decisive (*{DEC}*) | {ci(dec_cot)} | {ci(dec_one)} | {ci(diff)} |",
@@ -159,7 +175,7 @@ def main():
               f"{f2(float(np.mean(ws.written_side.values == truth_sign)) if len(ws) else float('nan'))}, and the final "
               f"answer agrees with them in "
               f"{f2(float(np.mean(np.where(ws.cot_pred == 'C', 1, -1) == ws.written_side.values)) if len(ws) else float('nan'))}."]
-    base = a.model.replace("-8bit", "")
+    base = model.replace("-8bit", "")
     fl = ROOT / "results" / "flow" / f"{base}_flow_seed{SEED}_items.csv"
     if fl.exists():
         F = pd.read_csv(fl)
@@ -169,12 +185,15 @@ def main():
     lines += ["", f"Preregistered verdict: **{v}**. Rules: docs/preregistration_cot_axis.md."]
     report = "\n".join(lines)
     print(report, flush=True)
-    title = f"Step by step: does written reasoning fix the one-sentence rule? ({a.model}) — preregistered"
-    if not a.smoke:
+    title = f"Step by step: does written reasoning fix the one-sentence rule? ({model}) — preregistered"
+    if rescored:
+        title += ", rescored with the corrected answer parser"
+    if not smoke:
         append_entry(title, report)
     (out / f"{run}_report.md").write_text(f"## {title}\n\n{report}\n")
-    done.write_text(v + "\n")
+    (out / f"{run}.done").write_text(v + "\n")
     notify(f"[{tag}] COMPLETE: {v}. Decisive: step by step {f2(dec_cot[0])}, one word {f2(dec_one[0])}")
+    T.to_parquet(out / f"{run}.parquet")
     log("done")
 
 

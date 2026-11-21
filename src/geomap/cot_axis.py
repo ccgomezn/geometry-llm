@@ -9,7 +9,8 @@ from geomap.prompts import relation_text, render_chat
 
 COT_AXIS_SUFFIX = (" Think it through step by step, then end your reply with a final line of the form 'Answer: X', "
                    "where X is one of the two names.")
-_FINAL = re.compile(r"answer\W{0,6}?:[\s*_]*([A-Za-z][A-Za-z-]*)", re.IGNORECASE)
+# the name must be on the same line as its "Answer:" (so a "### Final Answer:" heading cannot take the next line's word)
+_FINAL = re.compile(r"answer[^\S\n]*\**[^\S\n]*:[ \t*_]*([A-Za-z][A-Za-z-]*)", re.IGNORECASE)
 _COORD = re.compile(r"\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)")
 NAME_GAP = 25          # most characters between a name and the "(" of the pair it is given
 
@@ -77,3 +78,10 @@ def verdict_cot_axis(dec: tuple, diff: tuple, others: float, floor: float = 0.80
     if diff[1] > 0:
         return "reasoning helps"
     return "no help"
+
+
+def prediction_label(final, child: str) -> str:
+    """'C' or 'R' for a parsed final name, 'none' when there is none (None, or NaN once stored in a pandas column)."""
+    if not isinstance(final, str):
+        return "none"
+    return "C" if final == child else "R"
