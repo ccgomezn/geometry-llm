@@ -127,3 +127,12 @@ the rule.
   "uses its map" in the read-back / blind sense; that is the framework's prove step, to be preregistered if this
   works.
 - Gemma in 8-bit (if run on a small GPU) differs from the bfloat16 flow run in precision.
+
+## Clarifications (added with the code, before any data)
+
+- **Control pool.** Variance-matched random subspaces need the top 64 components to be able to reach S's variance.
+  If S's projected variance is below that of the 64th–61st components, the pool doubles (128, 256, …) until a match
+  is possible. The report states the number of components used.
+- **Draws.** Random draws tilt the Gaussian rows by a random power of the component variances, so that both low- and
+  high-variance targets can be matched; a draw is kept only if within ±10%.
+- **Not computed.** The exploratory logit lens is not computed in this run.
