@@ -3049,3 +3049,140 @@ unit of C's own step (a model composing the two would give 1):
 So instruction tuning does not bring the under-weighting of M's step; the pretrained Gemma and Qwen weight it as little
 as or less than their instruct models. Caveats: zero-shot closed-set scoring, and the base models are much less
 confident (smaller margins), which the ratio is insensitive to but the accuracies are not.
+
+## 2026-11-22 13:46 · Base models with worked examples (neutral): Qwen3-8B-Base — preregistered
+Model **Qwen3-8B-Base** (`qwen3-8b-base`), **plain** prompt (begin-of-text token, scene, `Question: …`, `Answer:`; candidates read with a leading space), preceded by six worked **neutral** examples (seed-7 bank, no names shared with the test scene). The flow set's questions (seed 1601, 2400 questions in 859 scenes); answer = sign of log p(C) − log p(R). Balanced accuracy with 95% scene-bootstrap CIs.
+
+| question kind | balanced accuracy | accuracy | answer follows the one-sentence rule |
+|---|---|---|---|
+| own step only | 0.97 [0.96, 0.99] | 0.97 | 0.97 |
+| agree | 0.94 [0.91, 0.96] | 0.93 | 0.93 |
+| first step only | 0.53 [0.52, 0.55] | 0.52 | 0.96 |
+| conflict, C larger | 0.95 [0.93, 0.97] | 0.94 | 0.94 |
+| conflict, M larger | 0.31 [0.27, 0.34] | 0.34 | 0.66 |
+
+Final position, layers 20–36 of 36: best held-out R² of M's step 0.90, of C's own step 0.92. Truth probe on the 104 held-out decisive questions (best layer 22): 0.99 [0.95, 1.00]; the model on the same questions 0.32 [0.24, 0.41]. Exploratory: probe at the window's first layer 0.97, mean over the window 0.92; on held-out first-step-only 1.00.
+
+Exploratory: the answer names the first-named object in 0.47 of all questions. Weight of M's step relative to C's own step in the margin 0.20 (1 = composes). Answers following M's sentence (C iff M's step points the asked way): own step only 0.54, agree 0.93, first step only 0.52, conflict, C larger 0.06, conflict, M larger 0.34. Agreement with the zero-shot plain run: 0.80 of all questions, 0.73 of the decisive ones.
+
+Preregistered verdict: **the map is outvoted**. Rules: docs/preregistration_base_fewshot.md.
+
+## 2026-11-22 13:56 · Base models with worked examples (informative): Qwen3-8B-Base — preregistered
+Model **Qwen3-8B-Base** (`qwen3-8b-base`), **plain** prompt (begin-of-text token, scene, `Question: …`, `Answer:`; candidates read with a leading space), preceded by six worked **informative** examples (seed-7 bank, no names shared with the test scene). The flow set's questions (seed 1601, 2400 questions in 859 scenes); answer = sign of log p(C) − log p(R). Balanced accuracy with 95% scene-bootstrap CIs.
+
+| question kind | balanced accuracy | accuracy | answer follows the one-sentence rule |
+|---|---|---|---|
+| own step only | 0.95 [0.92, 0.97] | 0.95 | 0.95 |
+| agree | 0.93 [0.90, 0.95] | 0.91 | 0.91 |
+| first step only | 0.55 [0.53, 0.58] | 0.54 | 0.93 |
+| conflict, C larger | 0.93 [0.91, 0.96] | 0.93 | 0.93 |
+| conflict, M larger | 0.29 [0.26, 0.32] | 0.32 | 0.68 |
+
+Final position, layers 20–36 of 36: best held-out R² of M's step 0.89, of C's own step 0.92. Truth probe on the 104 held-out decisive questions (best layer 26): 0.98 [0.93, 0.99]; the model on the same questions 0.37 [0.28, 0.46]. Exploratory: probe at the window's first layer 0.96, mean over the window 0.90; on held-out first-step-only 1.00.
+
+Exploratory: the answer names the first-named object in 0.47 of all questions. Weight of M's step relative to C's own step in the margin 0.19 (1 = composes). Answers following M's sentence (C iff M's step points the asked way): own step only 0.55, agree 0.91, first step only 0.54, conflict, C larger 0.07, conflict, M larger 0.32. Agreement with the zero-shot plain run: 0.79 of all questions, 0.74 of the decisive ones.
+
+Preregistered verdict: **the map is outvoted**. Rules: docs/preregistration_base_fewshot.md.
+
+## 2026-11-22 14:07 · Base models with worked examples (neutral): Llama 3.1 8B (base) — preregistered
+Model **Llama 3.1 8B (base)** (`llama3.1-8b-base`), **plain** prompt (begin-of-text token, scene, `Question: …`, `Answer:`; candidates read with a leading space), preceded by six worked **neutral** examples (seed-7 bank, no names shared with the test scene). The flow set's questions (seed 1601, 2400 questions in 859 scenes); answer = sign of log p(C) − log p(R). Balanced accuracy with 95% scene-bootstrap CIs.
+
+| question kind | balanced accuracy | accuracy | answer follows the one-sentence rule |
+|---|---|---|---|
+| own step only | 0.66 [0.61, 0.71] | 0.66 | 0.66 |
+| agree | 0.69 [0.65, 0.73] | 0.68 | 0.68 |
+| first step only | 0.55 [0.51, 0.58] | 0.55 | 0.64 |
+| conflict, C larger | 0.67 [0.63, 0.71] | 0.68 | 0.68 |
+| conflict, M larger | 0.45 [0.42, 0.48] | 0.45 | 0.55 |
+
+Final position, layers 18–32 of 32: best held-out R² of M's step 0.78, of C's own step 0.79. Truth probe on the 104 held-out decisive questions (best layer 26): 0.88 [0.80, 0.93]; the model on the same questions 0.45 [0.36, 0.55]. Exploratory: probe at the window's first layer 0.87, mean over the window 0.80; on held-out first-step-only 0.97.
+
+Exploratory: the answer names the first-named object in 0.74 of all questions. Weight of M's step relative to C's own step in the margin 0.16 (1 = composes). Answers following M's sentence (C iff M's step points the asked way): own step only 0.53, agree 0.68, first step only 0.55, conflict, C larger 0.33, conflict, M larger 0.45. Agreement with the zero-shot plain run: 0.75 of all questions, 0.79 of the decisive ones.
+
+Preregistered verdict: **the map is outvoted**. Rules: docs/preregistration_base_fewshot.md.
+
+## 2026-11-22 14:17 · Base models with worked examples (informative): Llama 3.1 8B (base) — preregistered
+Model **Llama 3.1 8B (base)** (`llama3.1-8b-base`), **plain** prompt (begin-of-text token, scene, `Question: …`, `Answer:`; candidates read with a leading space), preceded by six worked **informative** examples (seed-7 bank, no names shared with the test scene). The flow set's questions (seed 1601, 2400 questions in 859 scenes); answer = sign of log p(C) − log p(R). Balanced accuracy with 95% scene-bootstrap CIs.
+
+| question kind | balanced accuracy | accuracy | answer follows the one-sentence rule |
+|---|---|---|---|
+| own step only | 0.60 [0.54, 0.66] | 0.60 | 0.60 |
+| agree | 0.69 [0.64, 0.74] | 0.69 | 0.69 |
+| first step only | 0.53 [0.49, 0.58] | 0.53 | 0.65 |
+| conflict, C larger | 0.67 [0.62, 0.72] | 0.67 | 0.67 |
+| conflict, M larger | 0.47 [0.43, 0.51] | 0.47 | 0.53 |
+
+Final position, layers 18–32 of 32: best held-out R² of M's step 0.81, of C's own step 0.81. Truth probe on the 104 held-out decisive questions (best layer 18): 0.95 [0.89, 0.98]; the model on the same questions 0.52 [0.42, 0.61]. Exploratory: probe at the window's first layer 0.95, mean over the window 0.78; on held-out first-step-only 0.99.
+
+Exploratory: the answer names the first-named object in 0.62 of all questions. Weight of M's step relative to C's own step in the margin 0.26 (1 = composes). Answers following M's sentence (C iff M's step points the asked way): own step only 0.54, agree 0.69, first step only 0.53, conflict, C larger 0.33, conflict, M larger 0.47. Agreement with the zero-shot plain run: 0.69 of all questions, 0.71 of the decisive ones.
+
+Preregistered verdict: **uninformative**. Rules: docs/preregistration_base_fewshot.md.
+
+## 2026-11-22 14:37 · Base models with worked examples (neutral): Gemma 3 12B pt (8-bit) — preregistered
+Model **Gemma 3 12B pt (8-bit)** (`gemma3-12b-pt-8bit`), **plain** prompt (begin-of-text token, scene, `Question: …`, `Answer:`; candidates read with a leading space), preceded by six worked **neutral** examples (seed-7 bank, no names shared with the test scene). The flow set's questions (seed 1601, 2400 questions in 859 scenes); answer = sign of log p(C) − log p(R). Balanced accuracy with 95% scene-bootstrap CIs.
+
+| question kind | balanced accuracy | accuracy | answer follows the one-sentence rule |
+|---|---|---|---|
+| own step only | 0.94 [0.91, 0.97] | 0.94 | 0.94 |
+| agree | 0.95 [0.93, 0.97] | 0.95 | 0.95 |
+| first step only | 0.53 [0.50, 0.55] | 0.51 | 0.94 |
+| conflict, C larger | 0.99 [0.98, 1.00] | 0.99 | 0.99 |
+| conflict, M larger | 0.12 [0.09, 0.15] | 0.13 | 0.87 |
+
+Final position, layers 28–48 of 48: best held-out R² of M's step 0.88, of C's own step 0.90. Truth probe on the 104 held-out decisive questions (best layer 28): 0.96 [0.91, 0.98]; the model on the same questions 0.13 [0.08, 0.21]. Exploratory: probe at the window's first layer 0.96, mean over the window 0.90; on held-out first-step-only 1.00.
+
+Exploratory: the answer names the first-named object in 0.52 of all questions. Weight of M's step relative to C's own step in the margin 0.08 (1 = composes). Answers following M's sentence (C iff M's step points the asked way): own step only 0.48, agree 0.95, first step only 0.51, conflict, C larger 0.01, conflict, M larger 0.13. Agreement with the zero-shot plain run: 0.83 of all questions, 0.76 of the decisive ones.
+
+Preregistered verdict: **the map is outvoted**. Rules: docs/preregistration_base_fewshot.md.
+
+## 2026-11-22 14:57 · Base models with worked examples (informative): Gemma 3 12B pt (8-bit) — preregistered
+Model **Gemma 3 12B pt (8-bit)** (`gemma3-12b-pt-8bit`), **plain** prompt (begin-of-text token, scene, `Question: …`, `Answer:`; candidates read with a leading space), preceded by six worked **informative** examples (seed-7 bank, no names shared with the test scene). The flow set's questions (seed 1601, 2400 questions in 859 scenes); answer = sign of log p(C) − log p(R). Balanced accuracy with 95% scene-bootstrap CIs.
+
+| question kind | balanced accuracy | accuracy | answer follows the one-sentence rule |
+|---|---|---|---|
+| own step only | 0.93 [0.90, 0.96] | 0.93 | 0.93 |
+| agree | 0.92 [0.89, 0.95] | 0.92 | 0.92 |
+| first step only | 0.54 [0.51, 0.57] | 0.53 | 0.89 |
+| conflict, C larger | 0.97 [0.95, 0.99] | 0.97 | 0.97 |
+| conflict, M larger | 0.14 [0.11, 0.17] | 0.15 | 0.85 |
+
+Final position, layers 28–48 of 48: best held-out R² of M's step 0.87, of C's own step 0.88. Truth probe on the 104 held-out decisive questions (best layer 30): 0.98 [0.93, 0.99]; the model on the same questions 0.15 [0.10, 0.24]. Exploratory: probe at the window's first layer 0.97, mean over the window 0.87; on held-out first-step-only 1.00.
+
+Exploratory: the answer names the first-named object in 0.51 of all questions. Weight of M's step relative to C's own step in the margin 0.07 (1 = composes). Answers following M's sentence (C iff M's step points the asked way): own step only 0.48, agree 0.92, first step only 0.53, conflict, C larger 0.03, conflict, M larger 0.15. Agreement with the zero-shot plain run: 0.82 of all questions, 0.75 of the decisive ones.
+
+Preregistered verdict: **the map is outvoted**. Rules: docs/preregistration_base_fewshot.md.
+
+## 2026-11-22 14:57 · Base models with worked examples (neutral): overall — preregistered
+Preregistered verdicts per base model, six worked **neutral** examples before each plain item:
+
+| model | verdict |
+|---|---|
+| Qwen3-8B-Base | the map is outvoted |
+| Llama 3.1 8B (base) | the map is outvoted |
+| Gemma 3 12B pt (8-bit) | the map is outvoted |
+
+**Overall (neutral examples): the zero-shot format did not hide map use**. Rules: docs/preregistration_base_fewshot.md.
+
+## 2026-11-22 14:57 · Base models with worked examples (informative): overall — preregistered
+Preregistered verdicts per base model, six worked **informative** examples before each plain item:
+
+| model | verdict |
+|---|---|
+| Qwen3-8B-Base | the map is outvoted |
+| Llama 3.1 8B (base) | uninformative |
+| Gemma 3 12B pt (8-bit) | the map is outvoted |
+
+**Overall (informative examples): the map stays outvoted even with such examples**. Rules: docs/preregistration_base_fewshot.md.
+
+*Hand note (2026-11-22).* Run on Colab (Gemma 3 12B pt in 8-bit). Checked locally from the items files: every
+balanced accuracy, the decisive intervals and the weight ratios reproduce. With six worked examples the base models
+answer the easy kinds far better than zero-shot (own step only: Qwen 0.80 → 0.97 / 0.95, Gemma 0.84 → 0.94 / 0.93,
+neutral / informative), and Llama 3.1 8B base becomes informative in the neutral arm (0.66 [0.61, 0.71]; it is still
+uninformative in the informative arm, 0.60 [0.54, 0.66]). But they get the decisive questions *more* wrong: Gemma pt
+0.24 → 0.12 / 0.14, Qwen base 0.44 → 0.31 / 0.29; Llama stays near chance (0.45 / 0.47). At the same time the
+final-position probe gets better: 0.96–0.99 on the held-out decisive questions in Gemma and Qwen (zero-shot 0.85–0.87),
+so the gap between what is readable and what is answered is the largest of all runs (Gemma neutral: probe 0.96, model
+0.13). Examples where M's step decides the answer change almost nothing compared with format-only examples
+(decisive within 0.03; weight of M's step relative to C's own 0.07 vs 0.08 in Gemma, 0.19 vs 0.20 in Qwen). Reading:
+the demonstrations teach the format, and the format makes the one-sentence rule sharper; they do not make the answer
+read the composed position, even when the examples need it.
