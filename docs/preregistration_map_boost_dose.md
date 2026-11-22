@@ -116,3 +116,14 @@ conditions only.
   the model.
 - The answer direction ignores the effect of the final norm's division by the residual's size. Gemma's final residual is
   large, so the same size of edit may matter less there than at the logit.
+
+## Clarifications (added with the code, before any data)
+
+- **Weights.** "The same model and loading rule" means the boost run's weights: Gemma 3 12B in 8-bit, batch size 16,
+  on any GPU. The boost run used them, so its cached subspaces and answers can be reused.
+- **Reused answers.** The arms' and controls' answers at α 2–8 are copied from the boost run (same questions, same
+  weights). The clean answers are scored again and their agreement with the boost run's is reported.
+- **Positive control scope.** The positive control is scored on the C–R axis questions only. It needs the true
+  answer, and the transfer questions are in none of its criteria.
+- **Code fix.** Reloading the boost run's cached subspaces failed under current PyTorch (`weights_only`). It now loads
+  our own cache file explicitly. No number changes.

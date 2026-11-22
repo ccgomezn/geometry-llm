@@ -9,6 +9,8 @@ from __future__ import annotations
 import numpy as np
 import torch
 
+import functools
+
 from geomap.models import layer_out
 from geomap.probes import GroupRidge
 from geomap.questions import QType, all_questions
@@ -17,6 +19,7 @@ EASY = ("own step only", "agree", "conflict, C larger")
 DEC, FIRST = "conflict, M larger", "first step only"
 MIN_GAIN, MIN_CONTRAST, MAX_EASY_DROP = 0.10, 0.05, 0.05
 TRANSFER_DROP, TRANSFER_GAIN = 0.03, 0.03
+PUSH_GAIN, PUSH_LO99 = 0.20, 0.10          # dose check: the positive control "moves the answer"
 
 
 # ---- locate ----
@@ -55,6 +58,54 @@ def boost_edit(layer: int, Q: torch.Tensor, mu: torch.Tensor, alpha: float, pos_
         x = h[rows, pos].float()
         h[rows, pos] = boost_vec(x, Q.to(dev, torch.float32), mu.to(dev, torch.float32), alpha).to(h.dtype)
     return edit
+
+
+# ---- dose check: positive control along the answer direction (docs/preregistration_map_boost_dose.md) ----
+
+def norm_scale(norm) -> torch.Tensor:
+    """Per-dimension scale of a final RMSNorm: Gemma's norms multiply by (1 + weight), the others by weight."""
+    w = norm.weight.detach().float()
+    return 1 + w if "Gemma" in type(norm).__name__ else w
+
+
+def answer_directions(m, items) -> torch.Tensor:
+    """[n, d] unit vectors u ∝ scale ⊙ (W_U[t_a] − W_U[t_b]), for items (spec, a, b): the residual direction that most
+    directly raises candidate a's first token over b's (t as the scorer reads them, after spec.lead)."""
+    from geomap.scoring import candidate_ids
+    W = m.hf.get_output_embeddings().weight
+    assert W.dtype in (torch.float32, torch.bfloat16, torch.float16), f"unembedding is quantized ({W.dtype})"
+    norm = functools.reduce(getattr, (m.layers_path.rsplit(".", 1)[0] + ".norm").split("."), m.hf)
+    sc = norm_scale(norm).cpu()
+    ta = [candidate_ids(m.tok, a, sp.lead)[0] for sp, a, _ in items]
+    tb = [candidate_ids(m.tok, b, sp.lead)[0] for sp, _, b in items]
+    diff = (W[ta].detach().float() - W[tb].detach().float()).cpu()
+    return torch.nn.functional.normalize(sc * diff, dim=1)
+
+
+def push_edit(layer: int, U: torch.Tensor, scale: float, pos_of_item):
+    """An edit for scoring.score: at `layer`, add scale · U[item] at each item's final prompt position."""
+    def edit(m, row_items):
+        h = layer_out(m, layer)
+        dev = h.device
+        rows = torch.arange(len(row_items), device=dev)
+        pos = torch.tensor([pos_of_item[i] for i in row_items], device=dev)
+        add = scale * U[row_items].to(dev, torch.float32)
+        h[rows, pos] = (h[rows, pos].float() + add).to(h.dtype)
+    return edit
+
+
+def push_moves(gain: float, lo99: float) -> bool:
+    return gain >= PUSH_GAIN and lo99 > PUSH_LO99
+
+
+def dose_verdict(moves: dict, works: dict, new_works: bool) -> str:
+    """moves: {layer: positive control moves the answer at D(8)}; works: {layer: some condition of either arm works
+    there, at any α}; new_works: some condition at the new α values works."""
+    if new_works:
+        return "the map wins at a higher dose"
+    if any(moves[L] and not works[L] for L in moves):
+        return "the map is not read (dose-checked)"
+    return "still too small to tell"
 
 
 # ---- control ----

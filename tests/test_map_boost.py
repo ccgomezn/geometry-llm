@@ -166,3 +166,81 @@ def test_controls_match_a_target_near_the_variance_floor_of_the_top_components()
     var = lambda B: float(((Xc @ np.asarray(B, dtype=float)) ** 2).sum(1).mean())
     assert len(got) == 3 and all(abs(var(R) / var(Q) - 1) <= 0.1 for R in got)
     assert not torch.allclose(got[0], got[1])
+
+
+# ---- dose check (docs/preregistration_map_boost_dose.md) ----
+
+def test_norm_scale_is_one_plus_weight_for_gemma_norms():
+    from geomap.boost import norm_scale
+
+    class Gemma3RMSNorm(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.weight = torch.nn.Parameter(torch.tensor([0.5, -0.25]))
+
+    class LlamaRMSNorm(Gemma3RMSNorm):
+        pass
+
+    assert torch.allclose(norm_scale(Gemma3RMSNorm()), torch.tensor([1.5, 0.75]))
+    assert torch.allclose(norm_scale(LlamaRMSNorm()), torch.tensor([0.5, -0.25]))
+
+
+def test_pushing_along_the_answer_direction_raises_that_answer(tiny, items):
+    from geomap.boost import answer_directions, push_edit
+    s, mid, child, qq = items[0]
+    q = qq[0][0]
+    spec = build_prompt(s, q, tiny.tok, tiny.family)
+    a, b = q.candidates[0], q.candidates[1]
+    U = answer_directions(tiny, [(spec, a, b)])
+    assert U.shape == (1, tiny.d_model) and torch.allclose(U.norm(dim=1), torch.ones(1), atol=1e-5)
+    pos = [len(spec.input_ids) - 1]
+    ld = lambda sc: sc[a] - sc[b]
+    clean = ld(score(tiny, [(spec, q)])[0])
+    moved = [ld(score(tiny, [(spec, q)], edit=push_edit(tiny.n_layers, U, c, pos))[0]) for c in (1.0, 10.0, 100.0)]
+    assert clean < moved[0] < moved[1] < moved[2] and moved[2] > 0
+
+
+def test_push_edit_adds_the_scaled_direction_at_the_final_position(tiny, items):
+    from geomap.boost import push_edit
+    s, mid, child, qq = items[0]
+    qs = [q for q, _ in qq][:2]
+    specs = [build_prompt(s, q, tiny.tok, tiny.family) for q in qs]
+    pos = [len(sp.input_ids) - 1 for sp in specs]
+    g = torch.Generator().manual_seed(1)
+    U = torch.nn.functional.normalize(torch.randn(len(qs), tiny.d_model, generator=g), dim=1)
+    layer, c = 1, 2.5
+    got = score(tiny, list(zip(specs, qs)), edit=push_edit(layer, U, c, pos))
+    block = tiny.hf.model.layers[layer - 1]
+    for i, (sp, q) in enumerate(zip(specs, qs)):
+        def hook(mod, inp, out, p=pos[i], u=U[i]):
+            h = out[0] if isinstance(out, tuple) else out
+            h[0, p] = h[0, p] + c * u.to(h.device, h.dtype)
+            return out
+        hd = block.register_forward_hook(hook)
+        try:
+            with torch.no_grad():
+                lp = torch.log_softmax(tiny.hf(torch.tensor([sp.input_ids]).to(tiny.hf.device)).logits[0, -1].float(), -1)
+        finally:
+            hd.remove()
+        for cand in q.candidates:
+            assert got[i][cand] == pytest.approx(float(lp[tiny.tok.encode(cand, add_special_tokens=False)[0]]), abs=1e-4)
+
+
+def test_push_moves_the_answer():
+    from geomap.boost import push_moves
+    assert push_moves(gain=0.25, lo99=0.12)
+    assert not push_moves(gain=0.19, lo99=0.15)
+    assert not push_moves(gain=0.30, lo99=0.10)
+
+
+def test_dose_verdict():
+    from geomap.boost import dose_verdict
+    assert dose_verdict(moves={28: True, 32: False}, works={28: False, 32: False}, new_works=False) \
+        == "the map is not read (dose-checked)"
+    assert dose_verdict(moves={28: True, 32: True}, works={28: True, 32: False}, new_works=True) \
+        == "the map wins at a higher dose"
+    assert dose_verdict(moves={28: False, 32: False}, works={28: False, 32: False}, new_works=False) \
+        == "still too small to tell"
+    # the control moves only in a layer where a condition works, and no new condition works: not "not read"
+    assert dose_verdict(moves={28: True, 32: False}, works={28: True, 32: False}, new_works=False) \
+        == "still too small to tell"

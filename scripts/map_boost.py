@@ -89,7 +89,7 @@ def locate(m, a, out, layers, sizes, log):
     """Directions, means, held-out R² and control subspaces per layer and arm (cached)."""
     path = out / f"{a.model}_subspaces.pt"
     if path.exists():
-        return torch.load(path)
+        return torch.load(path, weights_only=False)      # our own cache: it also holds the fitting scenes
     meta, specs, items = fit_set(m, sizes)
     apath = Path(a.acts_dir or out) / f"{a.model}_fit_acts.pt"
     acts = torch.load(apath) if apath.exists() else final_residuals(m, specs, layers, a.batch_size)
@@ -140,20 +140,23 @@ def _acc_boot(hit_a, hit_b, groups, n_boot, seed=0):
     return float(hit_a.mean() - hit_b.mean()), (W @ sa - W @ sb) / (W @ n)
 
 
-def analyse(T: pd.DataFrame, res, layers, n_boot: int) -> tuple[str, str, dict]:
-    cr = T[T.kind == "C-R"]
-    sign = lambda c: np.where(cr[f"pred:{c}"] == cr.child, 1, -1)
-    f2 = lambda x: f"{x:+.2f}"
-    rows, by_arm = [], {arm: [] for arm in ARMS}
-    for arm in ARMS:
+def sign_of(cr, c):
+    """+1 where the answer under condition c is C (the child), −1 where it is R."""
+    return np.where(cr[f"pred:{c}"] == cr.child, 1, -1)
+
+
+def judge(cr: pd.DataFrame, layers, alphas, n_boot: int, arms=ARMS) -> list[dict]:
+    """Every (arm, layer, α) condition against clean and the mean of its controls, per question kind."""
+    rows = []
+    for arm in arms:
         for layer in layers:
-            for al in ALPHAS:
+            for al in alphas:
                 base = f"{arm}|L{layer}|a{al:g}"
                 names = ["clean", f"{base}|real"] + [f"{base}|ctrl{j}" for j in range(N_CTRL)]
                 st = {}
                 for cell in CELLS:
                     k = (cr.cell == cell).to_numpy()
-                    b = ba_boot(cr.truth[k], {n: sign(n)[k] for n in names}, cr.scene[k], n_boot=n_boot)
+                    b = ba_boot(cr.truth[k], {n: sign_of(cr, n)[k] for n in names}, cr.scene[k], n_boot=n_boot)
                     clean, real = b["clean"], b[f"{base}|real"]
                     ctrl_pt = np.mean([b[f"{base}|ctrl{j}"][0] for j in range(N_CTRL)])
                     ctrl_s = np.mean([b[f"{base}|ctrl{j}"][1] for j in range(N_CTRL)], 0)
@@ -166,8 +169,57 @@ def analyse(T: pd.DataFrame, res, layers, n_boot: int) -> tuple[str, str, dict]:
                          first_gain=f["gain"], first_lo99=float(np.percentile(f["gain_s"], 0.5)),
                          easy={e: st[e]["gain"] for e in EASY}, st=st)
                 c["works"] = condition_works(c)
-                by_arm[arm].append(c)
                 rows.append(c)
+    return rows
+
+
+f2 = lambda x: f"{x:+.2f}"
+
+
+def arm_table(cs: list[dict]) -> list[str]:
+    lines = ["| layer | α | decisive | gain | control gain | contrast [99% CI] | first step only gain [99% lower] | "
+             "easy gains (own / agree / C larger) | works |", "|---|---|---|---|---|---|---|---|---|"]
+    for c in cs:
+        d = c["st"][DEC]
+        lines.append(f"| {c['layer']} | {c['alpha']:g} | {d['real']:.2f} | {f2(c['dec_gain'])} | "
+                     f"{f2(d['ctrl_gain'])} | {f2(c['contrast'])} [{f2(c['contrast_lo99'])}, {f2(c['contrast_hi99'])}] "
+                     f"| {f2(c['first_gain'])} [{f2(c['first_lo99'])}] | "
+                     + " / ".join(f2(c["easy"][e]) for e in EASY) + f" | {'yes' if c['works'] else 'no'} |")
+    return lines
+
+
+def transfer(T: pd.DataFrame, base: str, n_boot: int) -> tuple[float, dict, list[str]]:
+    """Transfer questions under condition `base` against clean and the mean of its controls."""
+    trn = T[T.kind != "C-R"]
+    hit = lambda c: (trn[f"pred:{c}"] == trn.answer).to_numpy()
+    ctrl_hit = np.mean([hit(f"{base}|ctrl{j}") for j in range(N_CTRL)], 0)
+    overall = float(hit(f"{base}|real").mean() - hit("clean").mean())
+    gains, tl = {}, []
+    for kind in TKINDS:
+        k = (trn.kind == kind).to_numpy()
+        if not k.any():
+            continue
+        g, _ = _acc_boot(hit(f"{base}|real")[k], hit("clean")[k], trn.scene[k], n_boot)
+        cg, cs = _acc_boot(hit(f"{base}|real")[k], ctrl_hit[k], trn.scene[k], n_boot)
+        gains[kind] = (g, float(np.percentile(cs, 2.5)))
+        tl.append(f"| {kind} | {int(k.sum())} | {hit('clean')[k].mean():.2f} | {f2(g)} | {f2(cg)} "
+                  f"[{f2(np.percentile(cs, 2.5))}, {f2(np.percentile(cs, 97.5))}] |")
+    lines = ["| question | n | clean accuracy | gain | contrast with control [95% CI] |", "|---|---|---|---|---|", *tl]
+    return overall, gains, lines
+
+
+def follow_shares(cr: pd.DataFrame, c: str) -> tuple[float, float]:
+    """On the decisive questions: share of answers following C's sentence, and M's sentence."""
+    d1, d2 = cr.d1.to_numpy(float), cr.d2.to_numpy(float)
+    dk = (cr.cell == DEC).to_numpy()
+    sg = sign_of(cr, c)[dk]
+    return float(np.mean(sg == np.where(d2 > 0, 1, -1)[dk])), float(np.mean(sg == np.where(d1 > 0, 1, -1)[dk]))
+
+
+def analyse(T: pd.DataFrame, res, layers, n_boot: int) -> tuple[str, str, dict]:
+    cr = T[T.kind == "C-R"]
+    rows = judge(cr, layers, ALPHAS, n_boot)
+    by_arm = {arm: [c for c in rows if c["arm"] == arm] for arm in ARMS}
     verdicts = {arm: verdict_boost(cs) for arm, cs in by_arm.items()}
 
     lines = ["Model **Gemma 3 12B** (chat format). Locate: ridge probes for M's step and C's own step (per axis) at the "
@@ -183,45 +235,21 @@ def analyse(T: pd.DataFrame, res, layers, n_boot: int) -> tuple[str, str, dict]:
         lines.append(f"- Layer {layer}: held-out R² of M's step {L['r2_d1']:.2f}, of C's own step {L['r2_d2']:.2f}; "
                      f"mean residual norm {L['h_norm']:.3g}; mean size of P(h − μ), i.e. the change per unit of "
                      f"α − 1: {moves}.")
-    clean_dec = rows[0]["st"][DEC]["clean"]
-    lines += ["", f"Clean balanced accuracy on the decisive questions: {clean_dec:.2f}; first step only "
+    lines += ["", f"Clean balanced accuracy on the decisive questions: {rows[0]['st'][DEC]['clean']:.2f}; first step only "
               f"{rows[0]['st'][FIRST]['clean']:.2f}; " + ", ".join(f"{e} {rows[0]['st'][e]['clean']:.2f}" for e in EASY)
               + ".", ""]
     for arm in ARMS:
-        lines += [f"**Arm: {arm}** — preregistered verdict: **{verdicts[arm]}**", "",
-                  "| layer | α | decisive | gain | control gain | contrast [99% CI] | first step only gain [99% lower] | "
-                  "easy gains (own / agree / C larger) | works |", "|---|---|---|---|---|---|---|---|---|"]
-        for c in by_arm[arm]:
-            d = c["st"][DEC]
-            lines.append(f"| {c['layer']} | {c['alpha']:g} | {d['real']:.2f} | {f2(c['dec_gain'])} | "
-                         f"{f2(d['ctrl_gain'])} | {f2(c['contrast'])} [{f2(c['contrast_lo99'])}, {f2(c['contrast_hi99'])}] "
-                         f"| {f2(c['first_gain'])} [{f2(c['first_lo99'])}] | "
-                         + " / ".join(f2(c["easy"][e]) for e in EASY) + f" | {'yes' if c['works'] else 'no'} |")
-        lines.append("")
+        lines += [f"**Arm: {arm}** — preregistered verdict: **{verdicts[arm]}**", "", *arm_table(by_arm[arm]), ""]
 
     # secondary: transfer, for the working condition with the largest decisive gain
     working = [c for c in rows if c["works"]]
     pick = max(working, key=lambda c: c["dec_gain"]) if working else max(rows, key=lambda c: c["contrast"])
     base = f"{pick['arm']}|L{pick['layer']}|a{pick['alpha']:g}"
-    trn = T[T.kind != "C-R"]
-    hit = lambda c: (trn[f"pred:{c}"] == trn.answer).to_numpy()
-    ctrl_hit = np.mean([hit(f"{base}|ctrl{j}") for j in range(N_CTRL)], 0)
-    overall = float(hit(f"{base}|real").mean() - hit("clean").mean())
-    gains, tl = {}, []
-    for kind in TKINDS:
-        k = (trn.kind == kind).to_numpy()
-        if not k.any():
-            continue
-        g, _ = _acc_boot(hit(f"{base}|real")[k], hit("clean")[k], trn.scene[k], n_boot)
-        cg, cs = _acc_boot(hit(f"{base}|real")[k], ctrl_hit[k], trn.scene[k], n_boot)
-        gains[kind] = (g, float(np.percentile(cs, 2.5)))
-        tl.append(f"| {kind} | {int(k.sum())} | {hit('clean')[k].mean():.2f} | {f2(g)} | {f2(cg)} "
-                  f"[{f2(np.percentile(cs, 2.5))}, {f2(np.percentile(cs, 97.5))}] |")
+    overall, gains, tl = transfer(T, base, n_boot)
     tv = transfer_verdict(overall, gains)
     lines += [("Transfer (secondary, preregistered), for the working condition with the largest decisive gain: "
                if working else "Transfer (exploratory: no condition works), for the condition with the largest "
-               "decisive contrast: ") + f"{pick['arm']}, layer {pick['layer']}, α {pick['alpha']:g}.", "",
-              "| question | n | clean accuracy | gain | contrast with control [95% CI] |", "|---|---|---|---|---|", *tl, "",
+               "decisive contrast: ") + f"{pick['arm']}, layer {pick['layer']}, α {pick['alpha']:g}.", "", *tl, "",
               f"Overall transfer accuracy change {f2(overall)}. " + (f"Preregistered transfer verdict: **{tv}**."
                                                                      if working else f"(Would read: {tv}.)"), ""]
 
@@ -229,13 +257,11 @@ def analyse(T: pd.DataFrame, res, layers, n_boot: int) -> tuple[str, str, dict]:
     d1, d2 = cr.d1.to_numpy(float), cr.d2.to_numpy(float)
     ratio = lambda c: (lambda w: w[0] / w[1])(np.linalg.lstsq(np.c_[d1, d2, np.ones(len(cr))],
                                                               cr[f"ld:{c}"].to_numpy(float), rcond=None)[0])
-    dk = (cr.cell == DEC).to_numpy()
-    c_rule, m_rule = np.where(d2 > 0, 1, -1), np.where(d1 > 0, 1, -1)
-    share = lambda c, r: float(np.mean(sign(c)[dk] == r[dk]))
+    (cc, mc), (cb, mb) = follow_shares(cr, "clean"), follow_shares(cr, base + "|real")
     lines += [f"Exploratory: weight of M's step relative to C's own step in the margin, clean {ratio('clean'):.2f}, "
               f"{base} {ratio(base + '|real'):.2f}. On the decisive questions the answer follows C's sentence in "
-              f"{share('clean', c_rule):.2f} (clean) and {share(base + '|real', c_rule):.2f} (boosted), M's sentence "
-              f"in {share('clean', m_rule):.2f} and {share(base + '|real', m_rule):.2f}. Logit lens: not computed.", ""]
+              f"{cc:.2f} (clean) and {cb:.2f} (boosted), M's sentence in {mc:.2f} and {mb:.2f}. Logit lens: not "
+              "computed.", ""]
     lines.append("Preregistered verdicts: " + "; ".join(f"{arm}: **{v}**" for arm, v in verdicts.items())
                  + ". Rules: docs/preregistration_map_boost.md.")
     return "; ".join(f"{arm}: {v}" for arm, v in verdicts.items()), "\n".join(lines), dict(rows=rows)
