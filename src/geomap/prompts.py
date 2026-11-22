@@ -36,6 +36,7 @@ class PromptSpec:
     relation_spans: dict[str, tuple[int, int]]  # subject name -> [start, end) token range
     prefix_len: int
     question_pos: dict[str, int] = field(default_factory=dict)  # question argument -> its token in the question
+    lead: str = ""  # text before a candidate answer's first token ("" after a chat prefix, " " after "Answer:")
 
 
 def single_token_names(tok, pool: list[str]) -> list[str]:
@@ -53,9 +54,14 @@ def render_chat(tok, family: str, content: str, thinking: bool = False) -> str:
 
 
 def build_prompt(scene: Scene, question: Question | None, tok, family: str, thinking: bool = False,
-                 include_list: bool = True) -> PromptSpec:
+                 include_list: bool = True, fmt: str = "chat") -> PromptSpec:
+    """fmt "chat": the scene and question as one user turn of the chat template, ending in the assistant prefix.
+    fmt "plain" (docs/preregistration_base_plain.md): begin-of-text token (if any), the same scene text, then
+    "Question: <question>" and "Answer:" on its own line; candidates are read with a leading space."""
     if family not in FAMILIES:
         raise ValueError(family)
+    if fmt not in ("chat", "plain"):
+        raise ValueError(fmt)
     # content pieces, tracking character spans inside the content string
     rel_spans_chars: dict[str, tuple[int, int]] = {}
     content = ""
@@ -78,12 +84,12 @@ def build_prompt(scene: Scene, question: Question | None, tok, family: str, thin
     else:  # behavioural ablation: the end of the description stands in for the end of the list
         eol_char = len(content) - 1
     qtext = question.text if question is not None else f"Which object is farthest from {scene.names[0]}?"
-    content += "\n\n"
+    content += "\n\n" + ("Question: " if fmt == "plain" else "")
     q_chars = ({a: len(content) + re.search(rf"\b{re.escape(a)}\b", qtext).start() for a in question.args}
                if question is not None else {})
-    content += qtext + ANSWER_SUFFIX
+    content += qtext + ("\nAnswer:" if fmt == "plain" else ANSWER_SUFFIX)
 
-    text = render_chat(tok, family, content, thinking)
+    text = render_chat(tok, family, content, thinking) if fmt == "chat" else (tok.bos_token or "") + content
     c0 = text.index(content)
     enc = tok(text, add_special_tokens=False, return_offsets_mapping=True)
     ids, offs = enc["input_ids"], enc["offset_mapping"]
@@ -101,7 +107,7 @@ def build_prompt(scene: Scene, question: Question | None, tok, family: str, thin
     prefix_len = eol_pos + 1
     return PromptSpec(input_ids=list(ids) if question is not None else list(ids[:prefix_len]),
                       list_pos=list_pos, eol_pos=eol_pos, relation_spans=spans, prefix_len=prefix_len,
-                      question_pos={a: tok_at(c) for a, c in q_chars.items()})
+                      question_pos={a: tok_at(c) for a, c in q_chars.items()}, lead=" " if fmt == "plain" else "")
 
 
 def aligned(base: PromptSpec, src: PromptSpec, leaf: str) -> bool:

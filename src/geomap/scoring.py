@@ -15,9 +15,10 @@ from geomap.questions import Question
 Edit = Callable[[LoadedModel, list[int]], None]
 
 
-def candidate_ids(tok, cand: str) -> list[int]:
-    """Token ids of a candidate answer as it appears right after the assistant prefix."""
-    return tok.encode(cand, add_special_tokens=False)
+def candidate_ids(tok, cand: str, lead: str = "") -> list[int]:
+    """Token ids of a candidate answer as it appears right after the assistant prefix (lead "") or after a plain
+    "Answer:" (lead " ")."""
+    return tok.encode(lead + cand, add_special_tokens=False)
 
 
 _EOT = {"qwen3": "<|im_end|>", "llama3": "<|eot_id|>", "gemma3": "<end_of_turn>"}
@@ -35,14 +36,14 @@ def terminator_ids(tok, family: str) -> list[int]:
     return out
 
 
-def candidate_sequences(tok, family: str, candidates: Sequence[str]) -> dict[str, list[list[int]]]:
+def candidate_sequences(tok, family: str, candidates: Sequence[str], lead: str = "") -> dict[str, list[list[int]]]:
     """Token sequences whose total probability is a candidate's score.
 
     Each candidate is scored as itself and, if lowercase, capitalised ("west" and "West"). A variant that is a
     token-prefix of another candidate's variant ("North" of "Northwest") must be followed by a terminator, so
     the shorter answer does not also count every longer answer that starts with it."""
     variants = {c: list(dict.fromkeys([c] + ([c[0].upper() + c[1:]] if c[:1].islower() else []))) for c in candidates}
-    toks = {c: [candidate_ids(tok, v) for v in vs] for c, vs in variants.items()}
+    toks = {c: [candidate_ids(tok, v, lead) for v in vs] for c, vs in variants.items()}
     every = [(c, t) for c, ts in toks.items() for t in ts]
     terms = terminator_ids(tok, family)
     out = {}
@@ -60,7 +61,7 @@ def _rows(m: LoadedModel, items: Sequence[tuple[PromptSpec, Question]]):
     predicts the next token of every sequence sharing that prefix."""
     rows, cand_seqs = [], []  # rows: (item, prefix, ids, next tokens needed)
     for i, (spec, q) in enumerate(items):
-        cs = candidate_sequences(m.tok, m.family, q.candidates)
+        cs = candidate_sequences(m.tok, m.family, q.candidates, spec.lead)
         cand_seqs.append(cs)
         need: dict[tuple, set] = {}
         for seqs in cs.values():
