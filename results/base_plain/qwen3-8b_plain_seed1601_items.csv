@@ -1,0 +1,2401 @@
+scene,cell,axis,c_first,d1,d2,truth,child,root,mid,ld,pred,correct
+0,first step only,1,False,2,0,1,Anna,Leo,Amy,0.8750000596046448,1,True
+0,first step only,1,True,2,0,1,Anna,Leo,Amy,0.25,1,True
+0,own step only,0,False,0,-5,-1,Anna,Leo,Amy,-1.999999925494194,-1,True
+0,own step only,0,True,0,-5,-1,Anna,Leo,Amy,3.375000089406967,1,False
+1,first step only,1,False,-3,0,-1,Ball,Bucket,Brush,-4.49999999627471,-1,True
+1,first step only,1,True,-3,0,-1,Ball,Bucket,Brush,-2.4999998956918716,-1,True
+1,own step only,0,False,0,4,1,Ball,Bucket,Brush,-0.6250000596046448,-1,False
+1,own step only,0,True,0,4,1,Ball,Bucket,Brush,-0.625,-1,False
+2,"conflict, M larger",0,False,-5,1,-1,Kevin,Beth,Adam,-3.1249999552965164,-1,True
+2,"conflict, M larger",0,True,-5,1,-1,Kevin,Beth,Adam,-1.5000001192092896,-1,True
+3,own step only,1,True,0,4,1,Bell,Anchor,Brush,1.9999999850988388,1,True
+3,own step only,1,False,0,4,1,Bell,Anchor,Brush,0.8749999403953552,1,True
+3,first step only,0,True,1,0,1,Bell,Anchor,Brush,0.25,1,True
+3,first step only,0,False,1,0,1,Bell,Anchor,Brush,-2.6249999403953552,-1,False
+4,"conflict, M larger",1,False,3,-1,1,Ball,Bucket,Tower,-2.500000089406967,-1,False
+4,"conflict, M larger",1,True,3,-1,1,Ball,Bucket,Tower,0.0,-1,False
+4,first step only,0,False,4,0,1,Ball,Bucket,Tower,-3.2499999701976776,-1,False
+4,first step only,0,True,4,0,1,Ball,Bucket,Tower,-0.2500000596046448,-1,False
+5,first step only,1,True,1,0,1,Sam,Alice,Jake,2.6250000596046448,1,True
+5,first step only,1,False,1,0,1,Sam,Alice,Jake,-2.8749998956918716,-1,False
+5,agree,0,True,-3,-1,-1,Sam,Alice,Jake,3.3750000298023224,1,False
+5,agree,0,False,-3,-1,-1,Sam,Alice,Jake,-2.000000089406967,-1,True
+6,"conflict, M larger",0,False,4,-2,1,Pen,Plate,Ball,1.8749999403953552,1,True
+6,"conflict, M larger",0,True,4,-2,1,Pen,Plate,Ball,1.625,1,True
+7,agree,1,False,4,1,1,Tom,Eric,Ben,1.5000000596046448,1,True
+7,agree,1,True,4,1,1,Tom,Eric,Ben,4.749999850988388,1,True
+7,first step only,0,False,5,0,1,Tom,Eric,Ben,2.9999999031424522,1,True
+7,first step only,0,True,5,0,1,Tom,Eric,Ben,3.75,1,True
+8,own step only,1,True,0,-5,-1,Flag,Mask,Desk,-5.500000044703484,-1,True
+8,own step only,1,False,0,-5,-1,Flag,Mask,Desk,-6.249999977648258,-1,True
+8,first step only,0,True,-4,0,-1,Flag,Mask,Desk,-4.500000178813934,-1,True
+8,first step only,0,False,-4,0,-1,Flag,Mask,Desk,-5.999999850988388,-1,True
+9,first step only,1,False,3,0,1,Anna,Emma,Peter,-4.624999798834324,-1,False
+9,first step only,1,True,3,0,1,Anna,Emma,Peter,0.5,1,True
+9,agree,0,False,4,1,1,Anna,Emma,Peter,-4.374999955296516,-1,False
+9,agree,0,True,4,1,1,Anna,Emma,Peter,1.2500000596046448,1,True
+10,"conflict, M larger",1,True,5,-2,1,Cart,Banner,Jar,2.2500000596046448,1,True
+10,"conflict, M larger",1,False,5,-2,1,Cart,Banner,Jar,-1.625,-1,False
+10,own step only,0,True,0,-3,-1,Cart,Banner,Jar,2.1249998807907104,1,False
+10,own step only,0,False,0,-3,-1,Cart,Banner,Jar,-0.625,-1,True
+11,agree,1,False,4,1,1,David,Kim,Carl,-0.125,-1,False
+11,agree,1,True,4,1,1,David,Kim,Carl,4.374999791383743,1,True
+12,own step only,1,True,0,3,1,Ben,Alan,Leo,2.9999999403953552,1,True
+12,own step only,1,False,0,3,1,Ben,Alan,Leo,1.375,1,True
+12,agree,0,True,3,3,1,Ben,Alan,Leo,3.8750000596046448,1,True
+12,agree,0,False,3,3,1,Ben,Alan,Leo,0.25,1,True
+13,agree,1,False,1,3,1,Basket,Stone,Brush,-1.3749998807907104,-1,False
+13,agree,1,True,1,3,1,Basket,Stone,Brush,1.9999998807907104,1,True
+13,first step only,0,False,1,0,1,Basket,Stone,Brush,-6.874999850988388,-1,False
+13,first step only,0,True,1,0,1,Basket,Stone,Brush,-2.25,-1,False
+14,first step only,1,False,2,0,1,Glass,Pot,Ball,-1.375,-1,False
+14,first step only,1,True,2,0,1,Glass,Pot,Ball,1.5000000596046448,1,True
+15,"conflict, C larger",0,True,-3,4,1,David,Bob,Laura,2.6250001192092896,1,True
+15,"conflict, C larger",0,False,-3,4,1,David,Bob,Laura,0.25,1,True
+16,own step only,1,True,0,-1,-1,Bag,Arrow,Wheel,-0.5,-1,True
+16,own step only,1,False,0,-1,-1,Bag,Arrow,Wheel,-1.9999998807907104,-1,True
+16,agree,0,True,5,1,1,Bag,Arrow,Wheel,0.25,1,True
+16,agree,0,False,5,1,1,Bag,Arrow,Wheel,-1.0000000596046448,-1,False
+17,first step only,1,True,2,0,1,Alice,Carl,Anna,3.0,1,True
+17,first step only,1,False,2,0,1,Alice,Carl,Anna,0.5,1,True
+18,first step only,1,False,-4,0,-1,Jar,Stone,Plate,-3.1250001043081284,-1,True
+18,first step only,1,True,-4,0,-1,Jar,Stone,Plate,-2.249999910593033,-1,True
+18,own step only,0,False,0,-4,-1,Jar,Stone,Plate,-1.4999999701976776,-1,True
+18,own step only,0,True,0,-4,-1,Jar,Stone,Plate,0.125,1,False
+19,agree,1,True,2,3,1,Henry,Anna,Beth,8.625000206753612,1,True
+19,agree,1,False,2,3,1,Henry,Anna,Beth,5.500000074505806,1,True
+19,own step only,0,True,0,3,1,Henry,Anna,Beth,2.9999999701976776,1,True
+19,own step only,0,False,0,3,1,Henry,Anna,Beth,3.1249999552965164,1,True
+20,first step only,1,True,3,0,1,Rock,Car,Shell,0.25,1,True
+20,first step only,1,False,3,0,1,Rock,Car,Shell,-1.4999999701976776,-1,False
+20,own step only,0,True,0,2,1,Rock,Car,Shell,1.0,1,True
+20,own step only,0,False,0,2,1,Rock,Car,Shell,2.1250000447034836,1,True
+21,own step only,1,False,0,-3,-1,Beth,Henry,Chris,-3.375000063329935,-1,True
+21,own step only,1,True,0,-3,-1,Beth,Henry,Chris,0.375,1,False
+21,first step only,0,False,3,0,1,Beth,Henry,Chris,-3.874999985098839,-1,False
+21,first step only,0,True,3,0,1,Beth,Henry,Chris,-0.7499999403953552,-1,False
+22,"conflict, M larger",0,True,-4,1,-1,Bell,Mask,Box,-0.875,-1,True
+22,"conflict, M larger",0,False,-4,1,-1,Bell,Mask,Box,-0.7500000596046448,-1,True
+23,"conflict, M larger",1,True,3,-1,1,Cole,Brian,Ben,0.5,1,True
+23,"conflict, M larger",1,False,3,-1,1,Cole,Brian,Ben,-3.5000001043081284,-1,False
+23,first step only,0,True,5,0,1,Cole,Brian,Ben,0.625,1,True
+23,first step only,0,False,5,0,1,Cole,Brian,Ben,-4.7499998807907104,-1,False
+24,"conflict, C larger",1,True,-3,4,1,Shell,Mask,Jar,3.7500000596046448,1,True
+24,"conflict, C larger",1,False,-3,4,1,Shell,Mask,Jar,1.375,1,True
+25,first step only,1,True,-2,0,-1,Ben,Laura,Bob,-0.25,-1,True
+25,first step only,1,False,-2,0,-1,Ben,Laura,Bob,-2.749999985098839,-1,True
+25,own step only,0,True,0,-2,-1,Ben,Laura,Bob,0.24999994039535522,1,False
+25,own step only,0,False,0,-2,-1,Ben,Laura,Bob,-1.3749999701976776,-1,True
+26,"conflict, C larger",1,True,2,-4,-1,Book,Plate,Knife,1.1250001192092896,1,False
+26,"conflict, C larger",1,False,2,-4,-1,Book,Plate,Knife,-1.5,-1,True
+26,agree,0,True,2,1,1,Book,Plate,Knife,1.25,1,True
+26,agree,0,False,2,1,1,Book,Plate,Knife,-2.1250001192092896,-1,False
+27,"conflict, C larger",1,False,-1,4,1,Leaf,Jar,Ball,1.625,1,True
+27,"conflict, C larger",1,True,-1,4,1,Leaf,Jar,Ball,0.625,1,True
+27,agree,0,False,5,1,1,Leaf,Jar,Ball,1.6250000596046448,1,True
+27,agree,0,True,5,1,1,Leaf,Jar,Ball,0.5,1,True
+28,first step only,1,True,4,0,1,Tom,Sean,Henry,2.625000074505806,1,True
+28,first step only,1,False,4,0,1,Tom,Sean,Henry,-0.125,-1,False
+28,own step only,0,True,0,1,1,Tom,Sean,Henry,3.625000074505806,1,True
+28,own step only,0,False,0,1,1,Tom,Sean,Henry,2.1249998807907104,1,True
+29,agree,1,True,5,1,1,Jar,Book,Banner,-0.125,-1,False
+29,agree,1,False,5,1,1,Jar,Book,Banner,-1.7500000894069672,-1,False
+29,first step only,0,True,-5,0,-1,Jar,Book,Banner,-1.2500000596046448,-1,True
+29,first step only,0,False,-5,0,-1,Jar,Book,Banner,-3.125000014901161,-1,True
+30,first step only,1,False,-3,0,-1,Rock,Arrow,Desk,-0.8749999403953552,-1,True
+30,first step only,1,True,-3,0,-1,Rock,Arrow,Desk,2.1250000596046448,1,False
+30,own step only,0,False,0,-4,-1,Rock,Arrow,Desk,0.7499999403953552,1,False
+30,own step only,0,True,0,-4,-1,Rock,Arrow,Desk,4.124999925494194,1,False
+31,first step only,1,False,4,0,1,Fred,Alice,Alan,-2.2499999403953552,-1,False
+31,first step only,1,True,4,0,1,Fred,Alice,Alan,-0.7499999403953552,-1,False
+31,own step only,0,False,0,-1,-1,Fred,Alice,Alan,-2.25,-1,True
+31,own step only,0,True,0,-1,-1,Fred,Alice,Alan,0.0,-1,True
+32,agree,1,False,4,2,1,Tower,Glass,Banner,3.1250001043081284,1,True
+32,agree,1,True,4,2,1,Tower,Glass,Banner,7.874999821186066,1,True
+33,first step only,1,True,5,0,1,Beth,Jake,Bob,3.0000000596046448,1,True
+33,first step only,1,False,5,0,1,Beth,Jake,Bob,0.125,1,True
+33,own step only,0,True,0,-5,-1,Beth,Jake,Bob,3.1249999403953552,1,False
+33,own step only,0,False,0,-5,-1,Beth,Jake,Bob,1.375,1,False
+34,"conflict, C larger",0,True,-2,4,1,Basket,Gate,Box,1.0000000596046448,1,True
+34,"conflict, C larger",0,False,-2,4,1,Basket,Gate,Box,1.8750001192092896,1,True
+35,own step only,1,True,0,5,1,Kate,Anna,Emma,1.125,1,True
+35,own step only,1,False,0,5,1,Kate,Anna,Emma,1.375,1,True
+35,"conflict, M larger",0,True,-5,4,-1,Kate,Anna,Emma,0.25,1,False
+35,"conflict, M larger",0,False,-5,4,-1,Kate,Anna,Emma,-0.8749998807907104,-1,True
+36,agree,1,False,-1,-2,-1,Glass,Pen,Coin,-2.5000000447034836,-1,True
+36,agree,1,True,-1,-2,-1,Glass,Pen,Coin,0.0,-1,True
+36,first step only,0,False,5,0,1,Glass,Pen,Coin,-1.4999999403953552,-1,False
+36,first step only,0,True,5,0,1,Glass,Pen,Coin,1.5,1,True
+37,first step only,1,True,-5,0,-1,Jar,Box,Chair,-1.2500000298023224,-1,True
+37,first step only,1,False,-5,0,-1,Jar,Box,Chair,-3.6249999031424522,-1,True
+37,own step only,0,True,0,-4,-1,Jar,Box,Chair,-0.75,-1,True
+37,own step only,0,False,0,-4,-1,Jar,Box,Chair,-2.8749999701976776,-1,True
+38,"conflict, M larger",1,False,-4,3,-1,Rachel,Anna,Alice,0.25,1,False
+38,"conflict, M larger",1,True,-4,3,-1,Rachel,Anna,Alice,3.0000000596046448,1,False
+38,first step only,0,False,-2,0,-1,Rachel,Anna,Alice,-2.1249998807907104,-1,True
+38,first step only,0,True,-2,0,-1,Rachel,Anna,Alice,2.2499998807907104,1,False
+39,first step only,1,True,1,0,1,Banner,Glass,Book,-0.625,-1,False
+39,first step only,1,False,1,0,1,Banner,Glass,Book,-2.875000089406967,-1,False
+39,own step only,0,True,0,5,1,Banner,Glass,Book,1.7500001192092896,1,True
+39,own step only,0,False,0,5,1,Banner,Glass,Book,2.000000089406967,1,True
+40,own step only,1,False,0,4,1,Henry,Kim,David,5.87500012293458,1,True
+40,own step only,1,True,0,4,1,Henry,Kim,David,3.9999998062849045,1,True
+40,first step only,0,False,2,0,1,Henry,Kim,David,2.3750000447034836,1,True
+40,first step only,0,True,2,0,1,Henry,Kim,David,1.9999999850988388,1,True
+41,agree,0,False,2,3,1,Book,Door,Desk,3.6249999403953552,1,True
+41,agree,0,True,2,3,1,Book,Door,Desk,3.6249999403953552,1,True
+42,agree,1,True,1,3,1,Table,Leaf,Clock,9.12500011920929,1,True
+42,agree,1,False,1,3,1,Table,Leaf,Clock,5.124999940395355,1,True
+43,first step only,1,True,5,0,1,Henry,Alan,Neil,3.7499999701976776,1,True
+43,first step only,1,False,5,0,1,Henry,Alan,Neil,-0.5,-1,False
+43,agree,0,True,-3,-1,-1,Henry,Alan,Neil,3.875000074505806,1,False
+43,agree,0,False,-3,-1,-1,Henry,Alan,Neil,-0.7499999403953552,-1,True
+44,first step only,1,False,-5,0,-1,Tower,Stone,Flag,-4.2500001937150955,-1,True
+44,first step only,1,True,-5,0,-1,Tower,Stone,Flag,-1.0,-1,True
+44,own step only,0,False,0,-2,-1,Tower,Stone,Flag,-2.5000000596046448,-1,True
+44,own step only,0,True,0,-2,-1,Tower,Stone,Flag,1.6250000894069672,1,False
+45,own step only,0,False,0,2,1,Dan,Leo,George,-1.25,-1,False
+45,own step only,0,True,0,2,1,Dan,Leo,George,2.8750000596046448,1,True
+46,own step only,1,False,0,3,1,Pen,Desk,Shell,9.37500037252903,1,True
+46,own step only,1,True,0,3,1,Pen,Desk,Shell,4.999999970197678,1,True
+46,first step only,0,False,2,0,1,Pen,Desk,Shell,1.6250001192092896,1,True
+46,first step only,0,True,2,0,1,Pen,Desk,Shell,3.125000089406967,1,True
+47,first step only,1,False,4,0,1,Emma,Alan,Kate,-0.5,-1,False
+47,first step only,1,True,4,0,1,Emma,Alan,Kate,2.749999925494194,1,True
+47,agree,0,False,-3,-1,-1,Emma,Alan,Kate,-0.7499999403953552,-1,True
+47,agree,0,True,-3,-1,-1,Emma,Alan,Kate,2.5000000298023224,1,False
+48,first step only,1,False,1,0,1,Cart,Book,Stone,-0.6250000596046448,-1,False
+48,first step only,1,True,1,0,1,Cart,Book,Stone,0.9999999403953552,1,True
+48,own step only,0,False,0,1,1,Cart,Book,Stone,2.750000089406967,1,True
+48,own step only,0,True,0,1,1,Cart,Book,Stone,3.2499999403953552,1,True
+49,first step only,1,False,-2,0,-1,Adam,Jack,Eric,-2.499999910593033,-1,True
+49,first step only,1,True,-2,0,-1,Adam,Jack,Eric,1.5,1,False
+49,"conflict, M larger",0,False,-5,4,-1,Adam,Jack,Eric,-1.125,-1,True
+49,"conflict, M larger",0,True,-5,4,-1,Adam,Jack,Eric,2.1250001192092896,1,False
+50,agree,0,True,-5,-1,-1,Carl,Fred,Alan,1.25,1,False
+50,agree,0,False,-5,-1,-1,Carl,Fred,Alan,-1.3749999403953552,-1,True
+51,own step only,1,False,0,-1,-1,Steve,Rick,Tom,-4.000000044703484,-1,True
+51,own step only,1,True,0,-1,-1,Steve,Rick,Tom,-1.7500001192092896,-1,True
+52,first step only,1,False,-2,0,-1,Bag,Leaf,Hat,-3.4999999403953552,-1,True
+52,first step only,1,True,-2,0,-1,Bag,Leaf,Hat,-0.3749999403953552,-1,True
+52,own step only,0,False,0,-1,-1,Bag,Leaf,Hat,-1.3749999403953552,-1,True
+52,own step only,0,True,0,-1,-1,Bag,Leaf,Hat,1.3750000596046448,1,False
+53,agree,1,True,1,3,1,Laura,Tom,Henry,2.6250001192092896,1,True
+53,agree,1,False,1,3,1,Laura,Tom,Henry,-1.5000000298023224,-1,False
+53,first step only,0,True,5,0,1,Laura,Tom,Henry,0.3750000596046448,1,True
+53,first step only,0,False,5,0,1,Laura,Tom,Henry,-3.1249999403953552,-1,False
+54,"conflict, M larger",1,True,-5,2,-1,Pipe,Cart,Clock,2.5000000298023224,1,False
+54,"conflict, M larger",1,False,-5,2,-1,Pipe,Cart,Clock,1.7499999701976776,1,False
+55,own step only,1,True,0,-4,-1,Flag,Bucket,Basket,-2.750000014901161,-1,True
+55,own step only,1,False,0,-4,-1,Flag,Bucket,Basket,-4.125000141561031,-1,True
+55,first step only,0,True,-4,0,-1,Flag,Bucket,Basket,-3.125000089406967,-1,True
+55,first step only,0,False,-4,0,-1,Flag,Bucket,Basket,-5.625000037252903,-1,True
+56,own step only,1,False,0,4,1,Ball,Shell,Mirror,2.4999999403953552,1,True
+56,own step only,1,True,0,4,1,Ball,Shell,Mirror,1.2500000596046448,1,True
+56,first step only,0,False,1,0,1,Ball,Shell,Mirror,-3.0000000447034836,-1,False
+56,first step only,0,True,1,0,1,Ball,Shell,Mirror,-1.375,-1,False
+57,own step only,1,False,0,-5,-1,Fred,Peter,Ben,-1.9999999701976776,-1,True
+57,own step only,1,True,0,-5,-1,Fred,Peter,Ben,0.125,1,False
+57,agree,0,False,3,1,1,Fred,Peter,Ben,0.375,1,True
+57,agree,0,True,3,1,1,Fred,Peter,Ben,2.4999998807907104,1,True
+58,own step only,1,False,0,2,1,Shell,Cart,Glass,4.999999821186066,1,True
+58,own step only,1,True,0,2,1,Shell,Cart,Glass,0.75,1,True
+58,first step only,0,False,3,0,1,Shell,Cart,Glass,0.5,1,True
+58,first step only,0,True,3,0,1,Shell,Cart,Glass,1.25,1,True
+59,agree,0,True,4,2,1,Adam,Greg,Brian,3.2499999403953552,1,True
+59,agree,0,False,4,2,1,Adam,Greg,Brian,-0.7500000596046448,-1,False
+60,agree,0,False,2,1,1,Door,Knife,Coin,-2.124999910593033,-1,False
+60,agree,0,True,2,1,1,Door,Knife,Coin,-1.8749999701976776,-1,False
+61,first step only,1,True,4,0,1,Anna,Sean,Steve,-0.5,-1,False
+61,first step only,1,False,4,0,1,Anna,Sean,Steve,-2.1250000298023224,-1,False
+61,own step only,0,True,0,-5,-1,Anna,Sean,Steve,0.625,1,False
+61,own step only,0,False,0,-5,-1,Anna,Sean,Steve,-2.375,-1,True
+62,own step only,1,False,0,-3,-1,Tree,Leaf,Flag,-3.3750001192092896,-1,True
+62,own step only,1,True,0,-3,-1,Tree,Leaf,Flag,0.75,1,False
+62,first step only,0,False,1,0,1,Tree,Leaf,Flag,-1.1249999403953552,-1,False
+62,first step only,0,True,1,0,1,Tree,Leaf,Flag,2.125000089406967,1,True
+63,agree,1,True,3,2,1,Brian,Cole,Sean,8.374999966472387,1,True
+63,agree,1,False,3,2,1,Brian,Cole,Sean,1.8750000298023224,1,True
+63,own step only,0,True,0,2,1,Brian,Cole,Sean,6.000000089406967,1,True
+63,own step only,0,False,0,2,1,Brian,Cole,Sean,-0.7500000596046448,-1,False
+64,own step only,1,False,0,-4,-1,Bag,Bell,Ring,-3.4999999180436134,-1,True
+64,own step only,1,True,0,-4,-1,Bag,Bell,Ring,-1.8750000149011612,-1,True
+64,first step only,0,False,-3,0,-1,Bag,Bell,Ring,-2.749999947845936,-1,True
+64,first step only,0,True,-3,0,-1,Bag,Bell,Ring,-0.8749999701976776,-1,True
+65,own step only,1,True,0,-4,-1,Eric,Laura,Kim,-0.25,-1,True
+65,own step only,1,False,0,-4,-1,Eric,Laura,Kim,-3.625000089406967,-1,True
+65,first step only,0,True,-2,0,-1,Eric,Laura,Kim,-0.375,-1,True
+65,first step only,0,False,-2,0,-1,Eric,Laura,Kim,-2.999999910593033,-1,True
+66,own step only,1,False,0,-4,-1,Car,Stone,Bag,-2.625000089406967,-1,True
+66,own step only,1,True,0,-4,-1,Car,Stone,Bag,1.0000000596046448,1,False
+66,"conflict, C larger",0,False,3,-4,-1,Car,Stone,Bag,-1.8750001192092896,-1,True
+66,"conflict, C larger",0,True,3,-4,-1,Car,Stone,Bag,1.2500000596046448,1,False
+67,first step only,1,False,-1,0,-1,Kim,Paul,Eric,-1.9999998807907104,-1,True
+67,first step only,1,True,-1,0,-1,Kim,Paul,Eric,-0.5,-1,True
+67,own step only,0,False,0,1,1,Kim,Paul,Eric,0.125,1,True
+67,own step only,0,True,0,1,1,Kim,Paul,Eric,1.5,1,True
+68,first step only,1,True,5,0,1,Leo,Emma,Fred,3.0000000298023224,1,True
+68,first step only,1,False,5,0,1,Leo,Emma,Fred,-1.6249999701976776,-1,False
+68,"conflict, M larger",0,True,5,-4,1,Leo,Emma,Fred,2.374999910593033,1,True
+68,"conflict, M larger",0,False,5,-4,1,Leo,Emma,Fred,-2.2500000298023224,-1,False
+69,first step only,1,False,2,0,1,Car,Table,Clock,-1.125,-1,False
+69,first step only,1,True,2,0,1,Car,Table,Clock,1.0,1,True
+69,own step only,0,False,0,-2,-1,Car,Table,Clock,0.875,1,False
+69,own step only,0,True,0,-2,-1,Car,Table,Clock,2.375000089406967,1,False
+70,first step only,1,False,-5,0,-1,Leo,Alice,Greg,-1.2500000298023224,-1,True
+70,first step only,1,True,-5,0,-1,Leo,Alice,Greg,2.1249998807907104,1,False
+71,agree,1,True,-4,-2,-1,Pipe,Glass,Bucket,0.125,1,False
+71,agree,1,False,-4,-2,-1,Pipe,Glass,Bucket,-4.2500001937150955,-1,True
+72,agree,1,False,4,1,1,Rick,Peter,Paul,1.3750000298023224,1,True
+72,agree,1,True,4,1,1,Rick,Peter,Paul,5.000000089406967,1,True
+72,own step only,0,False,0,-2,-1,Rick,Peter,Paul,-0.875,-1,True
+72,own step only,0,True,0,-2,-1,Rick,Peter,Paul,4.625000089406967,1,False
+73,first step only,1,True,-2,0,-1,Brian,Jack,Henry,3.0000000447034836,1,False
+73,first step only,1,False,-2,0,-1,Brian,Jack,Henry,0.25,1,False
+73,"conflict, M larger",0,True,2,-1,1,Brian,Jack,Henry,3.0000000298023224,1,True
+73,"conflict, M larger",0,False,2,-1,1,Brian,Jack,Henry,-0.5000000596046448,-1,False
+74,own step only,1,True,0,1,1,Box,Coin,Mask,0.625,1,True
+74,own step only,1,False,0,1,1,Box,Coin,Mask,0.9999999701976776,1,True
+74,first step only,0,True,4,0,1,Box,Coin,Mask,0.5000000596046448,1,True
+74,first step only,0,False,4,0,1,Box,Coin,Mask,-2.9999998956918716,-1,False
+75,own step only,1,False,0,2,1,Laura,Sean,Anna,1.8749999105930328,1,True
+75,own step only,1,True,0,2,1,Laura,Sean,Anna,1.8750000596046448,1,True
+75,first step only,0,False,-3,0,-1,Laura,Sean,Anna,-1.2499999403953552,-1,True
+75,first step only,0,True,-3,0,-1,Laura,Sean,Anna,0.375,1,False
+76,first step only,1,True,4,0,1,Ring,Rock,Mirror,2.6250000596046448,1,True
+76,first step only,1,False,4,0,1,Ring,Rock,Mirror,-5.124999977648258,-1,False
+76,"conflict, C larger",0,True,2,-4,-1,Ring,Rock,Mirror,0.0,-1,True
+76,"conflict, C larger",0,False,2,-4,-1,Ring,Rock,Mirror,-5.125000022351742,-1,True
+77,first step only,1,False,-3,0,-1,Tom,Sean,Kim,-0.9999999403953552,-1,True
+77,first step only,1,True,-3,0,-1,Tom,Sean,Kim,1.4999999701976776,1,False
+77,own step only,0,False,0,-2,-1,Tom,Sean,Kim,1.8749999105930328,1,False
+77,own step only,0,True,0,-2,-1,Tom,Sean,Kim,4.25,1,False
+78,first step only,1,False,-1,0,-1,Pot,Mirror,Ball,-1.8749999403953552,-1,True
+78,first step only,1,True,-1,0,-1,Pot,Mirror,Ball,-1.125,-1,True
+78,own step only,0,False,0,2,1,Pot,Mirror,Ball,0.375,1,True
+78,own step only,0,True,0,2,1,Pot,Mirror,Ball,0.25,1,True
+79,agree,1,True,-1,-1,-1,Fred,Sam,Neil,-1.25,-1,True
+79,agree,1,False,-1,-1,-1,Fred,Sam,Neil,-2.9999998956918716,-1,True
+80,own step only,1,True,0,5,1,Book,Flag,Table,1.375,1,True
+80,own step only,1,False,0,5,1,Book,Flag,Table,2.3750000596046448,1,True
+80,first step only,0,True,-2,0,-1,Book,Flag,Table,-1.0,-1,True
+80,first step only,0,False,-2,0,-1,Book,Flag,Table,-3.7500001788139343,-1,True
+81,"conflict, M larger",0,True,-4,2,-1,Chair,Bag,Mask,-1.6249999403953552,-1,True
+81,"conflict, M larger",0,False,-4,2,-1,Chair,Bag,Mask,-6.625000171363354,-1,True
+82,own step only,1,True,0,-1,-1,Alan,Henry,Adam,-1.9999999701976776,-1,True
+82,own step only,1,False,0,-1,-1,Alan,Henry,Adam,-4.000000052154064,-1,True
+82,"conflict, C larger",0,True,2,-3,-1,Alan,Henry,Adam,-1.1250000596046448,-1,True
+82,"conflict, C larger",0,False,2,-3,-1,Alan,Henry,Adam,-4.375000216066837,-1,True
+83,"conflict, M larger",0,False,5,-4,1,Anchor,Glass,Desk,-0.875,-1,False
+83,"conflict, M larger",0,True,5,-4,1,Anchor,Glass,Desk,1.8750000298023224,1,True
+84,own step only,1,False,0,5,1,Paul,Adam,Beth,3.2500000298023224,1,True
+84,own step only,1,True,0,5,1,Paul,Adam,Beth,3.2499999403953552,1,True
+84,agree,0,False,1,2,1,Paul,Adam,Beth,1.2499999403953552,1,True
+84,agree,0,True,1,2,1,Paul,Adam,Beth,5.8749998062849045,1,True
+85,agree,0,False,-1,-5,-1,Leo,Dan,Jake,-2.1249999403953552,-1,True
+85,agree,0,True,-1,-5,-1,Leo,Dan,Jake,1.3749999701976776,1,False
+86,"conflict, M larger",1,False,5,-3,1,Chair,Ring,Plate,-1.8749999403953552,-1,False
+86,"conflict, M larger",1,True,5,-3,1,Chair,Ring,Plate,-0.8749999403953552,-1,False
+86,first step only,0,False,1,0,1,Chair,Ring,Plate,-5.375,-1,False
+86,first step only,0,True,1,0,1,Chair,Ring,Plate,1.25,1,True
+87,"conflict, M larger",0,False,3,-2,1,Anna,Jane,Greg,-1.4999998807907104,-1,False
+87,"conflict, M larger",0,True,3,-2,1,Anna,Jane,Greg,2.1250000596046448,1,True
+88,"conflict, C larger",1,True,-1,2,1,Pot,Knife,Door,-1.7500000298023224,-1,False
+88,"conflict, C larger",1,False,-1,2,1,Pot,Knife,Door,-3.2499999403953552,-1,False
+88,agree,0,True,2,4,1,Pot,Knife,Door,-1.6250000298023224,-1,False
+88,agree,0,False,2,4,1,Pot,Knife,Door,-3.000000089406967,-1,False
+89,agree,1,False,1,1,1,Carl,Adam,Jake,-0.5000000596046448,-1,False
+89,agree,1,True,1,1,1,Carl,Adam,Jake,3.249999910593033,1,True
+89,first step only,0,False,-2,0,-1,Carl,Adam,Jake,-3.750000037252903,-1,True
+89,first step only,0,True,-2,0,-1,Carl,Adam,Jake,-0.25,-1,True
+90,own step only,1,True,0,-5,-1,Anchor,Basket,Knife,3.1249998807907104,1,False
+90,own step only,1,False,0,-5,-1,Anchor,Basket,Knife,1.25,1,False
+90,"conflict, C larger",0,True,1,-3,-1,Anchor,Basket,Knife,2.2499998807907104,1,False
+90,"conflict, C larger",0,False,1,-3,-1,Anchor,Basket,Knife,0.25,1,False
+91,first step only,1,True,-5,0,-1,Sean,George,Anna,-0.8750000596046448,-1,True
+91,first step only,1,False,-5,0,-1,Sean,George,Anna,-3.125000089406967,-1,True
+91,own step only,0,True,0,3,1,Sean,George,Anna,2.250000089406967,1,True
+91,own step only,0,False,0,3,1,Sean,George,Anna,0.0,-1,False
+92,first step only,1,True,3,0,1,Tower,Book,Jar,1.3749999403953552,1,True
+92,first step only,1,False,3,0,1,Tower,Book,Jar,-1.3750000596046448,-1,False
+92,own step only,0,True,0,-4,-1,Tower,Book,Jar,2.9999999403953552,1,False
+92,own step only,0,False,0,-4,-1,Tower,Book,Jar,1.0,1,False
+93,"conflict, C larger",1,False,2,-4,-1,Brian,Rachel,Henry,2.875000014901161,1,False
+93,"conflict, C larger",1,True,2,-4,-1,Brian,Rachel,Henry,3.374999910593033,1,False
+93,own step only,0,False,0,4,1,Brian,Rachel,Henry,3.5000000596046448,1,True
+93,own step only,0,True,0,4,1,Brian,Rachel,Henry,4.749999918043613,1,True
+94,first step only,1,True,4,0,1,Chair,Coin,Plate,-2.499999910593033,-1,False
+94,first step only,1,False,4,0,1,Chair,Coin,Plate,-6.750000022351742,-1,False
+94,own step only,0,True,0,-3,-1,Chair,Coin,Plate,-0.24999994039535522,-1,True
+94,own step only,0,False,0,-3,-1,Chair,Coin,Plate,-3.500000014901161,-1,True
+95,own step only,1,True,0,-1,-1,Leo,Kim,Amy,1.1249999403953552,1,False
+95,own step only,1,False,0,-1,-1,Leo,Kim,Amy,-2.1249999403953552,-1,True
+95,first step only,0,True,-4,0,-1,Leo,Kim,Amy,0.875,1,False
+95,first step only,0,False,-4,0,-1,Leo,Kim,Amy,-3.0,-1,True
+96,first step only,1,True,-1,0,-1,Basket,Plate,Bell,-0.25,-1,True
+96,first step only,1,False,-1,0,-1,Basket,Plate,Bell,-1.4999998807907104,-1,True
+96,own step only,0,True,0,1,1,Basket,Plate,Bell,1.1249999403953552,1,True
+96,own step only,0,False,0,1,1,Basket,Plate,Bell,1.3750001192092896,1,True
+97,agree,0,False,-1,-3,-1,Steve,Henry,Kate,-3.6249999403953552,-1,True
+97,agree,0,True,-1,-3,-1,Steve,Henry,Kate,0.0,-1,True
+98,first step only,1,True,-5,0,-1,Ball,Knife,Ring,-2.7500001043081284,-1,True
+98,first step only,1,False,-5,0,-1,Ball,Knife,Ring,-5.874999847263098,-1,True
+98,own step only,0,True,0,3,1,Ball,Knife,Ring,-0.625,-1,False
+98,own step only,0,False,0,3,1,Ball,Knife,Ring,-3.500000037252903,-1,False
+99,first step only,1,True,-2,0,-1,Kate,Carl,Rachel,-3.0000001192092896,-1,True
+99,first step only,1,False,-2,0,-1,Kate,Carl,Rachel,-6.375,-1,True
+99,agree,0,True,1,5,1,Kate,Carl,Rachel,-0.375,-1,False
+99,agree,0,False,1,5,1,Kate,Carl,Rachel,-3.0,-1,False
+100,"conflict, M larger",1,False,-5,2,-1,Bell,Shell,Chair,-2.5000001043081284,-1,True
+100,"conflict, M larger",1,True,-5,2,-1,Bell,Shell,Chair,-0.3749999403953552,-1,True
+101,first step only,1,False,-3,0,-1,Laura,Dan,Beth,-3.0000001043081284,-1,True
+101,first step only,1,True,-3,0,-1,Laura,Dan,Beth,0.25,1,False
+102,agree,1,False,-3,-2,-1,Basket,Tree,Anchor,-3.1249999701976776,-1,True
+102,agree,1,True,-3,-2,-1,Basket,Tree,Anchor,-0.5,-1,True
+102,own step only,0,False,0,5,1,Basket,Tree,Anchor,0.625,1,True
+102,own step only,0,True,0,5,1,Basket,Tree,Anchor,0.375,1,True
+103,own step only,1,False,0,-1,-1,Jake,Chris,Paul,-1.7499998807907104,-1,True
+103,own step only,1,True,0,-1,-1,Jake,Chris,Paul,1.2500001192092896,1,False
+103,"conflict, C larger",0,False,-2,5,1,Jake,Chris,Paul,-1.6250001192092896,-1,False
+103,"conflict, C larger",0,True,-2,5,1,Jake,Chris,Paul,2.7500001192092896,1,True
+104,own step only,1,True,0,-4,-1,Box,Coin,Leaf,0.0,-1,True
+104,own step only,1,False,0,-4,-1,Box,Coin,Leaf,-3.374999977648258,-1,True
+104,agree,0,True,4,1,1,Box,Coin,Leaf,1.8750000894069672,1,True
+104,agree,0,False,4,1,1,Box,Coin,Leaf,-2.0000001192092896,-1,False
+105,agree,0,True,5,1,1,Door,Pipe,Gate,-0.25,-1,False
+105,agree,0,False,5,1,1,Door,Pipe,Gate,-1.5000000298023224,-1,False
+106,"conflict, C larger",1,True,-2,3,1,Anchor,Ring,Stone,3.625,1,True
+106,"conflict, C larger",1,False,-2,3,1,Anchor,Ring,Stone,0.6250000596046448,1,True
+106,first step only,0,True,2,0,1,Anchor,Ring,Stone,2.0,1,True
+106,first step only,0,False,2,0,1,Anchor,Ring,Stone,-2.2499999403953552,-1,False
+107,"conflict, C larger",1,False,-1,5,1,Tom,Steve,Peter,3.5,1,True
+107,"conflict, C larger",1,True,-1,5,1,Tom,Steve,Peter,4.875000104308128,1,True
+107,first step only,0,False,4,0,1,Tom,Steve,Peter,1.8750001192092896,1,True
+107,first step only,0,True,4,0,1,Tom,Steve,Peter,4.500000178813934,1,True
+108,first step only,1,False,3,0,1,Cart,Glass,Book,-3.2500000596046448,-1,False
+108,first step only,1,True,3,0,1,Cart,Glass,Book,0.7500000596046448,1,True
+108,own step only,0,False,0,2,1,Cart,Glass,Book,-0.7500000596046448,-1,False
+108,own step only,0,True,0,2,1,Cart,Glass,Book,2.5,1,True
+109,own step only,1,True,0,-2,-1,Jane,Bob,Amy,2.9999998807907104,1,False
+109,own step only,1,False,0,-2,-1,Jane,Bob,Amy,1.125,1,False
+109,first step only,0,True,-4,0,-1,Jane,Bob,Amy,1.8749998807907104,1,False
+109,first step only,0,False,-4,0,-1,Jane,Bob,Amy,0.0,-1,True
+110,"conflict, M larger",1,False,5,-2,1,Coin,Car,Mask,-2.6249998807907104,-1,False
+110,"conflict, M larger",1,True,5,-2,1,Coin,Car,Mask,-1.6249999701976776,-1,False
+111,first step only,1,True,-2,0,-1,Alice,Amy,Peter,1.8749999701976776,1,False
+111,first step only,1,False,-2,0,-1,Alice,Amy,Peter,-1.8749999403953552,-1,True
+111,own step only,0,True,0,3,1,Alice,Amy,Peter,3.3749998807907104,1,True
+111,own step only,0,False,0,3,1,Alice,Amy,Peter,-0.5000000596046448,-1,False
+112,own step only,1,False,0,2,1,Coin,Mask,Bucket,0.5000000596046448,1,True
+112,own step only,1,True,0,2,1,Coin,Mask,Bucket,0.875,1,True
+112,agree,0,False,1,1,1,Coin,Mask,Bucket,-1.0,-1,False
+112,agree,0,True,1,1,1,Coin,Mask,Bucket,0.125,1,True
+113,agree,1,True,-1,-1,-1,Neil,George,Emma,2.6250000670552254,1,False
+113,agree,1,False,-1,-1,-1,Neil,George,Emma,-0.25,-1,True
+113,own step only,0,True,0,2,1,Neil,George,Emma,4.000000208616257,1,True
+113,own step only,0,False,0,2,1,Neil,George,Emma,2.1250000298023224,1,True
+114,agree,1,False,-1,-3,-1,Bell,Door,Anchor,-0.625,-1,True
+114,agree,1,True,-1,-3,-1,Bell,Door,Anchor,1.2500000596046448,1,False
+115,own step only,1,True,0,2,1,Leo,David,Tom,2.5000000298023224,1,True
+115,own step only,1,False,0,2,1,Leo,David,Tom,0.375,1,True
+115,first step only,0,True,-3,0,-1,Leo,David,Tom,1.3749999403953552,1,False
+115,first step only,0,False,-3,0,-1,Leo,David,Tom,-2.0000001192092896,-1,True
+116,own step only,1,False,0,1,1,Anchor,Clock,Cart,1.8749998807907104,1,True
+116,own step only,1,True,0,1,1,Anchor,Clock,Cart,1.3750000596046448,1,True
+116,first step only,0,False,-4,0,-1,Anchor,Clock,Cart,-1.0,-1,True
+116,first step only,0,True,-4,0,-1,Anchor,Clock,Cart,-0.25,-1,True
+117,first step only,0,False,-5,0,-1,Peter,George,Kevin,-2.2499999701976776,-1,True
+117,first step only,0,True,-5,0,-1,Peter,George,Kevin,1.1249999403953552,1,False
+118,first step only,1,True,-5,0,-1,Box,Glass,Tower,0.25,1,False
+118,first step only,1,False,-5,0,-1,Box,Glass,Tower,-2.1249998807907104,-1,True
+119,agree,0,True,5,1,1,Tom,Laura,Eric,4.249999821186066,1,True
+119,agree,0,False,5,1,1,Tom,Laura,Eric,-0.8750000596046448,-1,False
+120,"conflict, M larger",0,True,-4,2,-1,Hat,Brush,Stone,-0.5000000596046448,-1,True
+120,"conflict, M larger",0,False,-4,2,-1,Hat,Brush,Stone,-4.6249999441206455,-1,True
+121,own step only,1,False,0,-4,-1,Peter,Carl,Henry,-4.375000044703484,-1,True
+121,own step only,1,True,0,-4,-1,Peter,Carl,Henry,0.125,1,False
+121,first step only,0,False,-4,0,-1,Peter,Carl,Henry,-3.624999985098839,-1,True
+121,first step only,0,True,-4,0,-1,Peter,Carl,Henry,0.6250000596046448,1,False
+122,"conflict, M larger",1,False,-3,2,-1,Knife,Bucket,Tree,-1.125,-1,True
+122,"conflict, M larger",1,True,-3,2,-1,Knife,Bucket,Tree,0.625,1,False
+122,"conflict, M larger",0,False,-5,1,-1,Knife,Bucket,Tree,-2.2500000596046448,-1,True
+122,"conflict, M larger",0,True,-5,1,-1,Knife,Bucket,Tree,0.25,1,False
+123,first step only,1,False,3,0,1,Ben,Jane,Sam,-1.0,-1,False
+123,first step only,1,True,3,0,1,Ben,Jane,Sam,1.0,1,True
+123,"conflict, C larger",0,False,-3,5,1,Ben,Jane,Sam,-1.2499999403953552,-1,False
+123,"conflict, C larger",0,True,-3,5,1,Ben,Jane,Sam,1.6249999403953552,1,True
+124,"conflict, M larger",1,True,5,-4,1,Peter,Chris,David,-1.1249999701976776,-1,False
+124,"conflict, M larger",1,False,5,-4,1,Peter,Chris,David,-3.1249999925494194,-1,False
+125,first step only,1,False,-1,0,-1,Paul,Jake,Cole,-2.3750001043081284,-1,True
+125,first step only,1,True,-1,0,-1,Paul,Jake,Cole,0.0,-1,True
+125,own step only,0,False,0,3,1,Paul,Jake,Cole,3.499999910593033,1,True
+125,own step only,0,True,0,3,1,Paul,Jake,Cole,3.125,1,True
+126,first step only,1,True,2,0,1,Leaf,Knife,Car,-1.125,-1,False
+126,first step only,1,False,2,0,1,Leaf,Knife,Car,-5.375000059604645,-1,False
+126,"conflict, C larger",0,True,-2,3,1,Leaf,Knife,Car,-0.375,-1,False
+126,"conflict, C larger",0,False,-2,3,1,Leaf,Knife,Car,-4.125000178813934,-1,False
+127,own step only,1,True,0,3,1,Peter,Ben,Laura,1.25,1,True
+127,own step only,1,False,0,3,1,Peter,Ben,Laura,1.8750000894069672,1,True
+127,first step only,0,True,2,0,1,Peter,Ben,Laura,-1.25,-1,False
+127,first step only,0,False,2,0,1,Peter,Ben,Laura,-3.7500000596046448,-1,False
+128,first step only,1,False,-5,0,-1,Car,Stone,Bucket,-2.250000089406967,-1,True
+128,first step only,1,True,-5,0,-1,Car,Stone,Bucket,-1.3750000596046448,-1,True
+128,"conflict, M larger",0,False,-5,2,-1,Car,Stone,Bucket,0.4999999403953552,1,False
+128,"conflict, M larger",0,True,-5,2,-1,Car,Stone,Bucket,0.25,1,False
+129,agree,1,False,-3,-3,-1,George,Paul,Adam,-2.7499999701976776,-1,True
+129,agree,1,True,-3,-3,-1,George,Paul,Adam,0.375,1,False
+129,agree,0,False,-2,-1,-1,George,Paul,Adam,-2.3750000596046448,-1,True
+129,agree,0,True,-2,-1,-1,George,Paul,Adam,1.125,1,False
+130,agree,1,True,-3,-3,-1,George,Dan,Neil,-0.125,-1,True
+130,agree,1,False,-3,-3,-1,George,Dan,Neil,-3.749999850988388,-1,True
+130,"conflict, C larger",0,True,2,-5,-1,George,Dan,Neil,0.375,1,False
+130,"conflict, C larger",0,False,2,-5,-1,George,Dan,Neil,-4.3749998807907104,-1,True
+131,first step only,1,True,-2,0,-1,Gate,Basket,Box,-1.0,-1,True
+131,first step only,1,False,-2,0,-1,Gate,Basket,Box,-3.875000238418579,-1,True
+131,own step only,0,True,0,-4,-1,Gate,Basket,Box,0.25,1,False
+131,own step only,0,False,0,-4,-1,Gate,Basket,Box,-2.3749999403953552,-1,True
+132,own step only,1,False,0,-5,-1,Anchor,Rock,Brush,-2.625000089406967,-1,True
+132,own step only,1,True,0,-5,-1,Anchor,Rock,Brush,0.4999999403953552,1,False
+132,first step only,0,False,-3,0,-1,Anchor,Rock,Brush,-3.2499999329447746,-1,True
+132,first step only,0,True,-3,0,-1,Anchor,Rock,Brush,-0.5,-1,True
+133,first step only,1,False,-4,0,-1,Dan,Fred,Greg,0.75,1,False
+133,first step only,1,True,-4,0,-1,Dan,Fred,Greg,2.6250000596046448,1,False
+133,own step only,0,False,0,-3,-1,Dan,Fred,Greg,2.1250001043081284,1,False
+133,own step only,0,True,0,-3,-1,Dan,Fred,Greg,4.49999987334013,1,False
+134,first step only,1,False,-2,0,-1,Bob,Emma,Laura,-2.7499998807907104,-1,True
+134,first step only,1,True,-2,0,-1,Bob,Emma,Laura,0.375,1,False
+134,agree,0,False,2,4,1,Bob,Emma,Laura,1.5000001192092896,1,True
+134,agree,0,True,2,4,1,Bob,Emma,Laura,4.624999821186066,1,True
+135,"conflict, C larger",1,True,2,-3,-1,Glass,Desk,Cart,4.0000001192092896,1,False
+135,"conflict, C larger",1,False,2,-3,-1,Glass,Desk,Cart,-0.75,-1,True
+135,own step only,0,True,0,-5,-1,Glass,Desk,Cart,3.6250001192092896,1,False
+135,own step only,0,False,0,-5,-1,Glass,Desk,Cart,-1.25,-1,True
+136,own step only,1,False,0,1,1,Sean,Fred,Cole,6.7500001192092896,1,True
+136,own step only,1,True,0,1,1,Sean,Fred,Cole,4.249999858438969,1,True
+136,first step only,0,False,3,0,1,Sean,Fred,Cole,0.5,1,True
+136,first step only,0,True,3,0,1,Sean,Fred,Cole,3.749999888241291,1,True
+137,first step only,1,False,-5,0,-1,Tom,Brian,Eric,-4.1249998807907104,-1,True
+137,first step only,1,True,-5,0,-1,Tom,Brian,Eric,-1.875,-1,True
+137,own step only,0,False,0,1,1,Tom,Brian,Eric,-1.3749999701976776,-1,False
+137,own step only,0,True,0,1,1,Tom,Brian,Eric,0.3750000596046448,1,True
+138,"conflict, C larger",0,False,1,-4,-1,Tree,Door,Knife,-0.5,-1,True
+138,"conflict, C larger",0,True,1,-4,-1,Tree,Door,Knife,1.6250001192092896,1,False
+139,first step only,1,True,-1,0,-1,David,Paul,Jack,0.0,-1,True
+139,first step only,1,False,-1,0,-1,David,Paul,Jack,-2.0,-1,True
+139,agree,0,True,1,5,1,David,Paul,Jack,3.6250002086162567,1,True
+139,agree,0,False,1,5,1,David,Paul,Jack,1.5,1,True
+140,"conflict, C larger",1,False,2,-5,-1,Banner,Clock,Desk,-2.874999910593033,-1,True
+140,"conflict, C larger",1,True,2,-5,-1,Banner,Clock,Desk,-1.8750000894069672,-1,True
+141,own step only,1,False,0,5,1,Sean,Kate,Rick,7.874999947845936,1,True
+141,own step only,1,True,0,5,1,Sean,Kate,Rick,5.999999836087227,1,True
+141,first step only,0,False,-3,0,-1,Sean,Kate,Rick,2.124999910593033,1,False
+141,first step only,0,True,-3,0,-1,Sean,Kate,Rick,3.999999761581421,1,False
+142,own step only,1,False,0,-5,-1,Bob,Laura,Emma,-4.375000111758709,-1,True
+142,own step only,1,True,0,-5,-1,Bob,Laura,Emma,-2.500000014901161,-1,True
+142,first step only,0,False,-5,0,-1,Bob,Laura,Emma,-3.875,-1,True
+142,first step only,0,True,-5,0,-1,Bob,Laura,Emma,-2.249999910593033,-1,True
+143,"conflict, C larger",1,True,3,-4,-1,Bucket,Anchor,Pen,1.7499998807907104,1,False
+143,"conflict, C larger",1,False,3,-4,-1,Bucket,Anchor,Pen,-1.2499999403953552,-1,True
+143,own step only,0,True,0,-2,-1,Bucket,Anchor,Pen,1.375,1,False
+143,own step only,0,False,0,-2,-1,Bucket,Anchor,Pen,-1.7499999701976776,-1,True
+144,"conflict, C larger",1,False,-4,5,1,Bob,Sam,Laura,-1.7499998807907104,-1,False
+144,"conflict, C larger",1,True,-4,5,1,Bob,Sam,Laura,-0.125,-1,False
+145,"conflict, M larger",1,False,3,-1,1,Car,Glass,Banner,-0.625,-1,False
+145,"conflict, M larger",1,True,3,-1,1,Car,Glass,Banner,1.5,1,True
+145,first step only,0,False,-3,0,-1,Car,Glass,Banner,-1.6249999403953552,-1,True
+145,first step only,0,True,-3,0,-1,Car,Glass,Banner,1.25,1,False
+146,"conflict, M larger",1,False,3,-2,1,Beth,David,Anna,-0.5,-1,False
+146,"conflict, M larger",1,True,3,-2,1,Beth,David,Anna,3.625,1,True
+146,first step only,0,False,5,0,1,Beth,David,Anna,-1.0,-1,False
+146,first step only,0,True,5,0,1,Beth,David,Anna,3.6249999403953552,1,True
+147,own step only,1,False,0,-1,-1,Book,Ring,Ball,-4.749999895691872,-1,True
+147,own step only,1,True,0,-1,-1,Book,Ring,Ball,-2.1250001192092896,-1,True
+147,first step only,0,False,4,0,1,Book,Ring,Ball,-6.249999970197678,-1,False
+147,first step only,0,True,4,0,1,Book,Ring,Ball,-2.875,-1,False
+148,"conflict, M larger",0,True,5,-3,1,Dan,Henry,Leo,1.5000000298023224,1,True
+148,"conflict, M larger",0,False,5,-3,1,Dan,Henry,Leo,-3.250000074505806,-1,False
+149,first step only,1,True,-1,0,-1,Tree,Plate,Chair,0.5,1,False
+149,first step only,1,False,-1,0,-1,Tree,Plate,Chair,-3.874999761581421,-1,True
+149,"conflict, M larger",0,True,3,-1,1,Tree,Plate,Chair,1.875,1,True
+149,"conflict, M larger",0,False,3,-1,1,Tree,Plate,Chair,-1.9999999403953552,-1,False
+150,"conflict, C larger",1,False,-3,4,1,Jane,Adam,Emma,3.1250000596046448,1,True
+150,"conflict, C larger",1,True,-3,4,1,Jane,Adam,Emma,5.749999821186066,1,True
+151,first step only,1,False,-1,0,-1,Leaf,Shell,Book,-4.624999940395355,-1,True
+151,first step only,1,True,-1,0,-1,Leaf,Shell,Book,-2.250000089406967,-1,True
+152,own step only,1,False,0,-2,-1,Ball,Table,Leaf,-0.7499999403953552,-1,True
+152,own step only,1,True,0,-2,-1,Ball,Table,Leaf,0.5,1,False
+152,"conflict, M larger",0,False,3,-1,1,Ball,Table,Leaf,-1.125,-1,False
+152,"conflict, M larger",0,True,3,-1,1,Ball,Table,Leaf,-0.25,-1,False
+153,"conflict, M larger",1,True,4,-2,1,Kate,Peter,Rachel,0.0,-1,False
+153,"conflict, M larger",1,False,4,-2,1,Kate,Peter,Rachel,-3.7500000596046448,-1,False
+153,first step only,0,True,5,0,1,Kate,Peter,Rachel,-0.25,-1,False
+153,first step only,0,False,5,0,1,Kate,Peter,Rachel,-5.500000089406967,-1,False
+154,first step only,1,True,-2,0,-1,Pipe,Clock,Book,0.125,1,False
+154,first step only,1,False,-2,0,-1,Pipe,Clock,Book,-1.125,-1,True
+154,own step only,0,True,0,-1,-1,Pipe,Clock,Book,0.625,1,False
+154,own step only,0,False,0,-1,-1,Pipe,Clock,Book,-1.1250000596046448,-1,True
+155,agree,1,False,1,5,1,Fred,Paul,Eric,0.0,-1,False
+155,agree,1,True,1,5,1,Fred,Paul,Eric,6.499999910593033,1,True
+156,"conflict, C larger",1,True,-4,5,1,Ben,Anna,Rick,1.8750000298023224,1,True
+156,"conflict, C larger",1,False,-4,5,1,Ben,Anna,Rick,-0.5,-1,False
+157,own step only,1,False,0,-5,-1,Mask,Leaf,Pipe,0.0,-1,True
+157,own step only,1,True,0,-5,-1,Mask,Leaf,Pipe,1.4999999701976776,1,False
+157,agree,0,False,4,1,1,Mask,Leaf,Pipe,3.4999999552965164,1,True
+157,agree,0,True,4,1,1,Mask,Leaf,Pipe,3.1250000596046448,1,True
+158,"conflict, M larger",1,False,5,-2,1,Jack,Sean,Beth,-1.125,-1,False
+158,"conflict, M larger",1,True,5,-2,1,Jack,Sean,Beth,2.0,1,True
+158,"conflict, C larger",0,False,-3,5,1,Jack,Sean,Beth,-1.875,-1,False
+158,"conflict, C larger",0,True,-3,5,1,Jack,Sean,Beth,2.2500001192092896,1,True
+159,first step only,1,True,-5,0,-1,Emma,Amy,Rachel,-0.25,-1,True
+159,first step only,1,False,-5,0,-1,Emma,Amy,Rachel,-3.000000089406967,-1,True
+159,own step only,0,True,0,5,1,Emma,Amy,Rachel,1.7500000596046448,1,True
+159,own step only,0,False,0,5,1,Emma,Amy,Rachel,1.7500000298023224,1,True
+160,first step only,1,True,-2,0,-1,Glass,Door,Plate,-1.1249999403953552,-1,True
+160,first step only,1,False,-2,0,-1,Glass,Door,Plate,-3.2499999701976776,-1,True
+160,agree,0,True,-1,-1,-1,Glass,Door,Plate,0.75,1,False
+160,agree,0,False,-1,-1,-1,Glass,Door,Plate,-1.6249999701976776,-1,True
+161,agree,1,False,-3,-2,-1,Rachel,Amy,Kevin,-1.6249998807907104,-1,True
+161,agree,1,True,-3,-2,-1,Rachel,Amy,Kevin,2.375,1,False
+161,agree,0,False,4,1,1,Rachel,Amy,Kevin,0.8749999403953552,1,True
+161,agree,0,True,4,1,1,Rachel,Amy,Kevin,3.8750000298023224,1,True
+162,agree,0,True,2,4,1,Carl,Rick,Emma,3.2500001192092896,1,True
+162,agree,0,False,2,4,1,Carl,Rick,Emma,-2.874999925494194,-1,False
+163,own step only,1,True,0,-2,-1,Jar,Ball,Arrow,-0.7499999403953552,-1,True
+163,own step only,1,False,0,-2,-1,Jar,Ball,Arrow,-1.625,-1,True
+163,agree,0,True,5,1,1,Jar,Ball,Arrow,0.5,1,True
+163,agree,0,False,5,1,1,Jar,Ball,Arrow,-0.875,-1,False
+164,"conflict, C larger",1,False,-3,5,1,Pot,Gate,Knife,-1.125,-1,False
+164,"conflict, C larger",1,True,-3,5,1,Pot,Gate,Knife,1.125,1,True
+165,own step only,1,True,0,-3,-1,Henry,Greg,Cole,3.2499999701976776,1,False
+165,own step only,1,False,0,-3,-1,Henry,Greg,Cole,0.5000000596046448,1,False
+165,first step only,0,True,-2,0,-1,Henry,Greg,Cole,2.4999999403953552,1,False
+165,first step only,0,False,-2,0,-1,Henry,Greg,Cole,-1.1250000596046448,-1,True
+166,own step only,1,False,0,4,1,Bucket,Shell,Anchor,3.5000000819563866,1,True
+166,own step only,1,True,0,4,1,Bucket,Shell,Anchor,1.3750000596046448,1,True
+166,first step only,0,False,5,0,1,Bucket,Shell,Anchor,-2.5,-1,False
+166,first step only,0,True,5,0,1,Bucket,Shell,Anchor,-0.125,-1,False
+167,agree,1,False,5,1,1,Neil,Amy,Alan,1.75,1,True
+167,agree,1,True,5,1,1,Neil,Amy,Alan,4.124999865889549,1,True
+167,own step only,0,False,0,-1,-1,Neil,Amy,Alan,1.8750000596046448,1,False
+167,own step only,0,True,0,-1,-1,Neil,Amy,Alan,3.499999925494194,1,False
+168,own step only,1,True,0,2,1,Tree,Ring,Gate,3.250000074505806,1,True
+168,own step only,1,False,0,2,1,Tree,Ring,Gate,2.5000000298023224,1,True
+168,first step only,0,True,-2,0,-1,Tree,Ring,Gate,0.5,1,False
+168,first step only,0,False,-2,0,-1,Tree,Ring,Gate,-1.6250000298023224,-1,True
+169,own step only,1,True,0,2,1,Jake,Steve,Carl,1.2500001192092896,1,True
+169,own step only,1,False,0,2,1,Jake,Steve,Carl,-1.125,-1,False
+169,first step only,0,True,-4,0,-1,Jake,Steve,Carl,-0.25,-1,True
+169,first step only,0,False,-4,0,-1,Jake,Steve,Carl,-2.375,-1,True
+170,"conflict, C larger",1,False,-2,3,1,Rick,Rachel,Emma,1.4999999701976776,1,True
+170,"conflict, C larger",1,True,-2,3,1,Rick,Rachel,Emma,1.7500000596046448,1,True
+170,first step only,0,False,3,0,1,Rick,Rachel,Emma,-0.8749999403953552,-1,False
+170,first step only,0,True,3,0,1,Rick,Rachel,Emma,1.2499999403953552,1,True
+171,first step only,1,True,3,0,1,Brush,Pen,Book,0.125,1,True
+171,first step only,1,False,3,0,1,Brush,Pen,Book,-1.625,-1,False
+171,own step only,0,True,0,-4,-1,Brush,Pen,Book,1.2499999701976776,1,False
+171,own step only,0,False,0,-4,-1,Brush,Pen,Book,0.75,1,False
+172,own step only,1,False,0,5,1,Ben,Emma,Rick,5.625000096857548,1,True
+172,own step only,1,True,0,5,1,Ben,Emma,Rick,3.874999836087227,1,True
+172,first step only,0,False,2,0,1,Ben,Emma,Rick,-0.75,-1,False
+172,first step only,0,True,2,0,1,Ben,Emma,Rick,1.7500001192092896,1,True
+173,"conflict, C larger",1,True,2,-3,-1,Cart,Brush,Gate,-0.5,-1,True
+173,"conflict, C larger",1,False,2,-3,-1,Cart,Brush,Gate,-2.625000089406967,-1,True
+173,first step only,0,True,1,0,1,Cart,Brush,Gate,-1.1250000596046448,-1,False
+173,first step only,0,False,1,0,1,Cart,Brush,Gate,-3.3750001043081284,-1,False
+174,own step only,1,False,0,3,1,Kate,Adam,George,0.75,1,True
+174,own step only,1,True,0,3,1,Kate,Adam,George,0.625,1,True
+174,first step only,0,False,-3,0,-1,Kate,Adam,George,-3.875,-1,True
+174,first step only,0,True,-3,0,-1,Kate,Adam,George,-1.3749998807907104,-1,True
+175,agree,0,True,-2,-1,-1,Ring,Pipe,Clock,-2.4999999701976776,-1,True
+175,agree,0,False,-2,-1,-1,Ring,Pipe,Clock,-6.124999821186066,-1,True
+176,own step only,1,True,0,3,1,Brian,Leo,Cole,2.2499998807907104,1,True
+176,own step only,1,False,0,3,1,Brian,Leo,Cole,0.0,-1,False
+176,"conflict, C larger",0,True,1,-2,-1,Brian,Leo,Cole,1.8750000894069672,1,False
+176,"conflict, C larger",0,False,1,-2,-1,Brian,Leo,Cole,-0.9999999701976776,-1,True
+177,"conflict, C larger",1,True,2,-5,-1,Chair,Anchor,Desk,-0.7499999403953552,-1,True
+177,"conflict, C larger",1,False,2,-5,-1,Chair,Anchor,Desk,-4.999999970197678,-1,True
+177,first step only,0,True,1,0,1,Chair,Anchor,Desk,-0.375,-1,False
+177,first step only,0,False,1,0,1,Chair,Anchor,Desk,-6.625000104308128,-1,False
+178,own step only,1,True,0,2,1,Adam,Neil,Emma,3.1249999552965164,1,True
+178,own step only,1,False,0,2,1,Adam,Neil,Emma,1.6249999403953552,1,True
+178,"conflict, M larger",0,True,5,-1,1,Adam,Neil,Emma,1.8749999105930328,1,True
+178,"conflict, M larger",0,False,5,-1,1,Adam,Neil,Emma,-1.2499999701976776,-1,False
+179,own step only,1,False,0,5,1,Arrow,Mirror,Stone,2.1250001192092896,1,True
+179,own step only,1,True,0,5,1,Arrow,Mirror,Stone,-0.375,-1,False
+179,first step only,0,False,2,0,1,Arrow,Mirror,Stone,-2.1250000596046448,-1,False
+179,first step only,0,True,2,0,1,Arrow,Mirror,Stone,-1.3749999403953552,-1,False
+180,own step only,1,True,0,-2,-1,Jack,Kevin,Rachel,0.75,1,False
+180,own step only,1,False,0,-2,-1,Jack,Kevin,Rachel,0.75,1,False
+180,first step only,0,True,3,0,1,Jack,Kevin,Rachel,0.875,1,True
+180,first step only,0,False,3,0,1,Jack,Kevin,Rachel,-0.625,-1,False
+181,first step only,1,True,-2,0,-1,Rock,Clock,Basket,0.5,1,False
+181,first step only,1,False,-2,0,-1,Rock,Clock,Basket,-1.5,-1,True
+181,own step only,0,True,0,-2,-1,Rock,Clock,Basket,1.8749999105930328,1,False
+181,own step only,0,False,0,-2,-1,Rock,Clock,Basket,-0.75,-1,True
+182,agree,0,False,1,5,1,Laura,Neil,Steve,2.0000000447034836,1,True
+182,agree,0,True,1,5,1,Laura,Neil,Steve,7.6250002309679985,1,True
+183,own step only,1,False,0,-3,-1,Dan,Alice,Sam,-1.7499999850988388,-1,True
+183,own step only,1,True,0,-3,-1,Dan,Alice,Sam,-0.625,-1,True
+183,first step only,0,False,-4,0,-1,Dan,Alice,Sam,-1.6249999701976776,-1,True
+183,first step only,0,True,-4,0,-1,Dan,Alice,Sam,-0.8750000596046448,-1,True
+184,"conflict, C larger",0,True,1,-4,-1,Bell,Book,Bucket,1.0,1,False
+184,"conflict, C larger",0,False,1,-4,-1,Bell,Book,Bucket,0.5000000596046448,1,False
+185,"conflict, M larger",1,False,-3,1,-1,Paul,Laura,Brian,-1.0,-1,True
+185,"conflict, M larger",1,True,-3,1,-1,Paul,Laura,Brian,-0.125,-1,True
+186,first step only,1,True,-2,0,-1,Desk,Coin,Tower,-2.3749998807907104,-1,True
+186,first step only,1,False,-2,0,-1,Desk,Coin,Tower,-4.625000149011612,-1,True
+186,own step only,0,True,0,4,1,Desk,Coin,Tower,0.125,1,True
+186,own step only,0,False,0,4,1,Desk,Coin,Tower,0.125,1,True
+187,"conflict, C larger",1,False,1,-2,-1,Alan,Laura,Leo,-1.5,-1,True
+187,"conflict, C larger",1,True,1,-2,-1,Alan,Laura,Leo,0.9999999403953552,1,False
+187,own step only,0,False,0,-4,-1,Alan,Laura,Leo,-1.875,-1,True
+187,own step only,0,True,0,-4,-1,Alan,Laura,Leo,0.8750000596046448,1,False
+188,agree,1,True,-4,-2,-1,Rock,Coin,Jar,-0.75,-1,True
+188,agree,1,False,-4,-2,-1,Rock,Coin,Jar,-4.750000007450581,-1,True
+188,"conflict, C larger",0,True,-3,4,1,Rock,Coin,Jar,0.75,1,True
+188,"conflict, C larger",0,False,-3,4,1,Rock,Coin,Jar,-4.000000052154064,-1,False
+189,first step only,1,False,1,0,1,Sam,Rachel,Kevin,-1.5,-1,False
+189,first step only,1,True,1,0,1,Sam,Rachel,Kevin,2.000000089406967,1,True
+189,agree,0,False,1,1,1,Sam,Rachel,Kevin,1.9999999701976776,1,True
+189,agree,0,True,1,1,1,Sam,Rachel,Kevin,6.124999813735485,1,True
+190,agree,0,False,-5,-1,-1,Plate,Gate,Wheel,-4.125000201165676,-1,True
+190,agree,0,True,-5,-1,-1,Plate,Gate,Wheel,-2.1250001192092896,-1,True
+191,agree,1,False,2,1,1,Kate,Ben,Rachel,-3.7499998807907104,-1,False
+191,agree,1,True,2,1,1,Kate,Ben,Rachel,-0.125,-1,False
+191,first step only,0,False,4,0,1,Kate,Ben,Rachel,-5.5000001192092896,-1,False
+191,first step only,0,True,4,0,1,Kate,Ben,Rachel,-2.1250000596046448,-1,False
+192,first step only,1,True,2,0,1,Hat,Jar,Flag,-1.25,-1,False
+192,first step only,1,False,2,0,1,Hat,Jar,Flag,-2.6249999403953552,-1,False
+192,"conflict, M larger",0,True,-2,1,-1,Hat,Jar,Flag,-1.5000001192092896,-1,True
+192,"conflict, M larger",0,False,-2,1,-1,Hat,Jar,Flag,-3.125,-1,True
+193,agree,1,True,3,2,1,Tom,Henry,Alice,4.124999992549419,1,True
+193,agree,1,False,3,2,1,Tom,Henry,Alice,-0.875,-1,False
+194,own step only,1,False,0,2,1,Hat,Tower,Plate,1.375,1,True
+194,own step only,1,True,0,2,1,Hat,Tower,Plate,0.125,1,True
+194,"conflict, M larger",0,False,-3,2,-1,Hat,Tower,Plate,-0.125,-1,True
+194,"conflict, M larger",0,True,-3,2,-1,Hat,Tower,Plate,-0.625,-1,True
+195,"conflict, M larger",1,True,-5,4,-1,Cart,Brush,Ball,-0.75,-1,True
+195,"conflict, M larger",1,False,-5,4,-1,Cart,Brush,Ball,-3.1250000298023224,-1,True
+195,"conflict, M larger",0,True,-5,1,-1,Cart,Brush,Ball,-1.6249999701976776,-1,True
+195,"conflict, M larger",0,False,-5,1,-1,Cart,Brush,Ball,-3.500000111758709,-1,True
+196,first step only,1,False,-2,0,-1,Table,Desk,Leaf,-1.75,-1,True
+196,first step only,1,True,-2,0,-1,Table,Desk,Leaf,0.375,1,False
+196,agree,0,False,1,1,1,Table,Desk,Leaf,1.25,1,True
+196,agree,0,True,1,1,1,Table,Desk,Leaf,2.9999998807907104,1,True
+197,"conflict, M larger",1,False,-5,3,-1,Eric,David,Steve,1.6249999403953552,1,False
+197,"conflict, M larger",1,True,-5,3,-1,Eric,David,Steve,3.6250001043081284,1,False
+198,agree,1,False,-4,-2,-1,Mirror,Coin,Bag,-2.125000089406967,-1,True
+198,agree,1,True,-4,-2,-1,Mirror,Coin,Bag,-0.125,-1,True
+198,first step only,0,False,5,0,1,Mirror,Coin,Bag,-2.6250000596046448,-1,False
+198,first step only,0,True,5,0,1,Mirror,Coin,Bag,0.25,1,True
+199,"conflict, M larger",1,True,-5,1,-1,Greg,Steve,David,2.3750000596046448,1,False
+199,"conflict, M larger",1,False,-5,1,-1,Greg,Steve,David,-2.1250001192092896,-1,True
+199,first step only,0,True,3,0,1,Greg,Steve,David,2.0,1,True
+199,first step only,0,False,3,0,1,Greg,Steve,David,-2.6250001192092896,-1,False
+200,agree,1,True,-2,-2,-1,Knife,Chair,Ball,0.0,-1,True
+200,agree,1,False,-2,-2,-1,Knife,Chair,Ball,-3.875,-1,True
+200,first step only,0,True,-1,0,-1,Knife,Chair,Ball,-0.125,-1,True
+200,first step only,0,False,-1,0,-1,Knife,Chair,Ball,-3.9999998211860657,-1,True
+201,own step only,1,True,0,5,1,Wheel,Book,Plate,0.5,1,True
+201,own step only,1,False,0,5,1,Wheel,Book,Plate,2.3749998807907104,1,True
+201,first step only,0,True,-2,0,-1,Wheel,Book,Plate,-0.75,-1,True
+201,first step only,0,False,-2,0,-1,Wheel,Book,Plate,-1.3749999403953552,-1,True
+202,first step only,1,False,-4,0,-1,Jake,Steve,Cole,-1.75,-1,True
+202,first step only,1,True,-4,0,-1,Jake,Steve,Cole,1.9999999403953552,1,False
+202,"conflict, M larger",0,False,3,-1,1,Jake,Steve,Cole,-1.2499998807907104,-1,False
+202,"conflict, M larger",0,True,3,-1,1,Jake,Steve,Cole,2.2499998807907104,1,True
+203,first step only,1,True,2,0,1,Rock,Tower,Mask,3.1250000596046448,1,True
+203,first step only,1,False,2,0,1,Rock,Tower,Mask,-0.375,-1,False
+203,"conflict, M larger",0,True,5,-3,1,Rock,Tower,Mask,0.625,1,True
+203,"conflict, M larger",0,False,5,-3,1,Rock,Tower,Mask,-0.75,-1,False
+204,own step only,1,True,0,3,1,Paul,Dan,Ben,-0.75,-1,False
+204,own step only,1,False,0,3,1,Paul,Dan,Ben,-1.2499999403953552,-1,False
+204,first step only,0,True,-3,0,-1,Paul,Dan,Ben,-1.375,-1,True
+204,first step only,0,False,-3,0,-1,Paul,Dan,Ben,-2.750000089406967,-1,True
+205,agree,1,False,1,1,1,Book,Rock,Box,-2.000000089406967,-1,False
+205,agree,1,True,1,1,1,Book,Rock,Box,0.0,-1,False
+205,first step only,0,False,5,0,1,Book,Rock,Box,-3.7500001043081284,-1,False
+205,first step only,0,True,5,0,1,Book,Rock,Box,-1.5,-1,False
+206,first step only,1,False,5,0,1,Henry,Jake,Rick,-0.5,-1,False
+206,first step only,1,True,5,0,1,Henry,Jake,Rick,5.000000037252903,1,True
+206,"conflict, C larger",0,False,1,-5,-1,Henry,Jake,Rick,-1.125,-1,True
+206,"conflict, C larger",0,True,1,-5,-1,Henry,Jake,Rick,3.3750001043081284,1,False
+207,own step only,1,False,0,-3,-1,Anchor,Stone,Gate,-1.8750000894069672,-1,True
+207,own step only,1,True,0,-3,-1,Anchor,Stone,Gate,1.375,1,False
+207,first step only,0,False,-1,0,-1,Anchor,Stone,Gate,-1.0000000596046448,-1,True
+207,first step only,0,True,-1,0,-1,Anchor,Stone,Gate,1.2499999403953552,1,False
+208,"conflict, M larger",1,False,-5,1,-1,Greg,Anna,Jane,-1.7499999403953552,-1,True
+208,"conflict, M larger",1,True,-5,1,-1,Greg,Anna,Jane,0.625,1,False
+209,own step only,1,True,0,-4,-1,Clock,Car,Leaf,-0.625,-1,True
+209,own step only,1,False,0,-4,-1,Clock,Car,Leaf,-2.000000089406967,-1,True
+209,first step only,0,True,4,0,1,Clock,Car,Leaf,-1.6249998807907104,-1,False
+209,first step only,0,False,4,0,1,Clock,Car,Leaf,-4.375000163912773,-1,False
+210,own step only,1,True,0,4,1,Bell,Cart,Arrow,2.2499999701976776,1,True
+210,own step only,1,False,0,4,1,Bell,Cart,Arrow,1.1249999403953552,1,True
+210,first step only,0,True,1,0,1,Bell,Cart,Arrow,0.75,1,True
+210,first step only,0,False,1,0,1,Bell,Cart,Arrow,-0.8750000596046448,-1,False
+211,first step only,1,False,3,0,1,Eric,Ben,Jane,0.0,-1,False
+211,first step only,1,True,3,0,1,Eric,Ben,Jane,2.8750000596046448,1,True
+211,own step only,0,False,0,-1,-1,Eric,Ben,Jane,0.0,-1,True
+211,own step only,0,True,0,-1,-1,Eric,Ben,Jane,3.374999910593033,1,False
+212,first step only,1,True,5,0,1,Bag,Pen,Basket,-0.25,-1,False
+212,first step only,1,False,5,0,1,Bag,Pen,Basket,-2.624999910593033,-1,False
+212,agree,0,True,-3,-2,-1,Bag,Pen,Basket,0.5,1,False
+212,agree,0,False,-3,-2,-1,Bag,Pen,Basket,-2.000000014901161,-1,True
+213,first step only,1,True,5,0,1,Bell,Hat,Chair,2.1249998807907104,1,True
+213,first step only,1,False,5,0,1,Bell,Hat,Chair,-2.124999985098839,-1,False
+213,agree,0,True,1,2,1,Bell,Hat,Chair,3.8749999031424522,1,True
+213,agree,0,False,1,2,1,Bell,Hat,Chair,0.5,1,True
+214,own step only,1,False,0,5,1,Basket,Tower,Bucket,8.499999791383743,1,True
+214,own step only,1,True,0,5,1,Basket,Tower,Bucket,1.875,1,True
+214,agree,0,False,3,3,1,Basket,Tower,Bucket,4.6249998807907104,1,True
+214,agree,0,True,3,3,1,Basket,Tower,Bucket,2.6250001192092896,1,True
+215,"conflict, M larger",0,False,-5,1,-1,Carl,Tom,Jake,-4.000000149011612,-1,True
+215,"conflict, M larger",0,True,-5,1,-1,Carl,Tom,Jake,0.375,1,False
+216,own step only,1,True,0,5,1,Pot,Coin,Tower,5.3749998807907104,1,True
+216,own step only,1,False,0,5,1,Pot,Coin,Tower,1.4999998807907104,1,True
+216,"conflict, M larger",0,True,2,-1,1,Pot,Coin,Tower,2.7499998807907104,1,True
+216,"conflict, M larger",0,False,2,-1,1,Pot,Coin,Tower,-1.5,-1,False
+217,first step only,0,True,2,0,1,Bob,Brian,Laura,0.625,1,True
+217,first step only,0,False,2,0,1,Bob,Brian,Laura,-5.125000186264515,-1,False
+218,first step only,1,False,-2,0,-1,Wheel,Gate,Desk,-4.749999918043613,-1,True
+218,first step only,1,True,-2,0,-1,Wheel,Gate,Desk,-1.0,-1,True
+218,own step only,0,False,0,1,1,Wheel,Gate,Desk,0.875,1,True
+218,own step only,0,True,0,1,1,Wheel,Gate,Desk,1.0,1,True
+219,own step only,1,False,0,-1,-1,Kate,Alan,Ben,-2.1249998807907104,-1,True
+219,own step only,1,True,0,-1,-1,Kate,Alan,Ben,-2.125,-1,True
+219,first step only,0,False,5,0,1,Kate,Alan,Ben,-3.999999985098839,-1,False
+219,first step only,0,True,5,0,1,Kate,Alan,Ben,-1.2499999403953552,-1,False
+220,"conflict, M larger",1,False,-3,1,-1,Beth,Peter,Fred,3.2499999701976776,1,False
+220,"conflict, M larger",1,True,-3,1,-1,Beth,Peter,Fred,2.6249999701976776,1,False
+221,first step only,1,True,-1,0,-1,Basket,Tree,Pot,-2.000000089406967,-1,True
+221,first step only,1,False,-1,0,-1,Basket,Tree,Pot,-5.2499998807907104,-1,True
+221,own step only,0,True,0,4,1,Basket,Tree,Pot,-0.75,-1,False
+221,own step only,0,False,0,4,1,Basket,Tree,Pot,-2.8750000596046448,-1,False
+222,first step only,1,True,2,0,1,Alan,Kevin,Brian,1.875,1,True
+222,first step only,1,False,2,0,1,Alan,Kevin,Brian,-0.625,-1,False
+222,own step only,0,True,0,-4,-1,Alan,Kevin,Brian,2.625,1,False
+222,own step only,0,False,0,-4,-1,Alan,Kevin,Brian,-0.125,-1,True
+223,own step only,1,True,0,-3,-1,Henry,Ben,Tom,0.375,1,False
+223,own step only,1,False,0,-3,-1,Henry,Ben,Tom,-2.875,-1,True
+223,first step only,0,True,4,0,1,Henry,Ben,Tom,0.8750000596046448,1,True
+223,first step only,0,False,4,0,1,Henry,Ben,Tom,-3.6250000596046448,-1,False
+224,"conflict, M larger",1,False,-5,2,-1,Banner,Mirror,Bell,0.375,1,False
+224,"conflict, M larger",1,True,-5,2,-1,Banner,Mirror,Bell,1.0,1,False
+224,first step only,0,False,-2,0,-1,Banner,Mirror,Bell,-1.9999998807907104,-1,True
+224,first step only,0,True,-2,0,-1,Banner,Mirror,Bell,0.0,-1,True
+225,first step only,1,True,3,0,1,Cole,Beth,Anna,-0.625,-1,False
+225,first step only,1,False,3,0,1,Cole,Beth,Anna,-1.2500001192092896,-1,False
+225,own step only,0,True,0,2,1,Cole,Beth,Anna,1.8750000596046448,1,True
+225,own step only,0,False,0,2,1,Cole,Beth,Anna,0.75,1,True
+226,"conflict, M larger",1,True,-3,2,-1,Dan,George,Emma,3.4999998807907104,1,False
+226,"conflict, M larger",1,False,-3,2,-1,Dan,George,Emma,0.75,1,False
+226,own step only,0,True,0,-1,-1,Dan,George,Emma,3.4999999701976776,1,False
+226,own step only,0,False,0,-1,-1,Dan,George,Emma,0.625,1,False
+227,own step only,1,True,0,4,1,Ball,Table,Bucket,1.4999999403953552,1,True
+227,own step only,1,False,0,4,1,Ball,Table,Bucket,2.4999998956918716,1,True
+227,first step only,0,True,4,0,1,Ball,Table,Bucket,-1.0,-1,False
+227,first step only,0,False,4,0,1,Ball,Table,Bucket,-4.624999836087227,-1,False
+228,first step only,1,True,-5,0,-1,Jane,Cole,Rachel,0.625,1,False
+228,first step only,1,False,-5,0,-1,Jane,Cole,Rachel,-1.7499999403953552,-1,True
+228,agree,0,True,-5,-1,-1,Jane,Cole,Rachel,1.25,1,False
+228,agree,0,False,-5,-1,-1,Jane,Cole,Rachel,-2.0,-1,True
+229,first step only,1,True,-4,0,-1,Rick,Sam,Steve,-0.25,-1,True
+229,first step only,1,False,-4,0,-1,Rick,Sam,Steve,-3.8749999403953552,-1,True
+229,own step only,0,True,0,2,1,Rick,Sam,Steve,1.5000001192092896,1,True
+229,own step only,0,False,0,2,1,Rick,Sam,Steve,-2.2499998807907104,-1,False
+230,first step only,1,True,3,0,1,Bucket,Box,Anchor,1.125,1,True
+230,first step only,1,False,3,0,1,Bucket,Box,Anchor,-1.8749999105930328,-1,False
+230,"conflict, M larger",0,True,-5,4,-1,Bucket,Box,Anchor,0.875,1,False
+230,"conflict, M larger",0,False,-5,4,-1,Bucket,Box,Anchor,-1.8749999105930328,-1,True
+231,own step only,1,False,0,-3,-1,Alan,Jane,Sam,-4.625000186264515,-1,True
+231,own step only,1,True,0,-3,-1,Alan,Jane,Sam,-3.1250000447034836,-1,True
+231,first step only,0,False,5,0,1,Alan,Jane,Sam,-3.6249999701976776,-1,False
+231,first step only,0,True,5,0,1,Alan,Jane,Sam,-2.8750001192092896,-1,False
+232,agree,0,True,-2,-2,-1,Coin,Mask,Clock,0.875,1,False
+232,agree,0,False,-2,-2,-1,Coin,Mask,Clock,0.0,-1,True
+233,"conflict, M larger",1,True,5,-3,1,Carl,Alice,Beth,-1.6250000894069672,-1,False
+233,"conflict, M larger",1,False,5,-3,1,Carl,Alice,Beth,-3.8749999031424522,-1,False
+234,"conflict, M larger",1,True,-5,3,-1,Stone,Gate,Tree,3.375000089406967,1,False
+234,"conflict, M larger",1,False,-5,3,-1,Stone,Gate,Tree,0.9999999403953552,1,False
+234,first step only,0,True,3,0,1,Stone,Gate,Tree,1.125,1,True
+234,first step only,0,False,3,0,1,Stone,Gate,Tree,-1.125,-1,False
+235,"conflict, C larger",0,False,-1,2,1,Rick,Amy,David,2.375,1,True
+235,"conflict, C larger",0,True,-1,2,1,Rick,Amy,David,3.999999761581421,1,True
+236,own step only,1,False,0,3,1,Stone,Mask,Bell,2.375000014901161,1,True
+236,own step only,1,True,0,3,1,Stone,Mask,Bell,1.5000001192092896,1,True
+236,first step only,0,False,-2,0,-1,Stone,Mask,Bell,-2.999999925494194,-1,True
+236,first step only,0,True,-2,0,-1,Stone,Mask,Bell,-0.25,-1,True
+237,"conflict, C larger",1,False,1,-5,-1,Banner,Mirror,Jar,-0.5,-1,True
+237,"conflict, C larger",1,True,1,-5,-1,Banner,Mirror,Jar,0.125,1,False
+237,first step only,0,False,-2,0,-1,Banner,Mirror,Jar,-2.0000000596046448,-1,True
+237,first step only,0,True,-2,0,-1,Banner,Mirror,Jar,-0.5,-1,True
+238,"conflict, C larger",1,False,1,-4,-1,Bell,Table,Plate,0.7499999403953552,1,False
+238,"conflict, C larger",1,True,1,-4,-1,Bell,Table,Plate,2.75,1,False
+238,"conflict, C larger",0,False,1,-4,-1,Bell,Table,Plate,0.8749999403953552,1,False
+238,"conflict, C larger",0,True,1,-4,-1,Bell,Table,Plate,2.6250001192092896,1,False
+239,"conflict, M larger",1,True,-4,3,-1,Eric,Brian,Paul,1.2500000596046448,1,False
+239,"conflict, M larger",1,False,-4,3,-1,Eric,Brian,Paul,-2.249999910593033,-1,True
+239,own step only,0,True,0,-4,-1,Eric,Brian,Paul,0.375,1,False
+239,own step only,0,False,0,-4,-1,Eric,Brian,Paul,-3.250000111758709,-1,True
+240,own step only,1,True,0,-2,-1,Basket,Mirror,Door,-0.25,-1,True
+240,own step only,1,False,0,-2,-1,Basket,Mirror,Door,-2.875000089406967,-1,True
+240,"conflict, M larger",0,True,-3,2,-1,Basket,Mirror,Door,-0.375,-1,True
+240,"conflict, M larger",0,False,-3,2,-1,Basket,Mirror,Door,-2.0,-1,True
+241,"conflict, M larger",1,False,-5,3,-1,Wheel,Coin,Pot,-2.9999999403953552,-1,True
+241,"conflict, M larger",1,True,-5,3,-1,Wheel,Coin,Pot,1.7499998807907104,1,False
+241,agree,0,False,3,3,1,Wheel,Coin,Pot,0.9999998807907104,1,True
+241,agree,0,True,3,3,1,Wheel,Coin,Pot,2.6250000596046448,1,True
+242,first step only,1,False,2,0,1,Bucket,Bag,Mask,-2.25,-1,False
+242,first step only,1,True,2,0,1,Bucket,Bag,Mask,0.875,1,True
+242,own step only,0,False,0,4,1,Bucket,Bag,Mask,5.87500019185245,1,True
+242,own step only,0,True,0,4,1,Bucket,Bag,Mask,3.5000000670552254,1,True
+243,agree,1,True,-2,-3,-1,Pot,Mask,Glass,-1.7499998807907104,-1,True
+243,agree,1,False,-2,-3,-1,Pot,Mask,Glass,-4.499999865889549,-1,True
+243,own step only,0,True,0,-2,-1,Pot,Mask,Glass,-0.125,-1,True
+243,own step only,0,False,0,-2,-1,Pot,Mask,Glass,-3.0,-1,True
+244,agree,1,True,4,1,1,Chris,Alice,Fred,4.2499998807907104,1,True
+244,agree,1,False,4,1,1,Chris,Alice,Fred,-3.5000000298023224,-1,False
+244,first step only,0,True,5,0,1,Chris,Alice,Fred,1.6250001192092896,1,True
+244,first step only,0,False,5,0,1,Chris,Alice,Fred,-4.7500001937150955,-1,False
+245,"conflict, C larger",1,False,1,-2,-1,Flag,Anchor,Bucket,-3.7499999403953552,-1,True
+245,"conflict, C larger",1,True,1,-2,-1,Flag,Anchor,Bucket,-1.3749999403953552,-1,True
+245,agree,0,False,-5,-1,-1,Flag,Anchor,Bucket,-6.875000208616257,-1,True
+245,agree,0,True,-5,-1,-1,Flag,Anchor,Bucket,-1.6250000596046448,-1,True
+246,own step only,0,True,0,-2,-1,Pot,Mirror,Hat,-0.6249999403953552,-1,True
+246,own step only,0,False,0,-2,-1,Pot,Mirror,Hat,-2.6250000596046448,-1,True
+247,"conflict, C larger",1,False,-2,5,1,Adam,Alice,Sam,1.375,1,True
+247,"conflict, C larger",1,True,-2,5,1,Adam,Alice,Sam,2.874999910593033,1,True
+247,"conflict, C larger",0,False,-1,5,1,Adam,Alice,Sam,1.6249999701976776,1,True
+247,"conflict, C larger",0,True,-1,5,1,Adam,Alice,Sam,2.624999985098839,1,True
+248,"conflict, M larger",1,True,-4,3,-1,Door,Cart,Pen,-0.75,-1,True
+248,"conflict, M larger",1,False,-4,3,-1,Door,Cart,Pen,-1.8750000894069672,-1,True
+248,first step only,0,True,-2,0,-1,Door,Cart,Pen,-1.1249999403953552,-1,True
+248,first step only,0,False,-2,0,-1,Door,Cart,Pen,-3.250000014901161,-1,True
+249,own step only,1,False,0,-5,-1,Mask,Anchor,Pipe,-2.2500000298023224,-1,True
+249,own step only,1,True,0,-5,-1,Mask,Anchor,Pipe,-0.375,-1,True
+249,first step only,0,False,4,0,1,Mask,Anchor,Pipe,-3.875000074505806,-1,False
+249,first step only,0,True,4,0,1,Mask,Anchor,Pipe,-0.75,-1,False
+250,"conflict, M larger",0,False,-4,1,-1,Pot,Car,Plate,-0.3750000596046448,-1,True
+250,"conflict, M larger",0,True,-4,1,-1,Pot,Car,Plate,-1.3750000298023224,-1,True
+251,first step only,1,False,4,0,1,Neil,Leo,Adam,-2.1250001043081284,-1,False
+251,first step only,1,True,4,0,1,Neil,Leo,Adam,2.2499999701976776,1,True
+251,own step only,0,False,0,1,1,Neil,Leo,Adam,-0.75,-1,False
+251,own step only,0,True,0,1,1,Neil,Leo,Adam,3.8749999031424522,1,True
+252,first step only,1,False,5,0,1,Table,Pot,Wheel,-2.3750000596046448,-1,False
+252,first step only,1,True,5,0,1,Table,Pot,Wheel,0.625,1,True
+252,agree,0,False,-1,-4,-1,Table,Pot,Wheel,-2.0000000596046448,-1,True
+252,agree,0,True,-1,-4,-1,Table,Pot,Wheel,-0.125,-1,True
+253,own step only,1,False,0,1,1,Fred,Kate,Anna,6.125000037252903,1,True
+253,own step only,1,True,0,1,1,Fred,Kate,Anna,5.875,1,True
+253,first step only,0,False,5,0,1,Fred,Kate,Anna,-0.25,-1,False
+253,first step only,0,True,5,0,1,Fred,Kate,Anna,3.250000089406967,1,True
+254,first step only,1,True,2,0,1,Kate,George,Ben,-3.0000000596046448,-1,False
+254,first step only,1,False,2,0,1,Kate,George,Ben,-4.624999970197678,-1,False
+254,own step only,0,True,0,-5,-1,Kate,George,Ben,-0.375,-1,True
+254,own step only,0,False,0,-5,-1,Kate,George,Ben,-1.375,-1,True
+255,agree,1,False,3,1,1,Box,Stone,Pen,-0.4999999403953552,-1,False
+255,agree,1,True,3,1,1,Box,Stone,Pen,0.6249999403953552,1,True
+255,own step only,0,False,0,-1,-1,Box,Stone,Pen,-0.6250000596046448,-1,True
+255,own step only,0,True,0,-1,-1,Box,Stone,Pen,0.5,1,False
+256,first step only,1,True,5,0,1,Alan,Neil,Dan,0.25,1,True
+256,first step only,1,False,5,0,1,Alan,Neil,Dan,-3.250000014901161,-1,False
+256,own step only,0,True,0,-1,-1,Alan,Neil,Dan,-0.125,-1,True
+256,own step only,0,False,0,-1,-1,Alan,Neil,Dan,-3.3750000968575478,-1,True
+257,"conflict, C larger",1,False,-2,5,1,Mask,Car,Table,0.875,1,True
+257,"conflict, C larger",1,True,-2,5,1,Mask,Car,Table,0.0,-1,False
+257,first step only,0,False,1,0,1,Mask,Car,Table,-4.874999925494194,-1,False
+257,first step only,0,True,1,0,1,Mask,Car,Table,-1.9999999403953552,-1,False
+258,agree,1,True,4,1,1,Jake,Emma,Ben,3.1249998807907104,1,True
+258,agree,1,False,4,1,1,Jake,Emma,Ben,-0.375,-1,False
+259,own step only,1,False,0,-5,-1,Box,Desk,Cart,0.25,1,False
+259,own step only,1,True,0,-5,-1,Box,Desk,Cart,2.125,1,False
+259,agree,0,False,1,4,1,Box,Desk,Cart,3.125,1,True
+259,agree,0,True,1,4,1,Box,Desk,Cart,6.125,1,True
+260,first step only,1,False,-5,0,-1,Alice,Kevin,George,-0.125,-1,True
+260,first step only,1,True,-5,0,-1,Alice,Kevin,George,3.500000089406967,1,False
+260,agree,0,False,-3,-2,-1,Alice,Kevin,George,-0.125,-1,True
+260,agree,0,True,-3,-2,-1,Alice,Kevin,George,4.375000081956387,1,False
+261,agree,1,False,-3,-3,-1,Pipe,Ring,Basket,-2.8750000298023224,-1,True
+261,agree,1,True,-3,-3,-1,Pipe,Ring,Basket,0.0,-1,True
+262,own step only,1,False,0,1,1,Paul,Peter,Kim,5.999999910593033,1,True
+262,own step only,1,True,0,1,1,Paul,Peter,Kim,5.500000059604645,1,True
+262,"conflict, M larger",0,False,-2,1,-1,Paul,Peter,Kim,4.749999910593033,1,False
+262,"conflict, M larger",0,True,-2,1,-1,Paul,Peter,Kim,5.250000059604645,1,False
+263,own step only,1,True,0,3,1,Kevin,Carl,Eric,-1.8750001192092896,-1,False
+263,own step only,1,False,0,3,1,Kevin,Carl,Eric,-4.2500001192092896,-1,False
+263,first step only,0,True,-5,0,-1,Kevin,Carl,Eric,-3.0,-1,True
+263,first step only,0,False,-5,0,-1,Kevin,Carl,Eric,-5.8750001937150955,-1,True
+264,own step only,1,False,0,3,1,Arrow,Flag,Brush,8.249999523162842,1,True
+264,own step only,1,True,0,3,1,Arrow,Flag,Brush,5.750000238418579,1,True
+264,"conflict, C larger",0,False,1,-5,-1,Arrow,Flag,Brush,0.875,1,False
+264,"conflict, C larger",0,True,1,-5,-1,Arrow,Flag,Brush,1.375,1,False
+265,own step only,1,False,0,4,1,Mask,Tree,Rock,5.500000044703484,1,True
+265,own step only,1,True,0,4,1,Mask,Tree,Rock,3.6250000447034836,1,True
+265,first step only,0,False,3,0,1,Mask,Tree,Rock,-4.625000029802322,-1,False
+265,first step only,0,True,3,0,1,Mask,Tree,Rock,-1.25,-1,False
+266,"conflict, C larger",1,False,3,-4,-1,Mirror,Car,Arrow,-2.1249999701976776,-1,True
+266,"conflict, C larger",1,True,3,-4,-1,Mirror,Car,Arrow,-0.625,-1,True
+267,own step only,1,False,0,-2,-1,Kate,Adam,Tom,-6.749999891966581,-1,True
+267,own step only,1,True,0,-2,-1,Kate,Adam,Tom,-5.750000178813934,-1,True
+267,first step only,0,False,-1,0,-1,Kate,Adam,Tom,-6.500000201165676,-1,True
+267,first step only,0,True,-1,0,-1,Kate,Adam,Tom,-5.249999791383743,-1,True
+268,"conflict, C larger",1,True,-1,3,1,Desk,Pipe,Flag,-0.625,-1,False
+268,"conflict, C larger",1,False,-1,3,1,Desk,Pipe,Flag,1.7500001192092896,1,True
+268,own step only,0,True,0,3,1,Desk,Pipe,Flag,-1.0,-1,False
+268,own step only,0,False,0,3,1,Desk,Pipe,Flag,0.75,1,True
+269,first step only,1,True,1,0,1,Neil,Leo,Jane,5.250000149011612,1,True
+269,first step only,1,False,1,0,1,Neil,Leo,Jane,-2.1250000447034836,-1,False
+270,agree,1,False,-1,-1,-1,Jake,Leo,Jane,-5.750000223517418,-1,True
+270,agree,1,True,-1,-1,-1,Jake,Leo,Jane,-2.125,-1,True
+271,agree,1,True,-1,-5,-1,Pot,Knife,Mask,-1.25,-1,True
+271,agree,1,False,-1,-5,-1,Pot,Knife,Mask,-3.1249999701976776,-1,True
+271,own step only,0,True,0,-4,-1,Pot,Knife,Mask,-0.8749999403953552,-1,True
+271,own step only,0,False,0,-4,-1,Pot,Knife,Mask,-3.2499998807907104,-1,True
+272,"conflict, C larger",1,True,-4,5,1,Door,Stone,Cart,-0.375,-1,False
+272,"conflict, C larger",1,False,-4,5,1,Door,Stone,Cart,-2.2499999701976776,-1,False
+272,agree,0,True,4,1,1,Door,Stone,Cart,1.0,1,True
+272,agree,0,False,4,1,1,Door,Stone,Cart,-1.2500000596046448,-1,False
+273,first step only,1,True,-1,0,-1,Kate,Laura,Ben,-2.624999910593033,-1,True
+273,first step only,1,False,-1,0,-1,Kate,Laura,Ben,-4.7500001937150955,-1,True
+273,own step only,0,True,0,-1,-1,Kate,Laura,Ben,-1.0,-1,True
+273,own step only,0,False,0,-1,-1,Kate,Laura,Ben,-3.0000000298023224,-1,True
+274,own step only,1,False,0,3,1,Mask,Pen,Table,3.500000089406967,1,True
+274,own step only,1,True,0,3,1,Mask,Pen,Table,1.7499999105930328,1,True
+274,"conflict, M larger",0,False,-3,2,-1,Mask,Pen,Table,1.125,1,False
+274,"conflict, M larger",0,True,-3,2,-1,Mask,Pen,Table,-0.375,-1,True
+275,"conflict, C larger",1,False,-2,3,1,Amy,Cole,Sam,0.3750000596046448,1,True
+275,"conflict, C larger",1,True,-2,3,1,Amy,Cole,Sam,3.3750001192092896,1,True
+275,first step only,0,False,2,0,1,Amy,Cole,Sam,-2.6249999403953552,-1,False
+275,first step only,0,True,2,0,1,Amy,Cole,Sam,1.875,1,True
+276,agree,0,True,3,2,1,Mirror,Arrow,Brush,2.8750001192092896,1,True
+276,agree,0,False,3,2,1,Mirror,Arrow,Brush,-1.4999999403953552,-1,False
+277,own step only,1,True,0,4,1,Carl,Alan,Kate,3.3750001192092896,1,True
+277,own step only,1,False,0,4,1,Carl,Alan,Kate,1.8749999403953552,1,True
+277,agree,0,True,1,1,1,Carl,Alan,Kate,3.8749998807907104,1,True
+277,agree,0,False,1,1,1,Carl,Alan,Kate,1.6250000596046448,1,True
+278,first step only,1,True,4,0,1,Mirror,Pipe,Chair,-1.7500000596046448,-1,False
+278,first step only,1,False,4,0,1,Mirror,Pipe,Chair,-4.625000134110451,-1,False
+278,own step only,0,True,0,-4,-1,Mirror,Pipe,Chair,0.0,-1,True
+278,own step only,0,False,0,-4,-1,Mirror,Pipe,Chair,-1.5000001192092896,-1,True
+279,first step only,1,False,1,0,1,Greg,Fred,Kim,0.25,1,True
+279,first step only,1,True,1,0,1,Greg,Fred,Kim,2.2499998807907104,1,True
+279,own step only,0,False,0,-3,-1,Greg,Fred,Kim,3.1250000298023224,1,False
+279,own step only,0,True,0,-3,-1,Greg,Fred,Kim,3.8750001341104507,1,False
+280,"conflict, M larger",0,False,-4,2,-1,Rock,Bucket,Mirror,2.3749999552965164,1,False
+280,"conflict, M larger",0,True,-4,2,-1,Rock,Bucket,Mirror,1.125,1,False
+281,"conflict, M larger",0,False,5,-4,1,Rick,Adam,Peter,-1.8750000894069672,-1,False
+281,"conflict, M larger",0,True,5,-4,1,Rick,Adam,Peter,0.8750000596046448,1,True
+282,own step only,1,False,0,-3,-1,Bucket,Car,Knife,-3.249999925494194,-1,True
+282,own step only,1,True,0,-3,-1,Bucket,Car,Knife,-0.8749999403953552,-1,True
+282,first step only,0,False,1,0,1,Bucket,Car,Knife,-4.5000001937150955,-1,False
+282,first step only,0,True,1,0,1,Bucket,Car,Knife,-1.375,-1,False
+283,agree,1,True,1,2,1,Flag,Anchor,Coin,0.25,1,True
+283,agree,1,False,1,2,1,Flag,Anchor,Coin,-2.7500000596046448,-1,False
+284,"conflict, C larger",1,False,-1,5,1,Brian,Jack,David,5.499999882653356,1,True
+284,"conflict, C larger",1,True,-1,5,1,Brian,Jack,David,6.499999918043613,1,True
+284,own step only,0,False,0,4,1,Brian,Jack,David,4.624999783933163,1,True
+284,own step only,0,True,0,4,1,Brian,Jack,David,6.3749999068677425,1,True
+285,agree,0,True,4,1,1,Bell,Table,Box,8.374999599531293,1,True
+285,agree,0,False,4,1,1,Bell,Table,Box,0.0,-1,False
+286,first step only,1,True,-2,0,-1,Tom,Alice,Alan,-1.1249999701976776,-1,True
+286,first step only,1,False,-2,0,-1,Tom,Alice,Alan,-3.5000000596046448,-1,True
+286,own step only,0,True,0,-1,-1,Tom,Alice,Alan,-0.12499994039535522,-1,True
+286,own step only,0,False,0,-1,-1,Tom,Alice,Alan,-2.5000000298023224,-1,True
+287,"conflict, C larger",1,True,2,-3,-1,Cart,Knife,Bag,0.8749998807907104,1,False
+287,"conflict, C larger",1,False,2,-3,-1,Cart,Knife,Bag,-2.6250000596046448,-1,True
+287,own step only,0,True,0,2,1,Cart,Knife,Bag,0.125,1,True
+287,own step only,0,False,0,2,1,Cart,Knife,Bag,-3.0,-1,False
+288,first step only,1,True,-4,0,-1,Fred,Rachel,Dan,-0.125,-1,True
+288,first step only,1,False,-4,0,-1,Fred,Rachel,Dan,-3.7499997913837433,-1,True
+288,agree,0,True,-3,-2,-1,Fred,Rachel,Dan,0.6250000596046448,1,False
+288,agree,0,False,-3,-2,-1,Fred,Rachel,Dan,-3.7500001043081284,-1,True
+289,first step only,1,True,-4,0,-1,Ball,Plate,Pipe,-2.2499998807907104,-1,True
+289,first step only,1,False,-4,0,-1,Ball,Plate,Pipe,-2.2499998807907104,-1,True
+289,own step only,0,True,0,-1,-1,Ball,Plate,Pipe,0.5,1,False
+289,own step only,0,False,0,-1,-1,Ball,Plate,Pipe,-0.5000000596046448,-1,True
+290,agree,1,True,2,1,1,David,Beth,Adam,4.499999791383743,1,True
+290,agree,1,False,2,1,1,David,Beth,Adam,-0.625,-1,False
+290,first step only,0,True,3,0,1,David,Beth,Adam,1.625,1,True
+290,first step only,0,False,3,0,1,David,Beth,Adam,-2.125,-1,False
+291,first step only,1,True,-4,0,-1,Book,Basket,Mask,-0.125,-1,True
+291,first step only,1,False,-4,0,-1,Book,Basket,Mask,-1.9999999105930328,-1,True
+291,agree,0,True,1,5,1,Book,Basket,Mask,1.0,1,True
+291,agree,0,False,1,5,1,Book,Basket,Mask,-0.5,-1,False
+292,"conflict, M larger",1,True,3,-2,1,Carl,Greg,Beth,4.375000149011612,1,True
+292,"conflict, M larger",1,False,3,-2,1,Carl,Greg,Beth,-0.5,-1,False
+292,own step only,0,True,0,-2,-1,Carl,Greg,Beth,4.374999970197678,1,False
+292,own step only,0,False,0,-2,-1,Carl,Greg,Beth,-0.5,-1,True
+293,agree,1,True,1,3,1,Pen,Book,Gate,8.500000044703484,1,True
+293,agree,1,False,1,3,1,Pen,Book,Gate,5.500000216066837,1,True
+293,own step only,0,True,0,4,1,Pen,Book,Gate,3.75,1,True
+293,own step only,0,False,0,4,1,Pen,Book,Gate,6.000000074505806,1,True
+294,first step only,1,True,-5,0,-1,Bob,Kevin,Greg,2.2499999403953552,1,False
+294,first step only,1,False,-5,0,-1,Bob,Kevin,Greg,-1.375,-1,True
+294,own step only,0,True,0,-2,-1,Bob,Kevin,Greg,2.5000000596046448,1,False
+294,own step only,0,False,0,-2,-1,Bob,Kevin,Greg,-1.1249999403953552,-1,True
+295,"conflict, C larger",1,False,2,-5,-1,Chair,Tree,Bell,-4.124999955296516,-1,True
+295,"conflict, C larger",1,True,2,-5,-1,Chair,Tree,Bell,0.375,1,False
+295,first step only,0,False,1,0,1,Chair,Tree,Bell,-5.125000089406967,-1,False
+295,first step only,0,True,1,0,1,Chair,Tree,Bell,-0.125,-1,False
+296,"conflict, M larger",1,False,-4,1,-1,Alice,Jack,Eric,0.75,1,False
+296,"conflict, M larger",1,True,-4,1,-1,Alice,Jack,Eric,2.1249999701976776,1,False
+296,own step only,0,False,0,4,1,Alice,Jack,Eric,1.4999999701976776,1,True
+296,own step only,0,True,0,4,1,Alice,Jack,Eric,2.625000089406967,1,True
+297,agree,1,False,3,3,1,Brush,Basket,Table,0.5,1,True
+297,agree,1,True,3,3,1,Brush,Basket,Table,1.5000000298023224,1,True
+297,agree,0,False,-3,-2,-1,Brush,Basket,Table,0.625,1,False
+297,agree,0,True,-3,-2,-1,Brush,Basket,Table,1.2500000298023224,1,False
+298,"conflict, C larger",0,True,-2,5,1,Cart,Pot,Pen,1.125,1,True
+298,"conflict, C larger",0,False,-2,5,1,Cart,Pot,Pen,0.0,-1,False
+299,"conflict, M larger",1,True,-4,3,-1,Adam,Laura,Rachel,1.625,1,False
+299,"conflict, M larger",1,False,-4,3,-1,Adam,Laura,Rachel,-0.625,-1,True
+299,own step only,0,True,0,2,1,Adam,Laura,Rachel,1.7500001192092896,1,True
+299,own step only,0,False,0,2,1,Adam,Laura,Rachel,-1.4999998807907104,-1,False
+300,first step only,1,False,5,0,1,Clock,Car,Stone,-3.6249999403953552,-1,False
+300,first step only,1,True,5,0,1,Clock,Car,Stone,-1.8749999701976776,-1,False
+300,agree,0,False,-4,-2,-1,Clock,Car,Stone,-3.2500000298023224,-1,True
+300,agree,0,True,-4,-2,-1,Clock,Car,Stone,-2.124999910593033,-1,True
+301,"conflict, M larger",1,False,4,-2,1,Henry,Leo,Kate,-2.9999999180436134,-1,False
+301,"conflict, M larger",1,True,4,-2,1,Henry,Leo,Kate,1.7499999105930328,1,True
+301,first step only,0,False,5,0,1,Henry,Leo,Kate,-3.6249999031424522,-1,False
+301,first step only,0,True,5,0,1,Henry,Leo,Kate,2.125000089406967,1,True
+302,own step only,1,True,0,1,1,Anna,Amy,Carl,3.1249999701976776,1,True
+302,own step only,1,False,0,1,1,Anna,Amy,Carl,0.0,-1,False
+302,first step only,0,True,1,0,1,Anna,Amy,Carl,1.875,1,True
+302,first step only,0,False,1,0,1,Anna,Amy,Carl,-1.875,-1,False
+303,"conflict, C larger",0,False,3,-5,-1,Plate,Chair,Door,-1.75,-1,True
+303,"conflict, C larger",0,True,3,-5,-1,Plate,Chair,Door,0.875,1,False
+304,own step only,1,False,0,1,1,Jane,Cole,Alice,6.750000149011612,1,True
+304,own step only,1,True,0,1,1,Jane,Cole,Alice,4.499999761581421,1,True
+304,first step only,0,False,4,0,1,Jane,Cole,Alice,0.375,1,True
+304,first step only,0,True,4,0,1,Jane,Cole,Alice,2.3749998807907104,1,True
+305,own step only,1,False,0,5,1,Anchor,Leaf,Banner,5.375000074505806,1,True
+305,own step only,1,True,0,5,1,Anchor,Leaf,Banner,3.250000089406967,1,True
+305,first step only,0,False,-3,0,-1,Anchor,Leaf,Banner,-0.7500000596046448,-1,True
+305,first step only,0,True,-3,0,-1,Anchor,Leaf,Banner,1.1250000596046448,1,False
+306,agree,1,False,3,1,1,Anna,Greg,George,2.8749999403953552,1,True
+306,agree,1,True,3,1,1,Anna,Greg,George,7.749999925494194,1,True
+307,"conflict, C larger",1,False,3,-5,-1,Carl,Sean,Cole,-2.6249999701976776,-1,True
+307,"conflict, C larger",1,True,3,-5,-1,Carl,Sean,Cole,1.7500000596046448,1,False
+307,"conflict, C larger",0,False,-4,5,1,Carl,Sean,Cole,-2.0,-1,False
+307,"conflict, C larger",0,True,-4,5,1,Carl,Sean,Cole,1.0,1,True
+308,first step only,1,True,-3,0,-1,Clock,Pen,Arrow,0.0,-1,True
+308,first step only,1,False,-3,0,-1,Clock,Pen,Arrow,-2.125,-1,True
+309,own step only,1,False,0,-3,-1,George,Kate,Jack,0.75,1,False
+309,own step only,1,True,0,-3,-1,George,Kate,Jack,3.8749998807907104,1,False
+310,"conflict, C larger",0,True,1,-2,-1,Arrow,Ring,Banner,-0.5000000596046448,-1,True
+310,"conflict, C larger",0,False,1,-2,-1,Arrow,Ring,Banner,-2.5,-1,True
+311,agree,1,False,-4,-1,-1,George,Carl,Anna,-1.9999999105930328,-1,True
+311,agree,1,True,-4,-1,-1,George,Carl,Anna,0.25,1,False
+311,first step only,0,False,3,0,1,George,Carl,Anna,-2.2500001192092896,-1,False
+311,first step only,0,True,3,0,1,George,Carl,Anna,1.625,1,True
+312,"conflict, M larger",1,True,-5,1,-1,Mirror,Wheel,Banner,1.0,1,False
+312,"conflict, M larger",1,False,-5,1,-1,Mirror,Wheel,Banner,-0.625,-1,True
+312,agree,0,True,3,3,1,Mirror,Wheel,Banner,1.375,1,True
+312,agree,0,False,3,3,1,Mirror,Wheel,Banner,1.2499998807907104,1,True
+313,agree,1,True,4,2,1,Jane,Dan,Leo,1.125,1,True
+313,agree,1,False,4,2,1,Jane,Dan,Leo,-1.2500000298023224,-1,False
+313,first step only,0,True,-5,0,-1,Jane,Dan,Leo,-1.125,-1,True
+313,first step only,0,False,-5,0,-1,Jane,Dan,Leo,-3.374999977648258,-1,True
+314,agree,0,True,-3,-1,-1,David,Cole,Beth,-0.625,-1,True
+314,agree,0,False,-3,-1,-1,David,Cole,Beth,-2.250000089406967,-1,True
+315,first step only,1,True,-5,0,-1,Mirror,Desk,Banner,-0.75,-1,True
+315,first step only,1,False,-5,0,-1,Mirror,Desk,Banner,-5.624999821186066,-1,True
+315,own step only,0,True,0,5,1,Mirror,Desk,Banner,1.5,1,True
+315,own step only,0,False,0,5,1,Mirror,Desk,Banner,0.375,1,True
+316,own step only,1,False,0,5,1,Ben,Paul,Leo,1.0,1,True
+316,own step only,1,True,0,5,1,Ben,Paul,Leo,2.625000089406967,1,True
+316,first step only,0,False,3,0,1,Ben,Paul,Leo,-2.6249998807907104,-1,False
+316,first step only,0,True,3,0,1,Ben,Paul,Leo,1.5000001192092896,1,True
+317,"conflict, M larger",1,True,-2,1,-1,Sam,Kevin,Tom,3.7500000298023224,1,False
+317,"conflict, M larger",1,False,-2,1,-1,Sam,Kevin,Tom,0.625,1,False
+317,"conflict, M larger",0,True,-5,4,-1,Sam,Kevin,Tom,3.499999985098839,1,False
+317,"conflict, M larger",0,False,-5,4,-1,Sam,Kevin,Tom,-0.3749999403953552,-1,True
+318,"conflict, M larger",1,False,-5,1,-1,Book,Bag,Box,-2.75,-1,True
+318,"conflict, M larger",1,True,-5,1,-1,Book,Bag,Box,-2.2500000596046448,-1,True
+318,first step only,0,False,4,0,1,Book,Bag,Box,-3.624999910593033,-1,False
+318,first step only,0,True,4,0,1,Book,Bag,Box,-2.5000000298023224,-1,False
+319,first step only,1,False,3,0,1,Bucket,Coin,Leaf,-3.4999999329447746,-1,False
+319,first step only,1,True,3,0,1,Bucket,Coin,Leaf,1.2500000596046448,1,True
+319,own step only,0,False,0,3,1,Bucket,Coin,Leaf,0.0,-1,False
+319,own step only,0,True,0,3,1,Bucket,Coin,Leaf,3.2500001043081284,1,True
+320,first step only,1,True,-2,0,-1,Kate,Rick,Brian,-3.8750000596046448,-1,True
+320,first step only,1,False,-2,0,-1,Kate,Rick,Brian,-7.874999858438969,-1,True
+320,own step only,0,True,0,-5,-1,Kate,Rick,Brian,-2.6249999403953552,-1,True
+320,own step only,0,False,0,-5,-1,Kate,Rick,Brian,-4.2500001192092896,-1,True
+321,own step only,1,True,0,-1,-1,Ball,Car,Bell,-1.125,-1,True
+321,own step only,1,False,0,-1,-1,Ball,Car,Bell,-1.625,-1,True
+321,first step only,0,True,-2,0,-1,Ball,Car,Bell,-2.0000000596046448,-1,True
+321,first step only,0,False,-2,0,-1,Ball,Car,Bell,-3.124999985098839,-1,True
+322,first step only,1,True,3,0,1,Anna,Carl,Emma,0.75,1,True
+322,first step only,1,False,3,0,1,Anna,Carl,Emma,0.875,1,True
+322,own step only,0,True,0,2,1,Anna,Carl,Emma,1.375,1,True
+322,own step only,0,False,0,2,1,Anna,Carl,Emma,-0.12499994039535522,-1,False
+323,own step only,1,False,0,-1,-1,Tree,Door,Cart,0.0,-1,True
+323,own step only,1,True,0,-1,-1,Tree,Door,Cart,1.75,1,False
+324,agree,1,True,-2,-3,-1,Amy,Alan,Cole,0.5,1,False
+324,agree,1,False,-2,-3,-1,Amy,Alan,Cole,-5.375000208616257,-1,True
+325,"conflict, C larger",1,True,-1,4,1,Wheel,Plate,Door,1.75,1,True
+325,"conflict, C larger",1,False,-1,4,1,Wheel,Plate,Door,0.6250001192092896,1,True
+325,own step only,0,True,0,-4,-1,Wheel,Plate,Door,1.7499998807907104,1,False
+325,own step only,0,False,0,-4,-1,Wheel,Plate,Door,-0.25,-1,True
+326,agree,1,False,-1,-2,-1,Bucket,Plate,Table,-2.7499999403953552,-1,True
+326,agree,1,True,-1,-2,-1,Bucket,Plate,Table,-1.5000001192092896,-1,True
+327,"conflict, C larger",0,False,-2,5,1,Bob,Paul,Kevin,-1.125,-1,False
+327,"conflict, C larger",0,True,-2,5,1,Bob,Paul,Kevin,0.875,1,True
+328,own step only,1,True,0,-1,-1,Kate,Eric,Jack,-3.624999925494194,-1,True
+328,own step only,1,False,0,-1,-1,Kate,Eric,Jack,-5.749999841675162,-1,True
+328,first step only,0,True,-3,0,-1,Kate,Eric,Jack,-3.9999999403953552,-1,True
+328,first step only,0,False,-3,0,-1,Kate,Eric,Jack,-6.3749997690320015,-1,True
+329,agree,1,False,-1,-4,-1,Pipe,Chair,Brush,-0.875,-1,True
+329,agree,1,True,-1,-4,-1,Pipe,Chair,Brush,1.0,1,False
+330,agree,1,True,2,2,1,David,Bob,Peter,1.6250001192092896,1,True
+330,agree,1,False,2,2,1,David,Bob,Peter,-2.0000000596046448,-1,False
+330,agree,0,True,-5,-1,-1,David,Bob,Peter,1.7499999403953552,1,False
+330,agree,0,False,-5,-1,-1,David,Bob,Peter,-2.0000000596046448,-1,True
+331,"conflict, M larger",0,True,-5,1,-1,Tree,Coin,Mirror,-0.7500000596046448,-1,True
+331,"conflict, M larger",0,False,-5,1,-1,Tree,Coin,Mirror,-2.249999910593033,-1,True
+332,own step only,0,False,0,2,1,Bag,Pen,Coin,1.375,1,True
+332,own step only,0,True,0,2,1,Bag,Pen,Coin,0.625,1,True
+333,"conflict, C larger",1,True,-1,2,1,Greg,Anna,Jack,0.875,1,True
+333,"conflict, C larger",1,False,-1,2,1,Greg,Anna,Jack,0.125,1,True
+333,agree,0,True,4,2,1,Greg,Anna,Jack,0.875,1,True
+333,agree,0,False,4,2,1,Greg,Anna,Jack,1.125,1,True
+334,"conflict, M larger",1,False,5,-4,1,Box,Arrow,Pot,-0.75,-1,False
+334,"conflict, M larger",1,True,5,-4,1,Box,Arrow,Pot,1.5000000596046448,1,True
+334,own step only,0,False,0,2,1,Box,Arrow,Pot,-0.375,-1,False
+334,own step only,0,True,0,2,1,Box,Arrow,Pot,1.25,1,True
+335,agree,0,False,1,4,1,Alice,Anna,Neil,-1.4999999701976776,-1,False
+335,agree,0,True,1,4,1,Alice,Anna,Neil,9.624999590218067,1,True
+336,first step only,1,True,5,0,1,Tom,Kate,Neil,5.1249998807907104,1,True
+336,first step only,1,False,5,0,1,Tom,Kate,Neil,1.125,1,True
+336,"conflict, C larger",0,True,-4,5,1,Tom,Kate,Neil,5.624999955296516,1,True
+336,"conflict, C larger",0,False,-4,5,1,Tom,Kate,Neil,1.875,1,True
+337,agree,0,False,5,1,1,Box,Coin,Plate,2.749999985098839,1,True
+337,agree,0,True,5,1,1,Box,Coin,Plate,9.874999739229679,1,True
+338,own step only,1,True,0,-3,-1,Sean,Beth,Rachel,0.125,1,False
+338,own step only,1,False,0,-3,-1,Sean,Beth,Rachel,-2.874999910593033,-1,True
+338,agree,0,True,-1,-1,-1,Sean,Beth,Rachel,0.375,1,False
+338,agree,0,False,-1,-1,-1,Sean,Beth,Rachel,-2.4999999701976776,-1,True
+339,"conflict, M larger",0,False,3,-2,1,Anchor,Knife,Box,-1.0,-1,False
+339,"conflict, M larger",0,True,3,-2,1,Anchor,Knife,Box,1.3749999403953552,1,True
+340,agree,1,True,3,2,1,Tower,Basket,Mirror,4.874999970197678,1,True
+340,agree,1,False,3,2,1,Tower,Basket,Mirror,2.3750000596046448,1,True
+341,own step only,1,True,0,3,1,Carl,Dan,Kim,1.8750000298023224,1,True
+341,own step only,1,False,0,3,1,Carl,Dan,Kim,-0.25,-1,False
+341,first step only,0,True,-4,0,-1,Carl,Dan,Kim,-0.5000000596046448,-1,True
+341,first step only,0,False,-4,0,-1,Carl,Dan,Kim,-3.374999985098839,-1,True
+342,"conflict, M larger",1,False,-4,2,-1,Shell,Stone,Jar,0.7500000596046448,1,False
+342,"conflict, M larger",1,True,-4,2,-1,Shell,Stone,Jar,1.75,1,False
+342,own step only,0,False,0,-2,-1,Shell,Stone,Jar,-0.125,-1,True
+342,own step only,0,True,0,-2,-1,Shell,Stone,Jar,1.5000001192092896,1,False
+343,own step only,1,True,0,-1,-1,Sean,Steve,Henry,3.7500001192092896,1,False
+343,own step only,1,False,0,-1,-1,Sean,Steve,Henry,-1.125,-1,True
+343,first step only,0,True,-2,0,-1,Sean,Steve,Henry,2.874999910593033,1,False
+343,first step only,0,False,-2,0,-1,Sean,Steve,Henry,-0.75,-1,True
+344,own step only,1,False,0,4,1,Book,Box,Flag,-0.24999994039535522,-1,False
+344,own step only,1,True,0,4,1,Book,Box,Flag,0.125,1,True
+344,"conflict, M larger",0,False,-5,2,-1,Book,Box,Flag,-2.3749999701976776,-1,True
+344,"conflict, M larger",0,True,-5,2,-1,Book,Box,Flag,-1.1250000298023224,-1,True
+345,"conflict, C larger",0,True,-1,2,1,Brush,Pipe,Rock,1.7499999701976776,1,True
+345,"conflict, C larger",0,False,-1,2,1,Brush,Pipe,Rock,1.2499999403953552,1,True
+346,own step only,1,True,0,-2,-1,Alan,David,Paul,0.5,1,False
+346,own step only,1,False,0,-2,-1,Alan,David,Paul,-1.125,-1,True
+346,first step only,0,True,3,0,1,Alan,David,Paul,0.125,1,True
+346,first step only,0,False,3,0,1,Alan,David,Paul,-3.3749999701976776,-1,False
+347,first step only,1,False,4,0,1,Peter,Neil,Ben,-3.3750001043081284,-1,False
+347,first step only,1,True,4,0,1,Peter,Neil,Ben,-1.1249999701976776,-1,False
+347,own step only,0,False,0,-2,-1,Peter,Neil,Ben,-1.75,-1,True
+347,own step only,0,True,0,-2,-1,Peter,Neil,Ben,1.4999999701976776,1,False
+348,own step only,1,False,0,4,1,Neil,Peter,Laura,5.125000100582838,1,True
+348,own step only,1,True,0,4,1,Neil,Peter,Laura,5.499999985098839,1,True
+348,first step only,0,False,5,0,1,Neil,Peter,Laura,0.125,1,True
+348,first step only,0,True,5,0,1,Neil,Peter,Laura,3.499999910593033,1,True
+349,"conflict, C larger",1,True,-2,3,1,Bucket,Coin,Pen,5.874999813735485,1,True
+349,"conflict, C larger",1,False,-2,3,1,Bucket,Coin,Pen,1.8750000298023224,1,True
+349,first step only,0,True,2,0,1,Bucket,Coin,Pen,0.875,1,True
+349,first step only,0,False,2,0,1,Bucket,Coin,Pen,-3.7499998807907104,-1,False
+350,own step only,1,True,0,-2,-1,Steve,Sean,Dan,-0.625,-1,True
+350,own step only,1,False,0,-2,-1,Steve,Sean,Dan,-3.8750001341104507,-1,True
+350,agree,0,True,1,5,1,Steve,Sean,Dan,3.0,1,True
+350,agree,0,False,1,5,1,Steve,Sean,Dan,2.1249998807907104,1,True
+351,first step only,1,True,1,0,1,Pipe,Jar,Bucket,1.6249998807907104,1,True
+351,first step only,1,False,1,0,1,Pipe,Jar,Bucket,-0.9999999403953552,-1,False
+352,first step only,1,True,4,0,1,Sam,Steve,Kevin,2.625,1,True
+352,first step only,1,False,4,0,1,Sam,Steve,Kevin,-0.75,-1,False
+353,agree,0,False,4,2,1,Knife,Rock,Chair,-2.500000089406967,-1,False
+353,agree,0,True,4,2,1,Knife,Rock,Chair,1.7500000596046448,1,True
+354,own step only,1,True,0,2,1,George,Paul,Chris,1.2500000596046448,1,True
+354,own step only,1,False,0,2,1,George,Paul,Chris,0.125,1,True
+354,agree,0,True,1,3,1,George,Paul,Chris,2.8750000298023224,1,True
+354,agree,0,False,1,3,1,George,Paul,Chris,1.0,1,True
+355,first step only,1,True,2,0,1,Hat,Clock,Glass,1.125,1,True
+355,first step only,1,False,2,0,1,Hat,Clock,Glass,-3.7499998807907104,-1,False
+355,agree,0,True,1,4,1,Hat,Clock,Glass,3.749999910593033,1,True
+355,agree,0,False,1,4,1,Hat,Clock,Glass,0.125,1,True
+356,first step only,1,True,2,0,1,George,Kevin,Emma,2.7499999403953552,1,True
+356,first step only,1,False,2,0,1,George,Kevin,Emma,0.625,1,True
+356,own step only,0,True,0,-4,-1,George,Kevin,Emma,3.8750001788139343,1,False
+356,own step only,0,False,0,-4,-1,George,Kevin,Emma,1.5,1,False
+357,"conflict, M larger",1,False,-2,1,-1,Leaf,Banner,Hat,-0.9999998807907104,-1,True
+357,"conflict, M larger",1,True,-2,1,-1,Leaf,Banner,Hat,0.375,1,False
+357,own step only,0,False,0,-1,-1,Leaf,Banner,Hat,-1.6250001192092896,-1,True
+357,own step only,0,True,0,-1,-1,Leaf,Banner,Hat,0.875,1,False
+358,agree,0,True,3,3,1,Ben,Cole,Henry,9.062500059604645,1,True
+358,agree,0,False,3,3,1,Ben,Cole,Henry,0.375,1,True
+359,first step only,0,False,3,0,1,Kevin,Alan,Anna,-3.499999910593033,-1,False
+359,first step only,0,True,3,0,1,Kevin,Alan,Anna,0.375,1,True
+360,own step only,1,True,0,4,1,Brush,Glass,Clock,0.625,1,True
+360,own step only,1,False,0,4,1,Brush,Glass,Clock,1.6250000596046448,1,True
+360,first step only,0,True,-3,0,-1,Brush,Glass,Clock,0.375,1,False
+360,first step only,0,False,-3,0,-1,Brush,Glass,Clock,-1.8750000596046448,-1,True
+361,first step only,1,False,4,0,1,Neil,Carl,Kevin,2.2500000596046448,1,True
+361,first step only,1,True,4,0,1,Neil,Carl,Kevin,3.375,1,True
+362,"conflict, C larger",0,True,2,-3,-1,Knife,Tower,Coin,-1.6249999403953552,-1,True
+362,"conflict, C larger",0,False,2,-3,-1,Knife,Tower,Coin,-1.2500000596046448,-1,True
+363,first step only,1,False,-5,0,-1,Alice,Eric,Beth,-2.8750001043081284,-1,True
+363,first step only,1,True,-5,0,-1,Alice,Eric,Beth,-0.25,-1,True
+363,own step only,0,False,0,3,1,Alice,Eric,Beth,5.499999947845936,1,True
+363,own step only,0,True,0,3,1,Alice,Eric,Beth,4.874999761581421,1,True
+364,first step only,1,True,-5,0,-1,Cart,Bag,Box,-1.2500000298023224,-1,True
+364,first step only,1,False,-5,0,-1,Cart,Bag,Box,-3.750000074505806,-1,True
+364,own step only,0,True,0,-3,-1,Cart,Bag,Box,0.125,1,False
+364,own step only,0,False,0,-3,-1,Cart,Bag,Box,-1.6250000596046448,-1,True
+365,own step only,1,True,0,-3,-1,Fred,Kate,Carl,2.25,1,False
+365,own step only,1,False,0,-3,-1,Fred,Kate,Carl,0.875,1,False
+365,agree,0,True,3,1,1,Fred,Kate,Carl,5.249999940395355,1,True
+365,agree,0,False,3,1,1,Fred,Kate,Carl,2.1249999403953552,1,True
+366,agree,1,True,-1,-5,-1,Bag,Ball,Tower,-5.874999977648258,-1,True
+366,agree,1,False,-1,-5,-1,Bag,Ball,Tower,-7.249999949708581,-1,True
+367,"conflict, C larger",1,True,-3,4,1,Knife,Gate,Cart,4.249999940395355,1,True
+367,"conflict, C larger",1,False,-3,4,1,Knife,Gate,Cart,0.875,1,True
+367,own step only,0,True,0,-4,-1,Knife,Gate,Cart,3.250000089406967,1,False
+367,own step only,0,False,0,-4,-1,Knife,Gate,Cart,-0.3749999403953552,-1,True
+368,first step only,1,True,-5,0,-1,Leo,Amy,Brian,1.4999999701976776,1,False
+368,first step only,1,False,-5,0,-1,Leo,Amy,Brian,-1.375,-1,True
+368,agree,0,True,-2,-2,-1,Leo,Amy,Brian,1.6250000298023224,1,False
+368,agree,0,False,-2,-2,-1,Leo,Amy,Brian,-2.1249999403953552,-1,True
+369,agree,0,True,3,3,1,Pen,Hat,Bag,10.687499552965164,1,True
+369,agree,0,False,3,3,1,Pen,Hat,Bag,5.8749997690320015,1,True
+370,"conflict, C larger",0,False,-3,5,1,Kate,Eric,Carl,-0.2500000596046448,-1,False
+370,"conflict, C larger",0,True,-3,5,1,Kate,Eric,Carl,-0.125,-1,False
+371,first step only,1,False,-3,0,-1,Leaf,Chair,Mirror,-2.375,-1,True
+371,first step only,1,True,-3,0,-1,Leaf,Chair,Mirror,0.25,1,False
+371,own step only,0,False,0,-3,-1,Leaf,Chair,Mirror,-0.25,-1,True
+371,own step only,0,True,0,-3,-1,Leaf,Chair,Mirror,1.6250001192092896,1,False
+372,agree,1,True,-1,-1,-1,Steve,Beth,Amy,-1.75,-1,True
+372,agree,1,False,-1,-1,-1,Steve,Beth,Amy,-4.125000059604645,-1,True
+372,"conflict, M larger",0,True,-5,1,-1,Steve,Beth,Amy,-0.875,-1,True
+372,"conflict, M larger",0,False,-5,1,-1,Steve,Beth,Amy,-3.6250001788139343,-1,True
+373,"conflict, M larger",1,False,4,-1,1,Ball,Flag,Pot,2.2500000298023224,1,True
+373,"conflict, M larger",1,True,4,-1,1,Ball,Flag,Pot,2.624999910593033,1,True
+373,own step only,0,False,0,-2,-1,Ball,Flag,Pot,1.125,1,False
+373,own step only,0,True,0,-2,-1,Ball,Flag,Pot,2.624999910593033,1,False
+374,"conflict, M larger",1,True,-5,4,-1,Clock,Ring,Tower,0.75,1,False
+374,"conflict, M larger",1,False,-5,4,-1,Clock,Ring,Tower,1.5000001192092896,1,False
+375,own step only,1,False,0,1,1,Carl,Leo,Eric,1.6250000596046448,1,True
+375,own step only,1,True,0,1,1,Carl,Leo,Eric,3.7499998211860657,1,True
+375,"conflict, C larger",0,False,-3,4,1,Carl,Leo,Eric,-1.1249999403953552,-1,False
+375,"conflict, C larger",0,True,-3,4,1,Carl,Leo,Eric,4.625,1,True
+376,own step only,1,False,0,-5,-1,Ring,Bucket,Bell,-1.1249999701976776,-1,True
+376,own step only,1,True,0,-5,-1,Ring,Bucket,Bell,-0.75,-1,True
+376,"conflict, C larger",0,False,-3,4,1,Ring,Bucket,Bell,1.7500000596046448,1,True
+376,"conflict, C larger",0,True,-3,4,1,Ring,Bucket,Bell,0.5,1,True
+377,own step only,1,True,0,-5,-1,Peter,Alice,Laura,-1.7500000596046448,-1,True
+377,own step only,1,False,0,-5,-1,Peter,Alice,Laura,-2.1250001043081284,-1,True
+377,first step only,0,True,3,0,1,Peter,Alice,Laura,-2.0000001192092896,-1,False
+377,first step only,0,False,3,0,1,Peter,Alice,Laura,-4.4999999441206455,-1,False
+378,own step only,1,False,0,2,1,Mirror,Brush,Shell,0.7500000596046448,1,True
+378,own step only,1,True,0,2,1,Mirror,Brush,Shell,-1.4999999701976776,-1,False
+378,agree,0,False,5,1,1,Mirror,Brush,Shell,-0.6250000596046448,-1,False
+378,agree,0,True,5,1,1,Mirror,Brush,Shell,0.75,1,True
+379,first step only,1,False,-5,0,-1,Jane,Adam,Kevin,-2.3750000596046448,-1,True
+379,first step only,1,True,-5,0,-1,Jane,Adam,Kevin,0.125,1,False
+379,own step only,0,False,0,3,1,Jane,Adam,Kevin,2.2499999701976776,1,True
+379,own step only,0,True,0,3,1,Jane,Adam,Kevin,4.500000149011612,1,True
+380,own step only,1,True,0,5,1,Arrow,Knife,Plate,-0.625,-1,False
+380,own step only,1,False,0,5,1,Arrow,Knife,Plate,-2.7499998807907104,-1,False
+380,first step only,0,True,-5,0,-1,Arrow,Knife,Plate,-1.6249998807907104,-1,True
+380,first step only,0,False,-5,0,-1,Arrow,Knife,Plate,-5.000000029802322,-1,True
+381,first step only,1,True,1,0,1,Sam,Leo,Tom,0.5,1,True
+381,first step only,1,False,1,0,1,Sam,Leo,Tom,-2.5000000596046448,-1,False
+381,own step only,0,True,0,-5,-1,Sam,Leo,Tom,1.5000000596046448,1,False
+381,own step only,0,False,0,-5,-1,Sam,Leo,Tom,-1.7499998807907104,-1,True
+382,agree,1,True,-5,-1,-1,Neil,George,Henry,1.4999999403953552,1,False
+382,agree,1,False,-5,-1,-1,Neil,George,Henry,-2.374999925494194,-1,True
+383,"conflict, M larger",1,True,4,-3,1,Brush,Glass,Tower,0.0,-1,False
+383,"conflict, M larger",1,False,4,-3,1,Brush,Glass,Tower,-2.4999998807907104,-1,False
+384,first step only,1,False,5,0,1,Rachel,Kate,Henry,0.125,1,True
+384,first step only,1,True,5,0,1,Rachel,Kate,Henry,3.750000238418579,1,True
+384,own step only,0,False,0,5,1,Rachel,Kate,Henry,6.000000149011612,1,True
+384,own step only,0,True,0,5,1,Rachel,Kate,Henry,7.374999940395355,1,True
+385,"conflict, M larger",1,False,-4,3,-1,Jar,Mirror,Glass,0.8750000596046448,1,False
+385,"conflict, M larger",1,True,-4,3,-1,Jar,Mirror,Glass,0.375,1,False
+386,first step only,1,False,5,0,1,Sam,Laura,David,-0.125,-1,False
+386,first step only,1,True,5,0,1,Sam,Laura,David,1.0,1,True
+386,own step only,0,False,0,-3,-1,Sam,Laura,David,-0.25,-1,True
+386,own step only,0,True,0,-3,-1,Sam,Laura,David,2.625000074505806,1,False
+387,first step only,1,True,-5,0,-1,Greg,Alice,Jack,-1.5000001192092896,-1,True
+387,first step only,1,False,-5,0,-1,Greg,Alice,Jack,-5.124999828636646,-1,True
+387,"conflict, C larger",0,True,1,-5,-1,Greg,Alice,Jack,-0.625,-1,True
+387,"conflict, C larger",0,False,1,-5,-1,Greg,Alice,Jack,-4.374999813735485,-1,True
+388,agree,0,True,5,1,1,Desk,Car,Banner,0.375,1,True
+388,agree,0,False,5,1,1,Desk,Car,Banner,-2.7499999552965164,-1,False
+389,agree,1,True,1,3,1,Carl,Kevin,Chris,7.125000149011612,1,True
+389,agree,1,False,1,3,1,Carl,Kevin,Chris,0.3750000596046448,1,True
+389,first step only,0,True,-1,0,-1,Carl,Kevin,Chris,3.3750001192092896,1,False
+389,first step only,0,False,-1,0,-1,Carl,Kevin,Chris,-1.7500000596046448,-1,True
+390,own step only,1,True,0,-4,-1,Rock,Anchor,Table,0.8749999701976776,1,False
+390,own step only,1,False,0,-4,-1,Rock,Anchor,Table,-4.000000234693289,-1,True
+390,agree,0,True,1,2,1,Rock,Anchor,Table,2.249999910593033,1,True
+390,agree,0,False,1,2,1,Rock,Anchor,Table,-1.4999999403953552,-1,False
+391,"conflict, C larger",1,True,1,-2,-1,Henry,Peter,Anna,3.7500000447034836,1,False
+391,"conflict, C larger",1,False,1,-2,-1,Henry,Peter,Anna,-1.4999999701976776,-1,True
+392,agree,1,True,-2,-2,-1,Knife,Bell,Desk,0.0,-1,True
+392,agree,1,False,-2,-2,-1,Knife,Bell,Desk,-4.125000104308128,-1,True
+392,first step only,0,True,-1,0,-1,Knife,Bell,Desk,-0.125,-1,True
+392,first step only,0,False,-1,0,-1,Knife,Bell,Desk,-5.125000149011612,-1,True
+393,"conflict, C larger",1,True,1,-3,-1,Cole,Sean,Neil,-0.3749999403953552,-1,True
+393,"conflict, C larger",1,False,1,-3,-1,Cole,Sean,Neil,-3.500000074505806,-1,True
+393,own step only,0,True,0,-2,-1,Cole,Sean,Neil,0.75,1,False
+393,own step only,0,False,0,-2,-1,Cole,Sean,Neil,-3.2499998956918716,-1,True
+394,own step only,1,True,0,1,1,Hat,Desk,Wheel,1.3750001192092896,1,True
+394,own step only,1,False,0,1,1,Hat,Desk,Wheel,0.625,1,True
+394,first step only,0,True,-5,0,-1,Hat,Desk,Wheel,0.25,1,False
+394,first step only,0,False,-5,0,-1,Hat,Desk,Wheel,-2.375,-1,True
+395,first step only,1,False,-3,0,-1,Fred,Kate,Anna,-1.5000000596046448,-1,True
+395,first step only,1,True,-3,0,-1,Fred,Kate,Anna,0.0,-1,True
+395,own step only,0,False,0,5,1,Fred,Kate,Anna,4.125000223517418,1,True
+395,own step only,0,True,0,5,1,Fred,Kate,Anna,6.000000238418579,1,True
+396,agree,1,False,-1,-3,-1,George,Eric,Paul,-5.0000000186264515,-1,True
+396,agree,1,True,-1,-3,-1,George,Eric,Paul,-0.875,-1,True
+396,agree,0,False,4,2,1,George,Eric,Paul,0.6249999403953552,1,True
+396,agree,0,True,4,2,1,George,Eric,Paul,2.7500001192092896,1,True
+397,"conflict, C larger",1,False,-2,4,1,Book,Gate,Basket,1.3749999403953552,1,True
+397,"conflict, C larger",1,True,-2,4,1,Book,Gate,Basket,0.125,1,True
+398,own step only,1,False,0,-4,-1,Peter,Cole,Jack,-0.9999999403953552,-1,True
+398,own step only,1,True,0,-4,-1,Peter,Cole,Jack,0.375,1,False
+398,first step only,0,False,-1,0,-1,Peter,Cole,Jack,-2.125,-1,True
+398,first step only,0,True,-1,0,-1,Peter,Cole,Jack,0.625,1,False
+399,first step only,1,False,-5,0,-1,Shell,Ball,Rock,-3.6250000447034836,-1,True
+399,first step only,1,True,-5,0,-1,Shell,Ball,Rock,-1.6249999701976776,-1,True
+400,first step only,1,False,-5,0,-1,Laura,Sam,Sean,-3.2500000670552254,-1,True
+400,first step only,1,True,-5,0,-1,Laura,Sam,Sean,0.0,-1,True
+401,first step only,0,True,1,0,1,Car,Table,Brush,-1.8750000894069672,-1,False
+401,first step only,0,False,1,0,1,Car,Table,Brush,-1.5,-1,False
+402,"conflict, C larger",0,True,1,-5,-1,Clock,Pen,Brush,0.0,-1,True
+402,"conflict, C larger",0,False,1,-5,-1,Clock,Pen,Brush,-2.5000000298023224,-1,True
+403,first step only,1,True,-1,0,-1,Emma,Kevin,Jane,4.499999828636646,1,False
+403,first step only,1,False,-1,0,-1,Emma,Kevin,Jane,0.625,1,False
+404,agree,0,True,-4,-2,-1,Basket,Tower,Mask,-1.8750000298023224,-1,True
+404,agree,0,False,-4,-2,-1,Basket,Tower,Mask,-2.750000089406967,-1,True
+405,first step only,1,True,2,0,1,Bag,Arrow,Stone,1.7499999403953552,1,True
+405,first step only,1,False,2,0,1,Bag,Arrow,Stone,-1.5000000596046448,-1,False
+405,"conflict, C larger",0,True,-4,5,1,Bag,Arrow,Stone,2.1249998807907104,1,True
+405,"conflict, C larger",0,False,-4,5,1,Bag,Arrow,Stone,-0.3750000596046448,-1,False
+406,first step only,1,False,1,0,1,Paul,Carl,Sean,-1.75,-1,False
+406,first step only,1,True,1,0,1,Paul,Carl,Sean,1.625,1,True
+407,"conflict, C larger",1,True,-1,4,1,Sean,George,Paul,4.249999977648258,1,True
+407,"conflict, C larger",1,False,-1,4,1,Sean,George,Paul,1.1250000596046448,1,True
+407,first step only,0,True,5,0,1,Sean,George,Paul,0.0,-1,False
+407,first step only,0,False,5,0,1,Sean,George,Paul,-3.375000089406967,-1,False
+408,agree,1,True,1,2,1,Bucket,Car,Ball,1.3750000596046448,1,True
+408,agree,1,False,1,2,1,Bucket,Car,Ball,0.125,1,True
+408,first step only,0,True,2,0,1,Bucket,Car,Ball,-0.625,-1,False
+408,first step only,0,False,2,0,1,Bucket,Car,Ball,-2.8750000447034836,-1,False
+409,agree,0,False,4,2,1,Sean,Carl,Anna,1.4999999403953552,1,True
+409,agree,0,True,4,2,1,Sean,Carl,Anna,4.6249998807907104,1,True
+410,"conflict, M larger",0,False,4,-2,1,Flag,Hat,Car,-2.625,-1,False
+410,"conflict, M larger",0,True,4,-2,1,Flag,Hat,Car,-0.25,-1,False
+411,"conflict, C larger",1,True,4,-5,-1,Gate,Rock,Desk,0.2500000596046448,1,False
+411,"conflict, C larger",1,False,4,-5,-1,Gate,Rock,Desk,-5.3749997690320015,-1,True
+412,agree,0,True,-1,-1,-1,Neil,Beth,David,1.5000000298023224,1,False
+412,agree,0,False,-1,-1,-1,Neil,Beth,David,-1.5000000298023224,-1,True
+413,agree,0,False,-4,-2,-1,Ball,Gate,Bucket,-0.625,-1,True
+413,agree,0,True,-4,-2,-1,Ball,Gate,Bucket,0.125,1,False
+414,first step only,0,False,-3,0,-1,Chris,Sam,Ben,-3.6249999701976776,-1,True
+414,first step only,0,True,-3,0,-1,Chris,Sam,Ben,-0.5,-1,True
+415,first step only,0,False,-4,0,-1,Leaf,Coin,Door,-3.5000000596046448,-1,True
+415,first step only,0,True,-4,0,-1,Leaf,Coin,Door,-0.75,-1,True
+416,first step only,1,False,-2,0,-1,Leo,George,Kate,-4.375000163912773,-1,True
+416,first step only,1,True,-2,0,-1,Leo,George,Kate,-0.7499999403953552,-1,True
+417,agree,1,False,-1,-4,-1,Plate,Box,Ring,-3.625000022351742,-1,True
+417,agree,1,True,-1,-4,-1,Plate,Box,Ring,-2.000000089406967,-1,True
+417,first step only,0,False,4,0,1,Plate,Box,Ring,-2.7499999403953552,-1,False
+417,first step only,0,True,4,0,1,Plate,Box,Ring,-0.5,-1,False
+418,agree,0,False,-2,-1,-1,Eric,George,Neil,0.25,1,False
+418,agree,0,True,-2,-1,-1,Eric,George,Neil,2.1249999403953552,1,False
+419,first step only,1,False,3,0,1,Rock,Glass,Bag,-2.1249999403953552,-1,False
+419,first step only,1,True,3,0,1,Rock,Glass,Bag,0.7499999403953552,1,True
+420,"conflict, M larger",1,True,4,-3,1,Rachel,Anna,Peter,2.0000001192092896,1,True
+420,"conflict, M larger",1,False,4,-3,1,Rachel,Anna,Peter,-1.75,-1,False
+420,"conflict, M larger",0,True,-5,4,-1,Rachel,Anna,Peter,2.5,1,False
+420,"conflict, M larger",0,False,-5,4,-1,Rachel,Anna,Peter,-2.2499999403953552,-1,True
+421,first step only,0,True,1,0,1,Ball,Bell,Bag,-1.7500000298023224,-1,False
+421,first step only,0,False,1,0,1,Ball,Bell,Bag,-4.249999947845936,-1,False
+422,first step only,1,True,-2,0,-1,Peter,Cole,Rachel,-0.5,-1,True
+422,first step only,1,False,-2,0,-1,Peter,Cole,Rachel,-2.8750001192092896,-1,True
+423,"conflict, M larger",0,True,-3,1,-1,Arrow,Box,Rock,-0.75,-1,True
+423,"conflict, M larger",0,False,-3,1,-1,Arrow,Box,Rock,-0.375,-1,True
+424,"conflict, C larger",0,True,-1,3,1,Jane,Alice,Kevin,1.8750000596046448,1,True
+424,"conflict, C larger",0,False,-1,3,1,Jane,Alice,Kevin,-1.1249999403953552,-1,False
+425,first step only,1,False,-1,0,-1,Bell,Basket,Plate,-4.625000029802322,-1,True
+425,first step only,1,True,-1,0,-1,Bell,Basket,Plate,-2.6250001192092896,-1,True
+426,first step only,0,True,-1,0,-1,Ben,Jane,Amy,2.2500001192092896,1,False
+426,first step only,0,False,-1,0,-1,Ben,Jane,Amy,0.375,1,False
+427,first step only,1,True,3,0,1,Jake,Cole,David,0.7500001192092896,1,True
+427,first step only,1,False,3,0,1,Jake,Cole,David,-2.75,-1,False
+427,"conflict, M larger",0,True,-5,4,-1,Jake,Cole,David,0.75,1,False
+427,"conflict, M larger",0,False,-5,4,-1,Jake,Cole,David,-4.125000208616257,-1,True
+428,first step only,0,False,-5,0,-1,Eric,Cole,Greg,-1.0,-1,True
+428,first step only,0,True,-5,0,-1,Eric,Cole,Greg,3.6249999701976776,1,False
+429,"conflict, C larger",1,False,-3,4,1,Flag,Clock,Book,-1.6249998807907104,-1,False
+429,"conflict, C larger",1,True,-3,4,1,Flag,Clock,Book,-0.375,-1,False
+430,first step only,1,False,3,0,1,Alice,Paul,Eric,0.25,1,True
+430,first step only,1,True,3,0,1,Alice,Paul,Eric,3.125000089406967,1,True
+431,agree,1,False,-1,-5,-1,Wheel,Anchor,Stone,-7.1249998435378075,-1,True
+431,agree,1,True,-1,-5,-1,Wheel,Anchor,Stone,-2.7500000298023224,-1,True
+432,"conflict, C larger",0,False,4,-5,-1,Sean,Bob,Adam,-0.5,-1,True
+432,"conflict, C larger",0,True,4,-5,-1,Sean,Bob,Adam,1.7499999403953552,1,False
+433,"conflict, M larger",1,False,-4,1,-1,Pipe,Glass,Mask,1.25,1,False
+433,"conflict, M larger",1,True,-4,1,-1,Pipe,Glass,Mask,1.2499999403953552,1,False
+434,"conflict, C larger",0,True,-2,5,1,Jane,Carl,Adam,2.7499999403953552,1,True
+434,"conflict, C larger",0,False,-2,5,1,Jane,Carl,Adam,1.1250000596046448,1,True
+435,"conflict, C larger",0,True,-3,4,1,Stone,Tree,Mirror,0.75,1,True
+435,"conflict, C larger",0,False,-3,4,1,Stone,Tree,Mirror,-0.8749999403953552,-1,False
+436,first step only,1,False,4,0,1,Rachel,Rick,Jake,1.0,1,True
+436,first step only,1,True,4,0,1,Rachel,Rick,Jake,1.7500001192092896,1,True
+437,"conflict, C larger",1,False,2,-4,-1,Mask,Shell,Book,-3.9999999701976776,-1,True
+437,"conflict, C larger",1,True,2,-4,-1,Mask,Shell,Book,-0.7499999403953552,-1,True
+437,first step only,0,False,-1,0,-1,Mask,Shell,Book,-2.75,-1,True
+437,first step only,0,True,-1,0,-1,Mask,Shell,Book,-0.875,-1,True
+438,"conflict, M larger",0,True,5,-3,1,David,Neil,Tom,0.0,-1,False
+438,"conflict, M larger",0,False,5,-3,1,David,Neil,Tom,-3.3750000074505806,-1,False
+439,"conflict, C larger",0,True,-1,4,1,Gate,Ball,Flag,1.0,1,True
+439,"conflict, C larger",0,False,-1,4,1,Gate,Ball,Flag,0.25,1,True
+440,"conflict, M larger",1,False,4,-3,1,Chris,Anna,Sam,0.625,1,True
+440,"conflict, M larger",1,True,4,-3,1,Chris,Anna,Sam,1.875,1,True
+440,agree,0,False,-3,-1,-1,Chris,Anna,Sam,-0.625,-1,True
+440,agree,0,True,-3,-1,-1,Chris,Anna,Sam,1.5000001192092896,1,False
+441,"conflict, C larger",0,False,3,-5,-1,Rachel,Emma,Rick,-1.0,-1,True
+441,"conflict, C larger",0,True,3,-5,-1,Rachel,Emma,Rick,0.5,1,False
+442,first step only,0,False,5,0,1,Tom,Bob,Steve,-0.75,-1,False
+442,first step only,0,True,5,0,1,Tom,Bob,Steve,2.499999910593033,1,True
+443,first step only,0,False,-2,0,-1,Knife,Tree,Rock,-4.000000208616257,-1,True
+443,first step only,0,True,-2,0,-1,Knife,Tree,Rock,-0.9999999403953552,-1,True
+444,first step only,0,False,5,0,1,Steve,Jake,Cole,-2.0,-1,False
+444,first step only,0,True,5,0,1,Steve,Jake,Cole,2.2500000596046448,1,True
+445,first step only,1,True,-5,0,-1,David,Amy,Rachel,-0.625,-1,True
+445,first step only,1,False,-5,0,-1,David,Amy,Rachel,-2.75,-1,True
+446,agree,1,False,1,2,1,Rock,Pen,Clock,3.624999888241291,1,True
+446,agree,1,True,1,2,1,Rock,Pen,Clock,3.000000014901161,1,True
+446,first step only,0,False,-5,0,-1,Rock,Pen,Clock,-0.25,-1,True
+446,first step only,0,True,-5,0,-1,Rock,Pen,Clock,0.7499999403953552,1,False
+447,first step only,1,False,4,0,1,Chair,Desk,Shell,-3.125,-1,False
+447,first step only,1,True,4,0,1,Chair,Desk,Shell,0.0,-1,False
+448,"conflict, C larger",1,False,-4,5,1,Henry,Rick,Alice,3.2500001043081284,1,True
+448,"conflict, C larger",1,True,-4,5,1,Henry,Rick,Alice,3.5000000298023224,1,True
+449,first step only,1,False,-4,0,-1,Hat,Box,Arrow,-4.000000223517418,-1,True
+449,first step only,1,True,-4,0,-1,Hat,Box,Arrow,-1.9999999701976776,-1,True
+449,agree,0,False,-1,-3,-1,Hat,Box,Arrow,-3.3750000447034836,-1,True
+449,agree,0,True,-1,-3,-1,Hat,Box,Arrow,-1.3749999701976776,-1,True
+450,first step only,0,False,-5,0,-1,Jack,Rick,Steve,-3.3749999701976776,-1,True
+450,first step only,0,True,-5,0,-1,Jack,Rick,Steve,1.0000000596046448,1,False
+451,"conflict, M larger",1,True,-4,1,-1,Adam,Jack,Anna,1.3749999403953552,1,False
+451,"conflict, M larger",1,False,-4,1,-1,Adam,Jack,Anna,-0.5,-1,True
+452,first step only,1,True,5,0,1,Kim,Bob,Paul,2.3750001192092896,1,True
+452,first step only,1,False,5,0,1,Kim,Bob,Paul,-0.25,-1,False
+452,"conflict, C larger",0,True,1,-4,-1,Kim,Bob,Paul,2.124999910593033,1,False
+452,"conflict, C larger",0,False,1,-4,-1,Kim,Bob,Paul,-0.125,-1,True
+453,first step only,1,True,-1,0,-1,Kevin,Rick,Alan,-1.5000000596046448,-1,True
+453,first step only,1,False,-1,0,-1,Kevin,Rick,Alan,-4.4999998807907104,-1,True
+454,"conflict, C larger",0,False,-2,5,1,Tower,Table,Flag,3.0,1,True
+454,"conflict, C larger",0,True,-2,5,1,Tower,Table,Flag,2.875,1,True
+455,"conflict, M larger",1,True,-4,3,-1,Greg,Henry,Chris,0.25,1,False
+455,"conflict, M larger",1,False,-4,3,-1,Greg,Henry,Chris,-4.624999772757292,-1,True
+455,first step only,0,True,3,0,1,Greg,Henry,Chris,-0.8750000596046448,-1,False
+455,first step only,0,False,3,0,1,Greg,Henry,Chris,-5.999999884516001,-1,False
+456,"conflict, C larger",1,False,-2,4,1,Basket,Pot,Arrow,3.7499998211860657,1,True
+456,"conflict, C larger",1,True,-2,4,1,Basket,Pot,Arrow,3.375,1,True
+457,first step only,1,True,1,0,1,Alice,Kim,Greg,2.25,1,True
+457,first step only,1,False,1,0,1,Alice,Kim,Greg,-0.5,-1,False
+457,"conflict, M larger",0,True,-4,1,-1,Alice,Kim,Greg,2.2499999701976776,1,False
+457,"conflict, M larger",0,False,-4,1,-1,Alice,Kim,Greg,0.7500000596046448,1,False
+458,first step only,0,False,5,0,1,Kim,George,Tom,2.874999910593033,1,True
+458,first step only,0,True,5,0,1,Kim,George,Tom,2.2499999701976776,1,True
+459,agree,1,True,1,5,1,Gate,Ring,Glass,2.750000089406967,1,True
+459,agree,1,False,1,5,1,Gate,Ring,Glass,2.9999999552965164,1,True
+460,first step only,1,False,-1,0,-1,Rick,Alice,Sean,-2.9999999403953552,-1,True
+460,first step only,1,True,-1,0,-1,Rick,Alice,Sean,0.0,-1,True
+460,"conflict, M larger",0,False,5,-1,1,Rick,Alice,Sean,-2.1249999701976776,-1,False
+460,"conflict, M larger",0,True,5,-1,1,Rick,Alice,Sean,1.1249999403953552,1,True
+461,"conflict, M larger",1,True,-5,4,-1,Pipe,Bucket,Mirror,1.7499999105930328,1,False
+461,"conflict, M larger",1,False,-5,4,-1,Pipe,Bucket,Mirror,1.1250000596046448,1,False
+461,first step only,0,True,3,0,1,Pipe,Bucket,Mirror,0.5,1,True
+461,first step only,0,False,3,0,1,Pipe,Bucket,Mirror,-2.625,-1,False
+462,"conflict, M larger",0,True,-5,2,-1,Anna,Beth,Amy,0.875,1,False
+462,"conflict, M larger",0,False,-5,2,-1,Anna,Beth,Amy,-0.25,-1,True
+463,agree,0,True,2,2,1,Plate,Glass,Knife,2.0000000596046448,1,True
+463,agree,0,False,2,2,1,Plate,Glass,Knife,-3.125000014901161,-1,False
+464,first step only,1,True,1,0,1,Cart,Leaf,Pot,-2.0000000596046448,-1,False
+464,first step only,1,False,1,0,1,Cart,Leaf,Pot,-3.625,-1,False
+465,agree,0,True,1,3,1,Jack,Chris,Sean,7.624999985098839,1,True
+465,agree,0,False,1,3,1,Jack,Chris,Sean,3.000000089406967,1,True
+466,agree,0,False,1,1,1,Leo,Laura,George,3.4999999701976776,1,True
+466,agree,0,True,1,1,1,Leo,Laura,George,7.125000160187483,1,True
+467,first step only,1,True,2,0,1,Paul,Chris,George,1.875,1,True
+467,first step only,1,False,2,0,1,Paul,Chris,George,-2.25,-1,False
+467,"conflict, M larger",0,True,-3,2,-1,Paul,Chris,George,2.4999999403953552,1,False
+467,"conflict, M larger",0,False,-3,2,-1,Paul,Chris,George,-1.75,-1,True
+468,first step only,0,False,-5,0,-1,Car,Bag,Bucket,-0.8749999403953552,-1,True
+468,first step only,0,True,-5,0,-1,Car,Bag,Bucket,-0.125,-1,True
+469,first step only,1,True,5,0,1,George,Greg,Ben,1.875,1,True
+469,first step only,1,False,5,0,1,George,Greg,Ben,0.125,1,True
+470,first step only,1,True,-1,0,-1,Glass,Tower,Wheel,-0.3749999403953552,-1,True
+470,first step only,1,False,-1,0,-1,Glass,Tower,Wheel,-2.7499999403953552,-1,True
+471,first step only,1,True,-2,0,-1,Jake,Carl,Rick,-1.125,-1,True
+471,first step only,1,False,-2,0,-1,Jake,Carl,Rick,-4.250000014901161,-1,True
+472,first step only,1,False,-5,0,-1,Hat,Plate,Arrow,-3.6249999701976776,-1,True
+472,first step only,1,True,-5,0,-1,Hat,Plate,Arrow,-1.0,-1,True
+473,agree,1,False,-5,-1,-1,Chris,Kim,Greg,-2.2500000596046448,-1,True
+473,agree,1,True,-5,-1,-1,Chris,Kim,Greg,-0.3750000596046448,-1,True
+473,first step only,0,False,4,0,1,Chris,Kim,Greg,-3.8750001937150955,-1,False
+473,first step only,0,True,4,0,1,Chris,Kim,Greg,-0.625,-1,False
+474,first step only,1,True,-4,0,-1,Basket,Arrow,Car,-1.5,-1,True
+474,first step only,1,False,-4,0,-1,Basket,Arrow,Car,-4.3749998807907104,-1,True
+475,first step only,0,True,-3,0,-1,Paul,Sean,Brian,-1.2499999403953552,-1,True
+475,first step only,0,False,-3,0,-1,Paul,Sean,Brian,-2.750000074505806,-1,True
+476,agree,0,False,-3,-2,-1,Laura,Adam,Jack,-1.2500000596046448,-1,True
+476,agree,0,True,-3,-2,-1,Laura,Adam,Jack,1.6249999105930328,1,False
+477,agree,0,True,-4,-2,-1,Sam,Adam,Jack,2.9999999403953552,1,False
+477,agree,0,False,-4,-2,-1,Sam,Adam,Jack,-2.249999925494194,-1,True
+478,first step only,1,False,-4,0,-1,Leaf,Desk,Pipe,-3.8750000596046448,-1,True
+478,first step only,1,True,-4,0,-1,Leaf,Desk,Pipe,-0.37499988079071045,-1,True
+479,first step only,0,True,-5,0,-1,Fred,Sam,Jane,-1.2500000596046448,-1,True
+479,first step only,0,False,-5,0,-1,Fred,Sam,Jane,-3.7500000596046448,-1,True
+480,first step only,0,False,-4,0,-1,Bob,Rachel,Paul,-1.2499999701976776,-1,True
+480,first step only,0,True,-4,0,-1,Bob,Rachel,Paul,-0.75,-1,True
+481,agree,1,True,4,2,1,Clock,Brush,Gate,0.25,1,True
+481,agree,1,False,4,2,1,Clock,Brush,Gate,-0.7499999403953552,-1,False
+482,agree,0,False,4,2,1,Cole,Kate,Emma,2.3749998807907104,1,True
+482,agree,0,True,4,2,1,Cole,Kate,Emma,7.937500089406967,1,True
+483,first step only,1,False,3,0,1,David,Beth,Kevin,-2.8749999403953552,-1,False
+483,first step only,1,True,3,0,1,David,Beth,Kevin,0.0,-1,False
+483,"conflict, M larger",0,False,5,-2,1,David,Beth,Kevin,-3.750000089406967,-1,False
+483,"conflict, M larger",0,True,5,-2,1,David,Beth,Kevin,-0.25,-1,False
+484,agree,1,True,1,2,1,Ring,Shell,Coin,0.6250001192092896,1,True
+484,agree,1,False,1,2,1,Ring,Shell,Coin,-5.0,-1,False
+484,"conflict, C larger",0,True,3,-4,-1,Ring,Shell,Coin,-1.7499998807907104,-1,True
+484,"conflict, C larger",0,False,3,-4,-1,Ring,Shell,Coin,-4.375000208616257,-1,True
+485,"conflict, C larger",1,True,1,-5,-1,Cole,Kim,Carl,-3.4999999552965164,-1,True
+485,"conflict, C larger",1,False,1,-5,-1,Cole,Kim,Carl,-3.499999910593033,-1,True
+486,first step only,1,True,5,0,1,Coin,Glass,Arrow,-0.25,-1,False
+486,first step only,1,False,5,0,1,Coin,Glass,Arrow,-3.3750000596046448,-1,False
+486,"conflict, M larger",0,True,-5,1,-1,Coin,Glass,Arrow,-0.5,-1,True
+486,"conflict, M larger",0,False,-5,1,-1,Coin,Glass,Arrow,-2.8750000298023224,-1,True
+487,agree,1,True,2,1,1,Arrow,Bucket,Coin,0.0,-1,False
+487,agree,1,False,2,1,1,Arrow,Bucket,Coin,-1.0000000596046448,-1,False
+488,"conflict, M larger",1,False,-3,2,-1,Bucket,Jar,Ball,-0.5,-1,True
+488,"conflict, M larger",1,True,-3,2,-1,Bucket,Jar,Ball,1.25,1,False
+488,agree,0,False,-3,-3,-1,Bucket,Jar,Ball,-1.6249999403953552,-1,True
+488,agree,0,True,-3,-3,-1,Bucket,Jar,Ball,1.2500001192092896,1,False
+489,first step only,1,True,-5,0,-1,Fred,Beth,Bob,-1.5000000596046448,-1,True
+489,first step only,1,False,-5,0,-1,Fred,Beth,Bob,-1.875,-1,True
+490,agree,1,True,1,2,1,Pipe,Plate,Hat,2.125,1,True
+490,agree,1,False,1,2,1,Pipe,Plate,Hat,2.7499999403953552,1,True
+490,first step only,0,True,-1,0,-1,Pipe,Plate,Hat,0.375,1,False
+490,first step only,0,False,-1,0,-1,Pipe,Plate,Hat,0.0,-1,True
+491,first step only,0,False,5,0,1,Kevin,George,Tom,-3.999999850988388,-1,False
+491,first step only,0,True,5,0,1,Kevin,George,Tom,-0.875,-1,False
+492,first step only,0,False,5,0,1,Clock,Desk,Anchor,-1.3749999403953552,-1,False
+492,first step only,0,True,5,0,1,Clock,Desk,Anchor,0.375,1,True
+493,first step only,1,False,-4,0,-1,Sam,Fred,Peter,-1.7500000596046448,-1,True
+493,first step only,1,True,-4,0,-1,Sam,Fred,Peter,1.125,1,False
+493,agree,0,False,3,3,1,Sam,Fred,Peter,0.875,1,True
+493,agree,0,True,3,3,1,Sam,Fred,Peter,3.499999925494194,1,True
+494,first step only,1,False,3,0,1,Table,Clock,Pot,-3.0,-1,False
+494,first step only,1,True,3,0,1,Table,Clock,Pot,-0.125,-1,False
+494,"conflict, C larger",0,False,-3,5,1,Table,Clock,Pot,-1.125,-1,False
+494,"conflict, C larger",0,True,-3,5,1,Table,Clock,Pot,-0.125,-1,False
+495,first step only,1,True,-2,0,-1,Alice,Kim,Amy,0.5000000596046448,1,False
+495,first step only,1,False,-2,0,-1,Alice,Kim,Amy,-0.3749999403953552,-1,True
+496,first step only,1,False,2,0,1,Anchor,Shell,Arrow,-2.625,-1,False
+496,first step only,1,True,2,0,1,Anchor,Shell,Arrow,0.3750000596046448,1,True
+497,"conflict, M larger",0,True,-4,3,-1,Alan,Adam,David,2.2499999403953552,1,False
+497,"conflict, M larger",0,False,-4,3,-1,Alan,Adam,David,-3.3750000596046448,-1,True
+498,agree,0,True,4,1,1,Leaf,Bell,Pen,3.0000001192092896,1,True
+498,agree,0,False,4,1,1,Leaf,Bell,Pen,1.125,1,True
+499,first step only,1,False,-3,0,-1,Laura,Emma,Ben,-2.375000089406967,-1,True
+499,first step only,1,True,-3,0,-1,Laura,Emma,Ben,0.375,1,False
+499,"conflict, C larger",0,False,-3,4,1,Laura,Emma,Ben,-0.625,-1,False
+499,"conflict, C larger",0,True,-3,4,1,Laura,Emma,Ben,1.9999999403953552,1,True
+500,agree,0,False,4,2,1,Leo,Sam,Laura,0.4999999403953552,1,True
+500,agree,0,True,4,2,1,Leo,Sam,Laura,3.5,1,True
+501,first step only,1,True,5,0,1,George,Kevin,Sam,3.2500000596046448,1,True
+501,first step only,1,False,5,0,1,George,Kevin,Sam,-1.0,-1,False
+501,"conflict, M larger",0,True,-4,2,-1,George,Kevin,Sam,2.5,1,False
+501,"conflict, M larger",0,False,-4,2,-1,George,Kevin,Sam,-1.375,-1,True
+502,first step only,0,False,-3,0,-1,Rock,Flag,Book,0.8750000596046448,1,False
+502,first step only,0,True,-3,0,-1,Rock,Flag,Book,2.6250000298023224,1,False
+503,"conflict, M larger",1,True,-5,1,-1,Eric,Rick,George,1.25,1,False
+503,"conflict, M larger",1,False,-5,1,-1,Eric,Rick,George,-2.2500000596046448,-1,True
+503,first step only,0,True,5,0,1,Eric,Rick,George,0.375,1,True
+503,first step only,0,False,5,0,1,Eric,Rick,George,-5.250000178813934,-1,False
+504,first step only,0,False,2,0,1,Desk,Clock,Jar,-2.375000089406967,-1,False
+504,first step only,0,True,2,0,1,Desk,Clock,Jar,-0.8749999403953552,-1,False
+505,"conflict, M larger",1,True,-3,2,-1,Emma,Kim,Rachel,1.7500000596046448,1,False
+505,"conflict, M larger",1,False,-3,2,-1,Emma,Kim,Rachel,0.5000000596046448,1,False
+506,agree,1,True,-3,-2,-1,Henry,Sam,Ben,2.1250000596046448,1,False
+506,agree,1,False,-3,-2,-1,Henry,Sam,Ben,-0.25,-1,True
+506,first step only,0,True,4,0,1,Henry,Sam,Ben,2.5000000298023224,1,True
+506,first step only,0,False,4,0,1,Henry,Sam,Ben,-1.0,-1,False
+507,"conflict, C larger",0,False,3,-5,-1,Tree,Bucket,Wheel,-1.5000000298023224,-1,True
+507,"conflict, C larger",0,True,3,-5,-1,Tree,Bucket,Wheel,-0.8749999403953552,-1,True
+508,first step only,1,False,-1,0,-1,Knife,Arrow,Box,-5.875000089406967,-1,True
+508,first step only,1,True,-1,0,-1,Knife,Arrow,Box,-2.1250000596046448,-1,True
+509,"conflict, C larger",1,False,-1,5,1,Ring,Flag,Clock,2.7499999403953552,1,True
+509,"conflict, C larger",1,True,-1,5,1,Ring,Flag,Clock,3.625,1,True
+509,first step only,0,False,5,0,1,Ring,Flag,Clock,-1.7500001192092896,-1,False
+509,first step only,0,True,5,0,1,Ring,Flag,Clock,1.7500000596046448,1,True
+510,"conflict, M larger",1,True,3,-1,1,Jack,Eric,Chris,0.0,-1,False
+510,"conflict, M larger",1,False,3,-1,1,Jack,Eric,Chris,-2.625000014901161,-1,False
+510,"conflict, M larger",0,True,5,-3,1,Jack,Eric,Chris,0.125,1,True
+510,"conflict, M larger",0,False,5,-3,1,Jack,Eric,Chris,-3.124999985098839,-1,False
+511,"conflict, M larger",0,True,5,-1,1,Rock,Banner,Tower,2.2500001192092896,1,True
+511,"conflict, M larger",0,False,5,-1,1,Rock,Banner,Tower,0.0,-1,False
+512,agree,1,False,1,2,1,Fred,Beth,Henry,1.875,1,True
+512,agree,1,True,1,2,1,Fred,Beth,Henry,6.374999865889549,1,True
+513,first step only,0,True,4,0,1,Glass,Door,Mask,-0.875,-1,False
+513,first step only,0,False,4,0,1,Glass,Door,Mask,-3.3750000298023224,-1,False
+514,first step only,1,False,-2,0,-1,Ben,Kim,Steve,-0.3750000596046448,-1,True
+514,first step only,1,True,-2,0,-1,Ben,Kim,Steve,2.3750001192092896,1,False
+514,"conflict, M larger",0,False,-5,2,-1,Ben,Kim,Steve,0.0,-1,True
+514,"conflict, M larger",0,True,-5,2,-1,Ben,Kim,Steve,2.999999910593033,1,False
+515,"conflict, C larger",1,False,1,-4,-1,Alice,Alan,Amy,-0.25,-1,True
+515,"conflict, C larger",1,True,1,-4,-1,Alice,Alan,Amy,1.1249999403953552,1,False
+516,first step only,0,False,2,0,1,Kate,Alan,Jake,-1.5000001192092896,-1,False
+516,first step only,0,True,2,0,1,Kate,Alan,Jake,0.49999988079071045,1,True
+517,"conflict, M larger",1,True,2,-1,1,Pot,Gate,Plate,-0.75,-1,False
+517,"conflict, M larger",1,False,2,-1,1,Pot,Gate,Plate,-4.124999836087227,-1,False
+518,agree,1,True,-1,-1,-1,Bell,Desk,Bag,2.125000074505806,1,False
+518,agree,1,False,-1,-1,-1,Bell,Desk,Bag,-1.6250000298023224,-1,True
+519,"conflict, C larger",0,True,-1,5,1,Henry,Peter,Fred,4.624999940395355,1,True
+519,"conflict, C larger",0,False,-1,5,1,Henry,Peter,Fred,1.2499999701976776,1,True
+520,first step only,0,False,4,0,1,Brian,Kate,Ben,0.8749999403953552,1,True
+520,first step only,0,True,4,0,1,Brian,Kate,Ben,3.9999999403953552,1,True
+521,first step only,1,True,-3,0,-1,Jake,Paul,Kevin,-0.5000000596046448,-1,True
+521,first step only,1,False,-3,0,-1,Jake,Paul,Kevin,-2.2499999403953552,-1,True
+522,first step only,0,False,-4,0,-1,Door,Bell,Jar,-4.750000081956387,-1,True
+522,first step only,0,True,-4,0,-1,Door,Bell,Jar,-2.500000089406967,-1,True
+523,"conflict, M larger",1,True,5,-3,1,Jake,Fred,Beth,-1.4999999403953552,-1,False
+523,"conflict, M larger",1,False,5,-3,1,Jake,Fred,Beth,-4.7500001192092896,-1,False
+524,"conflict, C larger",1,True,2,-3,-1,Anchor,Car,Bag,-0.875,-1,True
+524,"conflict, C larger",1,False,2,-3,-1,Anchor,Car,Bag,-1.8750000298023224,-1,True
+524,first step only,0,True,-5,0,-1,Anchor,Car,Bag,-1.1249999701976776,-1,True
+524,first step only,0,False,-5,0,-1,Anchor,Car,Bag,-2.5000000447034836,-1,True
+525,"conflict, C larger",0,False,3,-5,-1,Rick,Chris,Alice,-2.6249999403953552,-1,True
+525,"conflict, C larger",0,True,3,-5,-1,Rick,Chris,Alice,2.125,1,False
+526,first step only,1,False,-1,0,-1,Hat,Ring,Pot,-2.5000000298023224,-1,True
+526,first step only,1,True,-1,0,-1,Hat,Ring,Pot,-1.4999999701976776,-1,True
+527,"conflict, M larger",0,False,5,-2,1,Greg,Paul,Rick,-0.75,-1,False
+527,"conflict, M larger",0,True,5,-2,1,Greg,Paul,Rick,4.624999821186066,1,True
+528,"conflict, M larger",0,False,-5,2,-1,Book,Mask,Banner,0.125,1,False
+528,"conflict, M larger",0,True,-5,2,-1,Book,Mask,Banner,0.6250000596046448,1,False
+529,"conflict, C larger",0,True,1,-3,-1,Rachel,Henry,Jane,1.6250000596046448,1,False
+529,"conflict, C larger",0,False,1,-3,-1,Rachel,Henry,Jane,-1.375,-1,True
+530,"conflict, C larger",0,False,-1,2,1,Glass,Coin,Bucket,-1.0,-1,False
+530,"conflict, C larger",0,True,-1,2,1,Glass,Coin,Bucket,2.4999999403953552,1,True
+531,"conflict, M larger",1,True,-3,1,-1,Coin,Leaf,Rock,2.4999998807907104,1,False
+531,"conflict, M larger",1,False,-3,1,-1,Coin,Leaf,Rock,0.5,1,False
+531,agree,0,True,2,3,1,Coin,Leaf,Rock,3.3750000596046448,1,True
+531,agree,0,False,2,3,1,Coin,Leaf,Rock,1.2500000596046448,1,True
+532,"conflict, C larger",0,True,1,-3,-1,Pot,Cart,Pen,0.125,1,False
+532,"conflict, C larger",0,False,1,-3,-1,Pot,Cart,Pen,-1.7499999403953552,-1,True
+533,first step only,0,True,3,0,1,Peter,Carl,Emma,1.8750000596046448,1,True
+533,first step only,0,False,3,0,1,Peter,Carl,Emma,-1.4999999403953552,-1,False
+534,"conflict, M larger",0,False,4,-1,1,Ball,Bag,Desk,-2.1249999701976776,-1,False
+534,"conflict, M larger",0,True,4,-1,1,Ball,Bag,Desk,-1.4999999403953552,-1,False
+535,"conflict, M larger",0,False,5,-2,1,Steve,Anna,Greg,-2.875000089406967,-1,False
+535,"conflict, M larger",0,True,5,-2,1,Steve,Anna,Greg,-1.1250001192092896,-1,False
+536,"conflict, M larger",0,True,4,-1,1,Tower,Anchor,Pot,0.25,1,True
+536,"conflict, M larger",0,False,4,-1,1,Tower,Anchor,Pot,-1.4999999701976776,-1,False
+537,agree,1,False,1,2,1,Brian,Alan,Jake,2.6250000447034836,1,True
+537,agree,1,True,1,2,1,Brian,Alan,Jake,6.625000201165676,1,True
+537,agree,0,False,1,5,1,Brian,Alan,Jake,3.0000000298023224,1,True
+537,agree,0,True,1,5,1,Brian,Alan,Jake,5.749999821186066,1,True
+538,"conflict, M larger",1,True,3,-2,1,Emma,Jake,Kate,2.7500000298023224,1,True
+538,"conflict, M larger",1,False,3,-2,1,Emma,Jake,Kate,1.25,1,True
+539,first step only,1,False,3,0,1,Wheel,Anchor,Ball,-1.6250000596046448,-1,False
+539,first step only,1,True,3,0,1,Wheel,Anchor,Ball,0.25,1,True
+540,"conflict, M larger",1,False,4,-1,1,Cart,Table,Clock,-2.6250001192092896,-1,False
+540,"conflict, M larger",1,True,4,-1,1,Cart,Table,Clock,-0.625,-1,False
+541,first step only,1,True,4,0,1,Rick,Jack,Carl,2.1249999701976776,1,True
+541,first step only,1,False,4,0,1,Rick,Jack,Carl,0.3749999403953552,1,True
+542,first step only,1,False,-1,0,-1,Rock,Banner,Mask,-1.625,-1,True
+542,first step only,1,True,-1,0,-1,Rock,Banner,Mask,0.625,1,False
+543,"conflict, M larger",1,True,-5,3,-1,Jane,Brian,Chris,0.75,1,False
+543,"conflict, M larger",1,False,-5,3,-1,Jane,Brian,Chris,-1.3749999403953552,-1,True
+543,"conflict, C larger",0,True,1,-5,-1,Jane,Brian,Chris,1.5000000596046448,1,False
+543,"conflict, C larger",0,False,1,-5,-1,Jane,Brian,Chris,-3.2499999403953552,-1,True
+544,"conflict, M larger",1,False,4,-2,1,Adam,Sean,Fred,-1.8749999403953552,-1,False
+544,"conflict, M larger",1,True,4,-2,1,Adam,Sean,Fred,1.25,1,True
+545,"conflict, C larger",1,True,-3,5,1,Car,Knife,Tree,-0.375,-1,False
+545,"conflict, C larger",1,False,-3,5,1,Car,Knife,Tree,-1.6249999403953552,-1,False
+545,"conflict, M larger",0,True,-4,1,-1,Car,Knife,Tree,-0.8749999403953552,-1,True
+545,"conflict, M larger",0,False,-4,1,-1,Car,Knife,Tree,-2.999999910593033,-1,True
+546,"conflict, M larger",0,False,-4,2,-1,Fred,Tom,Beth,-1.5,-1,True
+546,"conflict, M larger",0,True,-4,2,-1,Fred,Tom,Beth,0.7500000596046448,1,False
+547,"conflict, M larger",1,True,4,-2,1,Jar,Wheel,Knife,-0.7499999403953552,-1,False
+547,"conflict, M larger",1,False,4,-2,1,Jar,Wheel,Knife,-3.5,-1,False
+548,first step only,0,True,-5,0,-1,Mask,Glass,Rock,0.0,-1,True
+548,first step only,0,False,-5,0,-1,Mask,Glass,Rock,-2.7499999403953552,-1,True
+549,first step only,1,False,-1,0,-1,David,Kevin,Brian,-3.249999985098839,-1,True
+549,first step only,1,True,-1,0,-1,David,Kevin,Brian,-0.375,-1,True
+550,agree,1,True,-1,-1,-1,Jack,Peter,Adam,-1.75,-1,True
+550,agree,1,False,-1,-1,-1,Jack,Peter,Adam,-4.7500001303851604,-1,True
+551,agree,0,False,4,2,1,Bag,Brush,Arrow,0.9999999701976776,1,True
+551,agree,0,True,4,2,1,Bag,Brush,Arrow,0.875,1,True
+552,"conflict, C larger",0,False,-1,5,1,Book,Arrow,Chair,3.8749998807907104,1,True
+552,"conflict, C larger",0,True,-1,5,1,Book,Arrow,Chair,3.750000149011612,1,True
+553,"conflict, M larger",1,True,5,-2,1,Pot,Table,Box,1.25,1,True
+553,"conflict, M larger",1,False,5,-2,1,Pot,Table,Box,-1.75,-1,False
+554,"conflict, C larger",1,False,2,-5,-1,Paul,Bob,Carl,-1.375,-1,True
+554,"conflict, C larger",1,True,2,-5,-1,Paul,Bob,Carl,1.3749999403953552,1,False
+554,"conflict, C larger",0,False,-2,4,1,Paul,Bob,Carl,-1.25,-1,False
+554,"conflict, C larger",0,True,-2,4,1,Paul,Bob,Carl,1.3749999403953552,1,True
+555,"conflict, C larger",1,True,4,-5,-1,Basket,Rock,Mask,-2.0000000298023224,-1,True
+555,"conflict, C larger",1,False,4,-5,-1,Basket,Rock,Mask,-4.499999791383743,-1,True
+556,agree,1,False,3,1,1,Peter,Eric,Kim,-1.875,-1,False
+556,agree,1,True,3,1,1,Peter,Eric,Kim,1.6250000298023224,1,True
+557,"conflict, M larger",1,True,-4,3,-1,Bell,Banner,Pen,2.125,1,False
+557,"conflict, M larger",1,False,-4,3,-1,Bell,Banner,Pen,-0.875,-1,True
+557,"conflict, C larger",0,True,-1,2,1,Bell,Banner,Pen,2.5,1,True
+557,"conflict, C larger",0,False,-1,2,1,Bell,Banner,Pen,-1.0000000596046448,-1,False
+558,"conflict, C larger",1,False,1,-5,-1,Clock,Table,Tower,1.5000001192092896,1,False
+558,"conflict, C larger",1,True,1,-5,-1,Clock,Table,Tower,1.125,1,False
+559,agree,1,True,1,2,1,Cart,Brush,Ring,2.0,1,True
+559,agree,1,False,1,2,1,Cart,Brush,Ring,1.1249999403953552,1,True
+560,agree,0,True,1,4,1,Steve,Henry,Anna,1.75,1,True
+560,agree,0,False,1,4,1,Steve,Henry,Anna,-3.3750001192092896,-1,False
+561,agree,1,False,-1,-2,-1,Tom,Beth,Jane,-0.25,-1,True
+561,agree,1,True,-1,-2,-1,Tom,Beth,Jane,1.5,1,False
+561,"conflict, C larger",0,False,-1,2,1,Tom,Beth,Jane,1.0,1,True
+561,"conflict, C larger",0,True,-1,2,1,Tom,Beth,Jane,2.7500000596046448,1,True
+562,"conflict, C larger",1,True,-4,5,1,Ring,Rock,Hat,-2.1250000298023224,-1,False
+562,"conflict, C larger",1,False,-4,5,1,Ring,Rock,Hat,-4.874999918043613,-1,False
+563,"conflict, M larger",1,False,5,-3,1,Leo,Alan,Paul,-2.0000001192092896,-1,False
+563,"conflict, M larger",1,True,5,-3,1,Leo,Alan,Paul,2.0,1,True
+564,agree,1,False,-1,-3,-1,Gate,Table,Leaf,-1.6249999403953552,-1,True
+564,agree,1,True,-1,-3,-1,Gate,Table,Leaf,-2.2499999701976776,-1,True
+565,agree,0,True,-1,-2,-1,Ben,Chris,Jack,3.8749999701976776,1,False
+565,agree,0,False,-1,-2,-1,Ben,Chris,Jack,0.375,1,False
+566,agree,0,False,-4,-1,-1,Clock,Anchor,Bucket,-2.6249999701976776,-1,True
+566,agree,0,True,-4,-1,-1,Clock,Anchor,Bucket,0.0,-1,True
+567,"conflict, M larger",1,False,-4,1,-1,Tom,Peter,Sean,-1.2500000596046448,-1,True
+567,"conflict, M larger",1,True,-4,1,-1,Tom,Peter,Sean,1.5,1,False
+568,"conflict, M larger",1,False,-5,4,-1,Book,Banner,Door,-1.7500000596046448,-1,True
+568,"conflict, M larger",1,True,-5,4,-1,Book,Banner,Door,0.125,1,False
+569,agree,0,True,-2,-1,-1,Dan,Jane,Neil,0.6249999403953552,1,False
+569,agree,0,False,-2,-1,-1,Dan,Jane,Neil,-0.7500000596046448,-1,True
+570,agree,1,False,2,3,1,Box,Gate,Pen,1.6250000596046448,1,True
+570,agree,1,True,2,3,1,Box,Gate,Pen,7.499999798834324,1,True
+571,"conflict, M larger",0,False,-5,2,-1,David,Fred,Anna,1.3750000596046448,1,False
+571,"conflict, M larger",0,True,-5,2,-1,David,Fred,Anna,3.3750000298023224,1,False
+572,"conflict, C larger",1,True,2,-4,-1,David,Rick,Adam,0.7500001192092896,1,False
+572,"conflict, C larger",1,False,2,-4,-1,David,Rick,Adam,-2.1250001192092896,-1,True
+573,"conflict, C larger",0,False,-3,5,1,Brush,Tree,Jar,2.7500000596046448,1,True
+573,"conflict, C larger",0,True,-3,5,1,Brush,Tree,Jar,2.999999925494194,1,True
+574,"conflict, C larger",1,True,-4,5,1,Alan,Sam,Kate,0.7500000596046448,1,True
+574,"conflict, C larger",1,False,-4,5,1,Alan,Sam,Kate,-1.6249999403953552,-1,False
+575,agree,1,False,1,3,1,Bucket,Bag,Wheel,6.375000197440386,1,True
+575,agree,1,True,1,3,1,Bucket,Bag,Wheel,10.812499556690454,1,True
+576,"conflict, C larger",0,False,3,-4,-1,Arrow,Mask,Pipe,-3.1249999403953552,-1,True
+576,"conflict, C larger",0,True,3,-4,-1,Arrow,Mask,Pipe,-0.375,-1,True
+577,agree,1,True,1,3,1,Book,Bag,Desk,1.4999998807907104,1,True
+577,agree,1,False,1,3,1,Book,Bag,Desk,-2.2499999403953552,-1,False
+577,"conflict, C larger",0,True,4,-5,-1,Book,Bag,Desk,-0.75,-1,True
+577,"conflict, C larger",0,False,4,-5,-1,Book,Bag,Desk,-3.3750000298023224,-1,True
+578,"conflict, M larger",0,True,-3,2,-1,Brian,Dan,Bob,2.1249998807907104,1,False
+578,"conflict, M larger",0,False,-3,2,-1,Brian,Dan,Bob,-1.1250000596046448,-1,True
+579,"conflict, C larger",0,False,-1,3,1,Arrow,Rock,Table,-0.125,-1,False
+579,"conflict, C larger",0,True,-1,3,1,Arrow,Rock,Table,-0.25,-1,False
+580,agree,1,True,1,3,1,Gate,Glass,Flag,5.000000059604645,1,True
+580,agree,1,False,1,3,1,Gate,Glass,Flag,2.499999910593033,1,True
+581,"conflict, C larger",1,False,-2,3,1,Kevin,Jack,Paul,-0.5,-1,False
+581,"conflict, C larger",1,True,-2,3,1,Kevin,Jack,Paul,0.875,1,True
+582,agree,1,True,1,4,1,Anna,Chris,Sean,5.999999940395355,1,True
+582,agree,1,False,1,4,1,Anna,Chris,Sean,1.6250000298023224,1,True
+583,agree,1,False,-1,-2,-1,Box,Bag,Brush,-2.499999985098839,-1,True
+583,agree,1,True,-1,-2,-1,Box,Bag,Brush,-1.0000000596046448,-1,True
+584,agree,0,False,3,3,1,Arrow,Plate,Brush,4.625000059604645,1,True
+584,agree,0,True,3,3,1,Arrow,Plate,Brush,7.749999850988388,1,True
+585,"conflict, M larger",1,True,5,-4,1,Jack,Brian,Henry,-0.5,-1,False
+585,"conflict, M larger",1,False,5,-4,1,Jack,Brian,Henry,-3.875000052154064,-1,False
+586,agree,1,True,2,4,1,Mirror,Box,Bell,0.375,1,True
+586,agree,1,False,2,4,1,Mirror,Box,Bell,-0.375,-1,False
+587,"conflict, C larger",1,True,2,-4,-1,Shell,Knife,Cart,-0.125,-1,True
+587,"conflict, C larger",1,False,2,-4,-1,Shell,Knife,Cart,-1.5,-1,True
+588,"conflict, C larger",0,False,-2,5,1,Bucket,Chair,Ring,1.2500000298023224,1,True
+588,"conflict, C larger",0,True,-2,5,1,Bucket,Chair,Ring,3.6249999701976776,1,True
+589,agree,1,True,2,3,1,Tom,Amy,Sam,3.124999985098839,1,True
+589,agree,1,False,2,3,1,Tom,Amy,Sam,2.7499999403953552,1,True
+590,"conflict, C larger",1,False,-1,3,1,Dan,Cole,Alice,0.3750000596046448,1,True
+590,"conflict, C larger",1,True,-1,3,1,Dan,Cole,Alice,4.999999850988388,1,True
+591,agree,1,True,-4,-2,-1,Bag,Desk,Pipe,-2.375,-1,True
+591,agree,1,False,-4,-2,-1,Bag,Desk,Pipe,-4.875000208616257,-1,True
+592,"conflict, M larger",0,True,4,-1,1,Ben,Leo,Emma,0.375,1,True
+592,"conflict, M larger",0,False,4,-1,1,Ben,Leo,Emma,-4.374999940395355,-1,False
+593,agree,0,False,3,3,1,Anchor,Leaf,Wheel,2.1250000596046448,1,True
+593,agree,0,True,3,3,1,Anchor,Leaf,Wheel,3.7500001788139343,1,True
+594,"conflict, M larger",0,True,5,-1,1,Emma,Chris,Tom,2.25,1,True
+594,"conflict, M larger",0,False,5,-1,1,Emma,Chris,Tom,-1.25,-1,False
+595,"conflict, C larger",0,False,-1,5,1,Alice,Adam,Leo,0.6249999403953552,1,True
+595,"conflict, C larger",0,True,-1,5,1,Alice,Adam,Leo,2.6250000596046448,1,True
+596,agree,0,False,-1,-2,-1,Gate,Brush,Mirror,-2.7500000968575478,-1,True
+596,agree,0,True,-1,-2,-1,Gate,Brush,Mirror,-1.0000000596046448,-1,True
+597,"conflict, C larger",0,False,-2,5,1,Cole,Jack,Rachel,-0.125,-1,False
+597,"conflict, C larger",0,True,-2,5,1,Cole,Jack,Rachel,2.8750001192092896,1,True
+598,agree,1,True,-1,-5,-1,Rock,Table,Door,1.375,1,False
+598,agree,1,False,-1,-5,-1,Rock,Table,Door,0.25,1,False
+599,agree,1,False,1,5,1,Pen,Hat,Shell,5.374999850988388,1,True
+599,agree,1,True,1,5,1,Pen,Hat,Shell,7.374999929219484,1,True
+600,agree,1,True,2,2,1,Desk,Ball,Arrow,-3.6249998807907104,-1,False
+600,agree,1,False,2,2,1,Desk,Ball,Arrow,-5.499999970197678,-1,False
+601,agree,1,True,-3,-3,-1,Mirror,Clock,Brush,-0.8749999403953552,-1,True
+601,agree,1,False,-3,-3,-1,Mirror,Clock,Brush,-2.3750000298023224,-1,True
+602,agree,1,False,3,3,1,Rachel,Eric,Kim,-0.625,-1,False
+602,agree,1,True,3,3,1,Rachel,Eric,Kim,3.750000014901161,1,True
+603,"conflict, C larger",0,False,-2,5,1,Bell,Tree,Coin,0.375,1,True
+603,"conflict, C larger",0,True,-2,5,1,Bell,Tree,Coin,2.9999999403953552,1,True
+604,"conflict, C larger",0,False,1,-3,-1,Stone,Plate,Tower,0.625,1,False
+604,"conflict, C larger",0,True,1,-3,-1,Stone,Plate,Tower,3.7500001192092896,1,False
+605,"conflict, C larger",0,True,-3,4,1,Anchor,Ring,Flag,1.8749999403953552,1,True
+605,"conflict, C larger",0,False,-3,4,1,Anchor,Ring,Flag,-0.5,-1,False
+606,agree,1,False,-1,-3,-1,Chris,Ben,Henry,-6.87499987334013,-1,True
+606,agree,1,True,-1,-3,-1,Chris,Ben,Henry,-1.4999999701976776,-1,True
+607,"conflict, C larger",0,True,3,-5,-1,Car,Bell,Ball,-0.25,-1,True
+607,"conflict, C larger",0,False,3,-5,-1,Car,Bell,Ball,-1.3749999403953552,-1,True
+608,"conflict, M larger",0,True,-2,1,-1,Ball,Flag,Stone,2.9999999403953552,1,False
+608,"conflict, M larger",0,False,-2,1,-1,Ball,Flag,Stone,0.375,1,False
+609,agree,1,True,-2,-1,-1,Laura,Anna,Kim,1.875,1,False
+609,agree,1,False,-2,-1,-1,Laura,Anna,Kim,-0.8750000596046448,-1,True
+610,agree,1,True,4,2,1,Desk,Car,Tree,-0.125,-1,False
+610,agree,1,False,4,2,1,Desk,Car,Tree,-2.0000001192092896,-1,False
+611,"conflict, C larger",0,True,2,-5,-1,Cole,Henry,Emma,0.25,1,False
+611,"conflict, C larger",0,False,2,-5,-1,Cole,Henry,Emma,-3.9999999925494194,-1,True
+612,"conflict, M larger",1,False,-5,2,-1,Banner,Hat,Basket,2.9999999403953552,1,False
+612,"conflict, M larger",1,True,-5,2,-1,Banner,Hat,Basket,1.3750001192092896,1,False
+613,agree,0,True,3,2,1,Alice,Carl,Steve,4.624999940395355,1,True
+613,agree,0,False,3,2,1,Alice,Carl,Steve,0.125,1,True
+614,agree,0,True,4,2,1,Leaf,Mirror,Banner,1.8749998807907104,1,True
+614,agree,0,False,4,2,1,Leaf,Mirror,Banner,1.6250000596046448,1,True
+615,agree,1,True,-4,-2,-1,Table,Ring,Anchor,-0.8750001192092896,-1,True
+615,agree,1,False,-4,-2,-1,Table,Ring,Anchor,-5.249999821186066,-1,True
+616,"conflict, C larger",0,False,1,-2,-1,Peter,Rick,Brian,-1.25,-1,True
+616,"conflict, C larger",0,True,1,-2,-1,Peter,Rick,Brian,2.0000000596046448,1,False
+617,agree,0,False,-2,-1,-1,Box,Chair,Rock,-0.5,-1,True
+617,agree,0,True,-2,-1,-1,Box,Chair,Rock,1.25,1,False
+618,"conflict, M larger",0,True,5,-3,1,Paul,Neil,Alan,-1.9999999105930328,-1,False
+618,"conflict, M larger",0,False,5,-3,1,Paul,Neil,Alan,-4.000000044703484,-1,False
+619,"conflict, C larger",0,True,3,-5,-1,Pen,Shell,Flag,0.125,1,False
+619,"conflict, C larger",0,False,3,-5,-1,Pen,Shell,Flag,-1.5000001192092896,-1,True
+620,"conflict, M larger",0,True,-4,1,-1,Fred,Kim,Jane,0.5,1,False
+620,"conflict, M larger",0,False,-4,1,-1,Fred,Kim,Jane,-2.875000089406967,-1,True
+621,"conflict, C larger",1,False,1,-5,-1,Hat,Tree,Knife,-0.5,-1,True
+621,"conflict, C larger",1,True,1,-5,-1,Hat,Tree,Knife,0.5,1,False
+622,"conflict, M larger",0,False,-5,4,-1,Jake,Brian,Kim,-3.999999910593033,-1,True
+622,"conflict, M larger",0,True,-5,4,-1,Jake,Brian,Kim,-1.25,-1,True
+623,"conflict, M larger",1,False,5,-4,1,Chris,Alan,Neil,-0.125,-1,False
+623,"conflict, M larger",1,True,5,-4,1,Chris,Alan,Neil,4.625000059604645,1,True
+624,agree,0,False,5,1,1,Pot,Stone,Clock,-2.25,-1,False
+624,agree,0,True,5,1,1,Pot,Stone,Clock,0.9999999403953552,1,True
+625,agree,0,True,3,2,1,Hat,Wheel,Desk,2.2499999403953552,1,True
+625,agree,0,False,3,2,1,Hat,Wheel,Desk,1.1250000596046448,1,True
+626,"conflict, M larger",1,False,2,-1,1,George,Adam,Jake,-2.874999910593033,-1,False
+626,"conflict, M larger",1,True,2,-1,1,George,Adam,Jake,1.5000000596046448,1,True
+627,"conflict, M larger",1,True,2,-1,1,Wheel,Basket,Pipe,1.625,1,True
+627,"conflict, M larger",1,False,2,-1,1,Wheel,Basket,Pipe,-0.9999998807907104,-1,False
+628,agree,1,True,2,3,1,Jar,Clock,Plate,1.6250000596046448,1,True
+628,agree,1,False,2,3,1,Jar,Clock,Plate,-1.5000001192092896,-1,False
+629,agree,1,False,-3,-1,-1,Carl,Amy,Dan,-0.875,-1,True
+629,agree,1,True,-3,-1,-1,Carl,Amy,Dan,2.1249999403953552,1,False
+630,agree,1,False,-3,-1,-1,Banner,Bucket,Arrow,-1.8749999850988388,-1,True
+630,agree,1,True,-3,-1,-1,Banner,Bucket,Arrow,-1.125,-1,True
+631,"conflict, M larger",0,True,5,-1,1,Anchor,Bell,Chair,2.6250001043081284,1,True
+631,"conflict, M larger",0,False,5,-1,1,Anchor,Bell,Chair,-1.5000000298023224,-1,False
+632,"conflict, M larger",0,False,-5,3,-1,Hat,Mask,Pen,-0.9999999403953552,-1,True
+632,"conflict, M larger",0,True,-5,3,-1,Hat,Mask,Pen,-0.8749999403953552,-1,True
+633,"conflict, M larger",0,True,-4,1,-1,Steve,Leo,Tom,-1.375,-1,True
+633,"conflict, M larger",0,False,-4,1,-1,Steve,Leo,Tom,-4.000000052154064,-1,True
+634,"conflict, C larger",1,False,-1,4,1,Sam,Sean,Neil,4.124999791383743,1,True
+634,"conflict, C larger",1,True,-1,4,1,Sam,Sean,Neil,7.375000238418579,1,True
+635,"conflict, C larger",0,True,-1,5,1,Steve,Alan,Sean,0.25,1,True
+635,"conflict, C larger",0,False,-1,5,1,Steve,Alan,Sean,-2.7499998807907104,-1,False
+636,agree,1,False,3,2,1,Pen,Gate,Flag,4.250000134110451,1,True
+636,agree,1,True,3,2,1,Pen,Gate,Flag,5.000000141561031,1,True
+637,agree,0,True,-2,-2,-1,Sean,Sam,Anna,0.3749999403953552,1,False
+637,agree,0,False,-2,-2,-1,Sean,Sam,Anna,-2.25,-1,True
+638,agree,0,False,1,4,1,Adam,Beth,Alan,3.8749998658895493,1,True
+638,agree,0,True,1,4,1,Adam,Beth,Alan,7.875000201165676,1,True
+639,"conflict, M larger",0,False,-5,3,-1,Tree,Door,Banner,-0.125,-1,True
+639,"conflict, M larger",0,True,-5,3,-1,Tree,Door,Banner,1.8749999701976776,1,False
+640,"conflict, C larger",1,False,-3,4,1,Hat,Flag,Arrow,4.625000059604645,1,True
+640,"conflict, C larger",1,True,-3,4,1,Hat,Flag,Arrow,4.125000238418579,1,True
+641,"conflict, M larger",0,True,-2,1,-1,Anna,Ben,Kim,-0.625,-1,True
+641,"conflict, M larger",0,False,-2,1,-1,Anna,Ben,Kim,-3.6249999403953552,-1,True
+642,"conflict, C larger",0,True,-1,4,1,Jack,Emma,Kim,2.1250000596046448,1,True
+642,"conflict, C larger",0,False,-1,4,1,Jack,Emma,Kim,-1.0,-1,False
+643,"conflict, C larger",0,True,2,-4,-1,Dan,Henry,Greg,1.3750000596046448,1,False
+643,"conflict, C larger",0,False,2,-4,-1,Dan,Henry,Greg,-1.5,-1,True
+644,"conflict, C larger",0,True,-2,4,1,Sam,Neil,Fred,1.8750000894069672,1,True
+644,"conflict, C larger",0,False,-2,4,1,Sam,Neil,Fred,-0.375,-1,False
+645,"conflict, M larger",0,False,-5,3,-1,Shell,Mirror,Table,-1.0,-1,True
+645,"conflict, M larger",0,True,-5,3,-1,Shell,Mirror,Table,0.7499999403953552,1,False
+646,"conflict, M larger",0,False,5,-2,1,Jake,Kim,Bob,-4.500000178813934,-1,False
+646,"conflict, M larger",0,True,5,-2,1,Jake,Kim,Bob,-2.1249998807907104,-1,False
+647,"conflict, M larger",0,False,5,-4,1,Leo,Alice,Peter,-1.125,-1,False
+647,"conflict, M larger",0,True,5,-4,1,Leo,Alice,Peter,3.374999910593033,1,True
+648,"conflict, M larger",0,False,-2,1,-1,Basket,Brush,Shell,-2.2499999403953552,-1,True
+648,"conflict, M larger",0,True,-2,1,-1,Basket,Brush,Shell,-1.3749999701976776,-1,True
+649,"conflict, C larger",1,False,3,-5,-1,Stone,Table,Jar,0.75,1,False
+649,"conflict, C larger",1,True,3,-5,-1,Stone,Table,Jar,2.1250000596046448,1,False
+649,"conflict, C larger",0,False,-2,5,1,Stone,Table,Jar,-0.24999994039535522,-1,False
+649,"conflict, C larger",0,True,-2,5,1,Stone,Table,Jar,1.8750000596046448,1,True
+650,"conflict, M larger",1,True,3,-2,1,Sam,Cole,Jane,4.625000059604645,1,True
+650,"conflict, M larger",1,False,3,-2,1,Sam,Cole,Jane,-0.7499999403953552,-1,False
+651,"conflict, M larger",0,True,-5,1,-1,Wheel,Knife,Clock,-1.9999999105930328,-1,True
+651,"conflict, M larger",0,False,-5,1,-1,Wheel,Knife,Clock,-7.9999998807907104,-1,True
+652,"conflict, C larger",1,True,1,-3,-1,Emma,Ben,George,2.4999999403953552,1,False
+652,"conflict, C larger",1,False,1,-3,-1,Emma,Ben,George,-1.7499998807907104,-1,True
+653,"conflict, C larger",0,True,-2,3,1,Sean,Emma,Jane,1.625,1,True
+653,"conflict, C larger",0,False,-2,3,1,Sean,Emma,Jane,0.6250000596046448,1,True
+654,"conflict, M larger",1,False,-4,1,-1,Jake,David,Emma,1.2499999403953552,1,False
+654,"conflict, M larger",1,True,-4,1,-1,Jake,David,Emma,4.000000178813934,1,False
+655,"conflict, M larger",0,True,-4,2,-1,Bob,Kate,David,2.125,1,False
+655,"conflict, M larger",0,False,-4,2,-1,Bob,Kate,David,-0.125,-1,True
+656,"conflict, M larger",0,True,4,-2,1,Eric,Dan,Emma,1.1250000596046448,1,True
+656,"conflict, M larger",0,False,4,-2,1,Eric,Dan,Emma,-2.6249999701976776,-1,False
+657,"conflict, M larger",0,True,-5,3,-1,Gate,Knife,Hat,-1.8749999403953552,-1,True
+657,"conflict, M larger",0,False,-5,3,-1,Gate,Knife,Hat,-3.375000089406967,-1,True
+658,"conflict, M larger",0,False,-4,3,-1,Chris,Anna,Jane,-1.1249999403953552,-1,True
+658,"conflict, M larger",0,True,-4,3,-1,Chris,Anna,Jane,1.0,1,False
+659,"conflict, C larger",1,False,1,-4,-1,Rock,Pipe,Cart,-1.8749999403953552,-1,True
+659,"conflict, C larger",1,True,1,-4,-1,Rock,Pipe,Cart,1.3750000298023224,1,False
+659,"conflict, C larger",0,False,-2,5,1,Rock,Pipe,Cart,-1.3750000596046448,-1,False
+659,"conflict, C larger",0,True,-2,5,1,Rock,Pipe,Cart,0.8750000596046448,1,True
+660,"conflict, M larger",1,False,5,-2,1,Tree,Bell,Bucket,-2.000000014901161,-1,False
+660,"conflict, M larger",1,True,5,-2,1,Tree,Bell,Bucket,1.1250000596046448,1,True
+661,"conflict, C larger",1,False,-3,5,1,Shell,Pipe,Wheel,-1.125,-1,False
+661,"conflict, C larger",1,True,-3,5,1,Shell,Pipe,Wheel,-0.3749999403953552,-1,False
+662,"conflict, M larger",0,False,-4,3,-1,David,Eric,Fred,-1.0,-1,True
+662,"conflict, M larger",0,True,-4,3,-1,David,Eric,Fred,-0.375,-1,True
+663,"conflict, M larger",0,False,5,-1,1,Emma,Alan,Dan,-1.25,-1,False
+663,"conflict, M larger",0,True,5,-1,1,Emma,Alan,Dan,2.625000089406967,1,True
+664,"conflict, C larger",1,False,1,-3,-1,Ball,Box,Clock,-5.125000081956387,-1,True
+664,"conflict, C larger",1,True,1,-3,-1,Ball,Box,Clock,-2.1249999701976776,-1,True
+665,"conflict, M larger",1,False,2,-1,1,Fred,Henry,Carl,-4.250000104308128,-1,False
+665,"conflict, M larger",1,True,2,-1,1,Fred,Henry,Carl,-0.2500000596046448,-1,False
+666,"conflict, C larger",1,False,-2,4,1,Adam,Kate,Henry,6.375000022351742,1,True
+666,"conflict, C larger",1,True,-2,4,1,Adam,Kate,Henry,10.499999962747097,1,True
+667,"conflict, C larger",0,True,2,-3,-1,Car,Pen,Hat,-0.3749999403953552,-1,True
+667,"conflict, C larger",0,False,2,-3,-1,Car,Pen,Hat,-2.5000000298023224,-1,True
+668,"conflict, M larger",0,False,4,-3,1,Cart,Book,Mask,-1.2500001192092896,-1,False
+668,"conflict, M larger",0,True,4,-3,1,Cart,Book,Mask,1.625,1,True
+669,"conflict, M larger",0,False,-5,4,-1,Desk,Tree,Pot,-2.6249999403953552,-1,True
+669,"conflict, M larger",0,True,-5,4,-1,Desk,Tree,Pot,-1.3749999403953552,-1,True
+670,"conflict, C larger",1,False,-2,3,1,Alan,Brian,Kevin,-1.375,-1,False
+670,"conflict, C larger",1,True,-2,3,1,Alan,Brian,Kevin,2.3749998807907104,1,True
+671,"conflict, C larger",1,True,-2,4,1,Emma,Sean,Kim,1.375,1,True
+671,"conflict, C larger",1,False,-2,4,1,Emma,Sean,Kim,-0.625,-1,False
+671,"conflict, C larger",0,True,2,-5,-1,Emma,Sean,Kim,1.6249998807907104,1,False
+671,"conflict, C larger",0,False,2,-5,-1,Emma,Sean,Kim,-1.6249999403953552,-1,True
+672,"conflict, M larger",0,False,4,-1,1,Kate,Kim,Chris,-3.125000089406967,-1,False
+672,"conflict, M larger",0,True,4,-1,1,Kate,Kim,Chris,-2.1249999403953552,-1,False
+673,"conflict, C larger",1,False,1,-3,-1,Door,Desk,Mirror,-0.125,-1,True
+673,"conflict, C larger",1,True,1,-3,-1,Door,Desk,Mirror,1.8749999403953552,1,False
+674,"conflict, M larger",1,True,3,-1,1,Mirror,Door,Plate,2.5,1,True
+674,"conflict, M larger",1,False,3,-1,1,Mirror,Door,Plate,0.2500000596046448,1,True
+675,"conflict, M larger",1,True,4,-2,1,Pipe,Chair,Ring,1.7500000596046448,1,True
+675,"conflict, M larger",1,False,4,-2,1,Pipe,Chair,Ring,-0.125,-1,False
+676,"conflict, C larger",1,False,-2,3,1,Steve,Beth,Kevin,-1.875,-1,False
+676,"conflict, C larger",1,True,-2,3,1,Steve,Beth,Kevin,0.75,1,True
+677,"conflict, M larger",1,True,-3,2,-1,Leo,Tom,Jack,2.5000000298023224,1,False
+677,"conflict, M larger",1,False,-3,2,-1,Leo,Tom,Jack,1.8750000894069672,1,False
+678,"conflict, M larger",1,True,2,-1,1,Chris,Cole,Alice,5.7499998807907104,1,True
+678,"conflict, M larger",1,False,2,-1,1,Chris,Cole,Alice,-2.875,-1,False
+679,"conflict, C larger",1,False,-1,4,1,Coin,Gate,Car,2.3749999403953552,1,True
+679,"conflict, C larger",1,True,-1,4,1,Coin,Gate,Car,1.6250000596046448,1,True
+680,"conflict, M larger",0,False,-3,1,-1,Cart,Car,Ball,0.75,1,False
+680,"conflict, M larger",0,True,-3,1,-1,Cart,Car,Ball,2.375,1,False
+681,"conflict, C larger",1,False,-1,2,1,Bob,Rachel,George,0.0,-1,False
+681,"conflict, C larger",1,True,-1,2,1,Bob,Rachel,George,1.7499999403953552,1,True
+682,"conflict, C larger",1,True,-2,5,1,Box,Desk,Shell,4.625,1,True
+682,"conflict, C larger",1,False,-2,5,1,Box,Desk,Shell,1.375,1,True
+682,"conflict, M larger",0,True,3,-2,1,Box,Desk,Shell,3.5000000596046448,1,True
+682,"conflict, M larger",0,False,3,-2,1,Box,Desk,Shell,0.7500001192092896,1,True
+683,"conflict, C larger",1,False,-1,3,1,Ben,Peter,Eric,2.1250000298023224,1,True
+683,"conflict, C larger",1,True,-1,3,1,Ben,Peter,Eric,4.249999791383743,1,True
+684,"conflict, M larger",0,False,-4,1,-1,Steve,Brian,Amy,-4.375000089406967,-1,True
+684,"conflict, M larger",0,True,-4,1,-1,Steve,Brian,Amy,-1.125,-1,True
+685,"conflict, M larger",0,False,3,-1,1,Flag,Glass,Rock,-4.999999821186066,-1,False
+685,"conflict, M larger",0,True,3,-1,1,Flag,Glass,Rock,-1.2500000596046448,-1,False
+686,"conflict, M larger",1,False,4,-2,1,Amy,Dan,Jake,-2.500000089406967,-1,False
+686,"conflict, M larger",1,True,4,-2,1,Amy,Dan,Jake,-0.7500000596046448,-1,False
+687,"conflict, M larger",0,False,-5,2,-1,George,Tom,Adam,-2.9999999552965164,-1,True
+687,"conflict, M larger",0,True,-5,2,-1,George,Tom,Adam,0.8750000596046448,1,False
+688,"conflict, M larger",0,False,-5,1,-1,Amy,Bob,Brian,0.5,1,False
+688,"conflict, M larger",0,True,-5,1,-1,Amy,Bob,Brian,1.3749998807907104,1,False
+689,"conflict, M larger",0,False,-2,1,-1,Jane,Emma,David,0.625,1,False
+689,"conflict, M larger",0,True,-2,1,-1,Jane,Emma,David,3.1249999403953552,1,False
+690,"conflict, M larger",0,False,5,-2,1,David,Eric,George,-3.3750000447034836,-1,False
+690,"conflict, M larger",0,True,5,-2,1,David,Eric,George,1.375,1,True
+691,"conflict, C larger",0,True,-2,3,1,Coin,Table,Bucket,1.1249999403953552,1,True
+691,"conflict, C larger",0,False,-2,3,1,Coin,Table,Bucket,0.0,-1,False
+692,"conflict, M larger",0,False,-3,1,-1,Pen,Table,Pot,3.1249999701976776,1,False
+692,"conflict, M larger",0,True,-3,1,-1,Pen,Table,Pot,2.999999925494194,1,False
+693,"conflict, M larger",1,False,5,-3,1,Jake,Kate,Henry,1.8749998807907104,1,True
+693,"conflict, M larger",1,True,5,-3,1,Jake,Kate,Henry,4.3750001192092896,1,True
+694,"conflict, M larger",0,False,5,-1,1,Sam,Amy,Brian,0.6250000596046448,1,True
+694,"conflict, M larger",0,True,5,-1,1,Sam,Amy,Brian,2.4999999403953552,1,True
+695,"conflict, C larger",1,True,-1,4,1,Flag,Basket,Anchor,2.2500000596046448,1,True
+695,"conflict, C larger",1,False,-1,4,1,Flag,Basket,Anchor,1.125,1,True
+696,"conflict, C larger",1,True,1,-4,-1,Bag,Pen,Flag,-0.75,-1,True
+696,"conflict, C larger",1,False,1,-4,-1,Bag,Pen,Flag,-2.8749998956918716,-1,True
+697,"conflict, M larger",0,False,5,-1,1,Bag,Wheel,Hat,-4.000000044703484,-1,False
+697,"conflict, M larger",0,True,5,-1,1,Bag,Wheel,Hat,-1.0,-1,False
+698,"conflict, C larger",0,False,-4,5,1,Jar,Box,Tree,0.25,1,True
+698,"conflict, C larger",0,True,-4,5,1,Jar,Box,Tree,0.5,1,True
+699,"conflict, M larger",1,False,4,-3,1,Fred,Rick,George,-0.5,-1,False
+699,"conflict, M larger",1,True,4,-3,1,Fred,Rick,George,2.7500000596046448,1,True
+700,"conflict, C larger",1,False,-4,5,1,Tom,Laura,Neil,0.125,1,True
+700,"conflict, C larger",1,True,-4,5,1,Tom,Laura,Neil,2.0000001192092896,1,True
+700,"conflict, M larger",0,False,5,-2,1,Tom,Laura,Neil,-0.375,-1,False
+700,"conflict, M larger",0,True,5,-2,1,Tom,Laura,Neil,2.2499999403953552,1,True
+701,"conflict, C larger",1,False,2,-4,-1,Car,Tree,Jar,-2.1250001192092896,-1,True
+701,"conflict, C larger",1,True,2,-4,-1,Car,Tree,Jar,0.125,1,False
+701,"conflict, C larger",0,False,-2,3,1,Car,Tree,Jar,-0.8749999403953552,-1,False
+701,"conflict, C larger",0,True,-2,3,1,Car,Tree,Jar,0.2500000596046448,1,True
+702,"conflict, M larger",1,True,-4,3,-1,Leo,Peter,Rachel,3.1250000596046448,1,False
+702,"conflict, M larger",1,False,-4,3,-1,Leo,Peter,Rachel,-0.125,-1,True
+702,"conflict, M larger",0,True,5,-4,1,Leo,Peter,Rachel,3.0000000298023224,1,True
+702,"conflict, M larger",0,False,5,-4,1,Leo,Peter,Rachel,-0.9999999403953552,-1,False
+703,"conflict, C larger",0,False,1,-5,-1,Alan,Peter,David,-1.75,-1,True
+703,"conflict, C larger",0,True,1,-5,-1,Alan,Peter,David,0.375,1,False
+704,"conflict, M larger",0,False,5,-1,1,Leaf,Box,Ball,-4.125000104308128,-1,False
+704,"conflict, M larger",0,True,5,-1,1,Leaf,Box,Ball,-2.124999910593033,-1,False
+705,"conflict, C larger",0,True,-1,5,1,Beth,Eric,Jake,1.375,1,True
+705,"conflict, C larger",0,False,-1,5,1,Beth,Eric,Jake,2.250000014901161,1,True
+706,"conflict, M larger",1,True,-4,1,-1,Cole,Beth,Amy,1.2499999403953552,1,False
+706,"conflict, M larger",1,False,-4,1,-1,Cole,Beth,Amy,-1.5000001192092896,-1,True
+707,"conflict, C larger",1,False,1,-4,-1,Desk,Table,Glass,-0.8750001192092896,-1,True
+707,"conflict, C larger",1,True,1,-4,-1,Desk,Table,Glass,0.125,1,False
+708,"conflict, C larger",0,True,1,-4,-1,Mask,Bell,Chair,1.3750000298023224,1,False
+708,"conflict, C larger",0,False,1,-4,-1,Mask,Bell,Chair,-2.9999998956918716,-1,True
+709,"conflict, M larger",1,False,-4,3,-1,Arrow,Pipe,Box,-1.8750000596046448,-1,True
+709,"conflict, M larger",1,True,-4,3,-1,Arrow,Pipe,Box,0.0,-1,True
+710,"conflict, M larger",0,False,2,-1,1,Henry,Beth,Ben,-1.25,-1,False
+710,"conflict, M larger",0,True,2,-1,1,Henry,Beth,Ben,1.2500000596046448,1,True
+711,"conflict, M larger",1,True,5,-4,1,Jack,Neil,Kim,2.3750000596046448,1,True
+711,"conflict, M larger",1,False,5,-4,1,Jack,Neil,Kim,-1.8749999105930328,-1,False
+712,"conflict, M larger",0,True,4,-3,1,Tower,Book,Desk,1.25,1,True
+712,"conflict, M larger",0,False,4,-3,1,Tower,Book,Desk,-2.5,-1,False
+713,"conflict, C larger",1,False,1,-2,-1,Tower,Desk,Box,1.25,1,False
+713,"conflict, C larger",1,True,1,-2,-1,Tower,Desk,Box,4.000000178813934,1,False
+714,"conflict, C larger",0,False,-1,5,1,David,Chris,Steve,0.25,1,True
+714,"conflict, C larger",0,True,-1,5,1,David,Chris,Steve,1.875,1,True
+715,"conflict, C larger",1,False,2,-4,-1,Jack,Eric,Anna,-2.7499999403953552,-1,True
+715,"conflict, C larger",1,True,2,-4,-1,Jack,Eric,Anna,-0.24999994039535522,-1,True
+716,"conflict, C larger",1,True,1,-3,-1,Knife,Coin,Flag,0.12499994039535522,1,False
+716,"conflict, C larger",1,False,1,-3,-1,Knife,Coin,Flag,-2.999999910593033,-1,True
+717,"conflict, M larger",0,False,-4,2,-1,Rick,Rachel,Peter,-0.6250000596046448,-1,True
+717,"conflict, M larger",0,True,-4,2,-1,Rick,Rachel,Peter,2.1249999403953552,1,False
+718,"conflict, M larger",0,True,5,-2,1,Tom,Sean,Jack,2.8749999403953552,1,True
+718,"conflict, M larger",0,False,5,-2,1,Tom,Sean,Jack,-0.125,-1,False
+719,"conflict, M larger",1,True,-4,2,-1,Coin,Bag,Mirror,1.3749999403953552,1,False
+719,"conflict, M larger",1,False,-4,2,-1,Coin,Bag,Mirror,0.375,1,False
+720,"conflict, M larger",1,True,-5,4,-1,Adam,Dan,Anna,1.5,1,False
+720,"conflict, M larger",1,False,-5,4,-1,Adam,Dan,Anna,-0.875,-1,True
+721,"conflict, C larger",0,False,-1,2,1,Box,Ring,Wheel,4.125000037252903,1,True
+721,"conflict, C larger",0,True,-1,2,1,Box,Ring,Wheel,1.6250000298023224,1,True
+722,"conflict, M larger",1,True,-5,1,-1,Beth,Cole,Brian,0.75,1,False
+722,"conflict, M larger",1,False,-5,1,-1,Beth,Cole,Brian,-1.7500000596046448,-1,True
+723,"conflict, C larger",1,False,1,-2,-1,Sam,Sean,George,-0.75,-1,True
+723,"conflict, C larger",1,True,1,-2,-1,Sam,Sean,George,5.000000137835741,1,False
+724,"conflict, C larger",0,False,-2,5,1,Ball,Car,Flag,-0.3749999403953552,-1,False
+724,"conflict, C larger",0,True,-2,5,1,Ball,Car,Flag,-0.875,-1,False
+725,"conflict, M larger",0,False,-2,1,-1,Jake,Sean,Dan,-1.1249999403953552,-1,True
+725,"conflict, M larger",0,True,-2,1,-1,Jake,Sean,Dan,1.75,1,False
+726,"conflict, M larger",1,True,5,-2,1,Desk,Door,Pen,0.0,-1,False
+726,"conflict, M larger",1,False,5,-2,1,Desk,Door,Pen,-2.7499999701976776,-1,False
+727,"conflict, C larger",1,True,-4,5,1,Car,Chair,Basket,0.6250000596046448,1,True
+727,"conflict, C larger",1,False,-4,5,1,Car,Chair,Basket,-1.25,-1,False
+728,"conflict, M larger",1,False,4,-3,1,Box,Coin,Banner,-3.6250000447034836,-1,False
+728,"conflict, M larger",1,True,4,-3,1,Box,Coin,Banner,0.125,1,True
+728,"conflict, C larger",0,False,-2,4,1,Box,Coin,Banner,-2.7500000596046448,-1,False
+728,"conflict, C larger",0,True,-2,4,1,Box,Coin,Banner,0.5,1,True
+729,"conflict, M larger",1,False,-4,3,-1,Chair,Stone,Pot,-0.625,-1,True
+729,"conflict, M larger",1,True,-4,3,-1,Chair,Stone,Pot,1.9999999105930328,1,False
+730,"conflict, C larger",0,False,1,-2,-1,Clock,Basket,Banner,0.0,-1,True
+730,"conflict, C larger",0,True,1,-2,-1,Clock,Basket,Banner,0.75,1,False
+731,"conflict, M larger",0,False,-5,1,-1,Chair,Gate,Glass,-4.874999962747097,-1,True
+731,"conflict, M larger",0,True,-5,1,-1,Chair,Gate,Glass,0.25,1,False
+732,"conflict, M larger",1,False,3,-2,1,Cart,Clock,Bucket,-1.7500001192092896,-1,False
+732,"conflict, M larger",1,True,3,-2,1,Cart,Clock,Bucket,-0.8750000596046448,-1,False
+733,"conflict, M larger",0,False,4,-2,1,Carl,Steve,Fred,0.25,1,True
+733,"conflict, M larger",0,True,4,-2,1,Carl,Steve,Fred,2.5,1,True
+734,"conflict, M larger",1,True,3,-2,1,Door,Pen,Wheel,-0.875,-1,False
+734,"conflict, M larger",1,False,3,-2,1,Door,Pen,Wheel,-3.6250000596046448,-1,False
+735,"conflict, C larger",0,True,-2,4,1,Wheel,Mask,Basket,1.375,1,True
+735,"conflict, C larger",0,False,-2,4,1,Wheel,Mask,Basket,-2.1249999403953552,-1,False
+736,"conflict, M larger",0,False,-2,1,-1,Paul,Anna,Ben,-0.5,-1,True
+736,"conflict, M larger",0,True,-2,1,-1,Paul,Anna,Ben,1.375,1,False
+737,"conflict, M larger",0,True,-5,1,-1,Brush,Pot,Gate,0.0,-1,True
+737,"conflict, M larger",0,False,-5,1,-1,Brush,Pot,Gate,-0.7500000596046448,-1,True
+738,"conflict, M larger",1,True,-3,2,-1,Arrow,Banner,Ring,-0.25,-1,True
+738,"conflict, M larger",1,False,-3,2,-1,Arrow,Banner,Ring,-2.3750000596046448,-1,True
+739,"conflict, M larger",1,False,2,-1,1,Jane,Anna,Peter,0.3750000596046448,1,True
+739,"conflict, M larger",1,True,2,-1,1,Jane,Anna,Peter,1.1249999403953552,1,True
+740,"conflict, C larger",1,False,1,-4,-1,Jake,Cole,Dan,-4.750000186264515,-1,True
+740,"conflict, C larger",1,True,1,-4,-1,Jake,Cole,Dan,0.5,1,False
+741,"conflict, C larger",0,True,1,-3,-1,Arrow,Mirror,Jar,0.0,-1,True
+741,"conflict, C larger",0,False,1,-3,-1,Arrow,Mirror,Jar,-1.6249999403953552,-1,True
+742,"conflict, C larger",0,False,1,-2,-1,Carl,Jane,Tom,-3.0000001192092896,-1,True
+742,"conflict, C larger",0,True,1,-2,-1,Carl,Jane,Tom,0.125,1,False
+743,"conflict, M larger",0,True,5,-1,1,Kate,Neil,Laura,-1.2499998807907104,-1,False
+743,"conflict, M larger",0,False,5,-1,1,Kate,Neil,Laura,-6.9999997690320015,-1,False
+744,"conflict, M larger",0,True,-4,1,-1,Glass,Brush,Rock,-0.75,-1,True
+744,"conflict, M larger",0,False,-4,1,-1,Glass,Brush,Rock,-1.6250000596046448,-1,True
+745,"conflict, C larger",0,True,4,-5,-1,Greg,Alan,Cole,1.0,1,False
+745,"conflict, C larger",0,False,4,-5,-1,Greg,Alan,Cole,-2.0,-1,True
+746,"conflict, C larger",1,False,-1,2,1,Shell,Mask,Book,0.6249999403953552,1,True
+746,"conflict, C larger",1,True,-1,2,1,Shell,Mask,Book,1.7499999403953552,1,True
+747,"conflict, C larger",1,False,-3,5,1,Amy,Jack,Neil,3.500000074505806,1,True
+747,"conflict, C larger",1,True,-3,5,1,Amy,Jack,Neil,3.374999985098839,1,True
+748,"conflict, M larger",1,False,5,-3,1,Adam,Eric,Laura,-4.500000178813934,-1,False
+748,"conflict, M larger",1,True,5,-3,1,Adam,Eric,Laura,-1.4999999701976776,-1,False
+749,"conflict, M larger",0,False,-5,4,-1,Tree,Rock,Bucket,2.5,1,False
+749,"conflict, M larger",0,True,-5,4,-1,Tree,Rock,Bucket,0.875,1,False
+750,"conflict, M larger",1,True,-5,4,-1,Eric,Jane,Steve,0.6249999403953552,1,False
+750,"conflict, M larger",1,False,-5,4,-1,Eric,Jane,Steve,-1.8749999403953552,-1,True
+751,"conflict, M larger",0,True,-3,1,-1,Bob,Anna,George,0.5,1,False
+751,"conflict, M larger",0,False,-3,1,-1,Bob,Anna,George,-1.6249999403953552,-1,True
+752,"conflict, M larger",1,False,-5,4,-1,Car,Stone,Gate,0.4999999403953552,1,False
+752,"conflict, M larger",1,True,-5,4,-1,Car,Stone,Gate,0.5,1,False
+752,"conflict, C larger",0,False,-2,5,1,Car,Stone,Gate,0.4999999403953552,1,True
+752,"conflict, C larger",0,True,-2,5,1,Car,Stone,Gate,0.375,1,True
+753,"conflict, M larger",0,False,-4,2,-1,Kevin,Chris,Ben,-2.125,-1,True
+753,"conflict, M larger",0,True,-4,2,-1,Kevin,Chris,Ben,0.25,1,False
+754,"conflict, C larger",1,True,-1,4,1,Steve,Henry,George,0.5,1,True
+754,"conflict, C larger",1,False,-1,4,1,Steve,Henry,George,-2.625000014901161,-1,False
+755,"conflict, C larger",0,True,1,-2,-1,Shell,Wheel,Table,0.0,-1,True
+755,"conflict, C larger",0,False,1,-2,-1,Shell,Wheel,Table,-2.4999999403953552,-1,True
+756,"conflict, M larger",1,False,-5,2,-1,Ring,Door,Stone,0.875,1,False
+756,"conflict, M larger",1,True,-5,2,-1,Ring,Door,Stone,0.75,1,False
+757,"conflict, C larger",1,False,-1,4,1,Flag,Plate,Hat,-0.8750001192092896,-1,False
+757,"conflict, C larger",1,True,-1,4,1,Flag,Plate,Hat,-1.5000001192092896,-1,False
+758,"conflict, M larger",0,True,4,-3,1,Kim,Sean,Tom,1.8749998807907104,1,True
+758,"conflict, M larger",0,False,4,-3,1,Kim,Sean,Tom,-0.125,-1,False
+759,"conflict, M larger",1,False,4,-3,1,Glass,Book,Pen,0.5000000596046448,1,True
+759,"conflict, M larger",1,True,4,-3,1,Glass,Book,Pen,2.1250001192092896,1,True
+760,"conflict, C larger",0,True,-1,2,1,Laura,Kevin,Neil,3.4999998211860657,1,True
+760,"conflict, C larger",0,False,-1,2,1,Laura,Kevin,Neil,-0.7500001192092896,-1,False
+761,"conflict, C larger",1,False,1,-4,-1,Table,Pen,Knife,-3.124999925494194,-1,True
+761,"conflict, C larger",1,True,1,-4,-1,Table,Pen,Knife,-1.8750001192092896,-1,True
+762,"conflict, M larger",1,True,2,-1,1,Bag,Wheel,Pipe,0.375,1,True
+762,"conflict, M larger",1,False,2,-1,1,Bag,Wheel,Pipe,-3.125000074505806,-1,False
+762,"conflict, M larger",0,True,-4,1,-1,Bag,Wheel,Pipe,0.12500005960464478,1,False
+762,"conflict, M larger",0,False,-4,1,-1,Bag,Wheel,Pipe,-1.2500000298023224,-1,True
+763,"conflict, C larger",1,True,3,-4,-1,Peter,Anna,Chris,1.9999999403953552,1,False
+763,"conflict, C larger",1,False,3,-4,-1,Peter,Anna,Chris,-1.6250000596046448,-1,True
+764,"conflict, C larger",1,True,2,-3,-1,Door,Ring,Plate,-1.0,-1,True
+764,"conflict, C larger",1,False,2,-3,-1,Door,Ring,Plate,-2.6249999403953552,-1,True
+765,"conflict, M larger",0,True,5,-4,1,Bell,Cart,Plate,1.1250000596046448,1,True
+765,"conflict, M larger",0,False,5,-4,1,Bell,Cart,Plate,-2.7499998807907104,-1,False
+766,"conflict, C larger",0,True,3,-5,-1,Tree,Anchor,Jar,2.3749999403953552,1,False
+766,"conflict, C larger",0,False,3,-5,-1,Tree,Anchor,Jar,-0.75,-1,True
+767,"conflict, M larger",0,True,-3,2,-1,Rachel,Carl,Anna,3.374999761581421,1,False
+767,"conflict, M larger",0,False,-3,2,-1,Rachel,Carl,Anna,-0.8750001192092896,-1,True
+768,"conflict, C larger",0,True,-2,5,1,Eric,Greg,Alan,3.0000001192092896,1,True
+768,"conflict, C larger",0,False,-2,5,1,Eric,Greg,Alan,-1.0000001192092896,-1,False
+769,"conflict, M larger",1,False,-5,3,-1,Brush,Clock,Shell,0.375,1,False
+769,"conflict, M larger",1,True,-5,3,-1,Brush,Clock,Shell,1.6249999701976776,1,False
+770,"conflict, M larger",0,True,-3,2,-1,Jane,Eric,Anna,1.8750000894069672,1,False
+770,"conflict, M larger",0,False,-3,2,-1,Jane,Eric,Anna,-2.5,-1,True
+771,"conflict, M larger",1,True,3,-2,1,Banner,Mirror,Clock,0.125,1,True
+771,"conflict, M larger",1,False,3,-2,1,Banner,Mirror,Clock,-1.75,-1,False
+772,"conflict, C larger",0,False,3,-4,-1,Tom,Rick,Dan,-1.0,-1,True
+772,"conflict, C larger",0,True,3,-4,-1,Tom,Rick,Dan,3.000000089406967,1,False
+773,"conflict, M larger",1,True,-4,1,-1,Chair,Bucket,Banner,-1.8750000596046448,-1,True
+773,"conflict, M larger",1,False,-4,1,-1,Chair,Bucket,Banner,-2.125000089406967,-1,True
+774,"conflict, C larger",0,False,-1,4,1,Knife,Pen,Tree,2.2500001192092896,1,True
+774,"conflict, C larger",0,True,-1,4,1,Knife,Pen,Tree,2.75,1,True
+775,"conflict, C larger",0,False,-3,4,1,Dan,Rick,Peter,-1.875000074505806,-1,False
+775,"conflict, C larger",0,True,-3,4,1,Dan,Rick,Peter,1.3750000298023224,1,True
+776,"conflict, C larger",0,True,2,-4,-1,Fred,Cole,Amy,2.625,1,False
+776,"conflict, C larger",0,False,2,-4,-1,Fred,Cole,Amy,-3.0,-1,True
+777,"conflict, C larger",1,False,-2,4,1,Laura,Alice,Rachel,-0.7499999403953552,-1,False
+777,"conflict, C larger",1,True,-2,4,1,Laura,Alice,Rachel,3.625,1,True
+778,"conflict, C larger",0,False,-2,4,1,Cole,Sam,Carl,2.25,1,True
+778,"conflict, C larger",0,True,-2,4,1,Cole,Sam,Carl,3.3750001788139343,1,True
+779,"conflict, C larger",1,False,1,-4,-1,Car,Clock,Ball,-1.8750000894069672,-1,True
+779,"conflict, C larger",1,True,1,-4,-1,Car,Clock,Ball,-1.2499999403953552,-1,True
+780,"conflict, C larger",0,False,-1,3,1,Jack,Steve,George,1.5000001192092896,1,True
+780,"conflict, C larger",0,True,-1,3,1,Jack,Steve,George,4.125000178813934,1,True
+781,"conflict, M larger",0,False,4,-2,1,Bell,Jar,Rock,-1.0,-1,False
+781,"conflict, M larger",0,True,4,-2,1,Bell,Jar,Rock,1.7500000298023224,1,True
+782,"conflict, M larger",1,False,2,-1,1,Henry,Rick,Chris,-0.7500000298023224,-1,False
+782,"conflict, M larger",1,True,2,-1,1,Henry,Rick,Chris,3.1249999403953552,1,True
+783,"conflict, M larger",1,False,3,-2,1,Kevin,Tom,Henry,-2.8749999403953552,-1,False
+783,"conflict, M larger",1,True,3,-2,1,Kevin,Tom,Henry,1.2500001192092896,1,True
+784,"conflict, M larger",0,True,4,-3,1,Sean,Kevin,Kim,1.5000001192092896,1,True
+784,"conflict, M larger",0,False,4,-3,1,Sean,Kevin,Kim,-2.7499999403953552,-1,False
+785,"conflict, M larger",0,True,4,-3,1,Wheel,Chair,Pot,1.7499998807907104,1,True
+785,"conflict, M larger",0,False,4,-3,1,Wheel,Chair,Pot,-1.5,-1,False
+786,"conflict, M larger",0,False,-3,1,-1,Neil,Paul,Emma,-0.125,-1,True
+786,"conflict, M larger",0,True,-3,1,-1,Neil,Paul,Emma,2.2500001192092896,1,False
+787,"conflict, M larger",0,True,-5,1,-1,Pen,Knife,Car,-0.6250000596046448,-1,True
+787,"conflict, M larger",0,False,-5,1,-1,Pen,Knife,Car,-3.0,-1,True
+788,"conflict, M larger",1,False,5,-3,1,David,Sean,Cole,-2.624999910593033,-1,False
+788,"conflict, M larger",1,True,5,-3,1,David,Sean,Cole,2.4999998807907104,1,True
+789,"conflict, M larger",1,False,-5,1,-1,Shell,Banner,Knife,0.0,-1,True
+789,"conflict, M larger",1,True,-5,1,-1,Shell,Banner,Knife,0.5,1,False
+790,"conflict, M larger",0,False,-4,2,-1,Table,Leaf,Book,-2.9999999403953552,-1,True
+790,"conflict, M larger",0,True,-4,2,-1,Table,Leaf,Book,-0.125,-1,True
+791,"conflict, M larger",1,True,2,-1,1,Knife,Brush,Hat,-0.9999999403953552,-1,False
+791,"conflict, M larger",1,False,2,-1,1,Knife,Brush,Hat,-3.500000111758709,-1,False
+792,"conflict, M larger",1,True,-2,1,-1,Bob,Peter,Ben,0.375,1,False
+792,"conflict, M larger",1,False,-2,1,-1,Bob,Peter,Ben,-2.625000014901161,-1,True
+793,"conflict, M larger",0,False,4,-2,1,Arrow,Pen,Bag,-1.9999999105930328,-1,False
+793,"conflict, M larger",0,True,4,-2,1,Arrow,Pen,Bag,0.5,1,True
+794,"conflict, M larger",0,True,-5,2,-1,Rick,Kevin,Eric,3.625,1,False
+794,"conflict, M larger",0,False,-5,2,-1,Rick,Kevin,Eric,0.125,1,False
+795,"conflict, M larger",1,True,-4,2,-1,Shell,Bucket,Mirror,2.0000001192092896,1,False
+795,"conflict, M larger",1,False,-4,2,-1,Shell,Bucket,Mirror,1.3749999403953552,1,False
+796,"conflict, M larger",1,True,-4,2,-1,Mask,Car,Desk,-0.375,-1,True
+796,"conflict, M larger",1,False,-4,2,-1,Mask,Car,Desk,-2.374999910593033,-1,True
+797,"conflict, M larger",1,True,5,-4,1,Anna,Steve,Cole,2.0000001192092896,1,True
+797,"conflict, M larger",1,False,5,-4,1,Anna,Steve,Cole,-1.625,-1,False
+798,"conflict, M larger",1,False,-5,2,-1,Brush,Glass,Desk,-1.25,-1,True
+798,"conflict, M larger",1,True,-5,2,-1,Brush,Glass,Desk,0.75,1,False
+799,"conflict, M larger",1,False,-5,3,-1,Kate,Paul,Kevin,-0.12499988079071045,-1,True
+799,"conflict, M larger",1,True,-5,3,-1,Kate,Paul,Kevin,1.3750001192092896,1,False
+800,"conflict, M larger",0,True,5,-2,1,Amy,Tom,Eric,0.125,1,True
+800,"conflict, M larger",0,False,5,-2,1,Amy,Tom,Eric,-3.2499999552965164,-1,False
+801,"conflict, M larger",1,False,-2,1,-1,Chair,Rock,Book,-0.375,-1,True
+801,"conflict, M larger",1,True,-2,1,-1,Chair,Rock,Book,0.75,1,False
+802,"conflict, M larger",0,True,-4,3,-1,Sam,Eric,Jake,1.4999999701976776,1,False
+802,"conflict, M larger",0,False,-4,3,-1,Sam,Eric,Jake,-2.0,-1,True
+803,"conflict, M larger",1,True,4,-3,1,Kate,Kim,Neil,-1.2499999403953552,-1,False
+803,"conflict, M larger",1,False,4,-3,1,Kate,Kim,Neil,-5.250000149011612,-1,False
+804,"conflict, M larger",1,True,-5,4,-1,Hat,Pipe,Table,0.25,1,False
+804,"conflict, M larger",1,False,-5,4,-1,Hat,Pipe,Table,0.5,1,False
+805,"conflict, M larger",1,True,4,-1,1,Leaf,Basket,Bag,-1.875,-1,False
+805,"conflict, M larger",1,False,4,-1,1,Leaf,Basket,Bag,-3.624999910593033,-1,False
+806,"conflict, M larger",0,True,-4,3,-1,Alan,Neil,Sam,0.625,1,False
+806,"conflict, M larger",0,False,-4,3,-1,Alan,Neil,Sam,-1.125,-1,True
+807,"conflict, M larger",1,True,-5,4,-1,Mirror,Ring,Chair,2.1249998807907104,1,False
+807,"conflict, M larger",1,False,-5,4,-1,Mirror,Ring,Chair,-1.2499999701976776,-1,True
+808,"conflict, M larger",1,True,-5,1,-1,Dan,Greg,Tom,1.5,1,False
+808,"conflict, M larger",1,False,-5,1,-1,Dan,Greg,Tom,0.0,-1,True
+809,"conflict, M larger",0,True,4,-1,1,Book,Ring,Flag,0.375,1,True
+809,"conflict, M larger",0,False,4,-1,1,Book,Ring,Flag,-3.3750000596046448,-1,False
+810,"conflict, M larger",1,False,5,-4,1,Alice,Sean,Anna,2.2500000596046448,1,True
+810,"conflict, M larger",1,True,5,-4,1,Alice,Sean,Anna,3.0000000596046448,1,True
+811,"conflict, M larger",1,True,-4,2,-1,Jake,Alice,Neil,-0.5,-1,True
+811,"conflict, M larger",1,False,-4,2,-1,Jake,Alice,Neil,-3.874999977648258,-1,True
+812,"conflict, M larger",0,True,4,-3,1,Laura,Eric,Amy,0.875,1,True
+812,"conflict, M larger",0,False,4,-3,1,Laura,Eric,Amy,-2.375,-1,False
+813,"conflict, M larger",0,False,4,-1,1,Alan,Beth,Dan,-3.7499997913837433,-1,False
+813,"conflict, M larger",0,True,4,-1,1,Alan,Beth,Dan,0.0,-1,False
+814,"conflict, M larger",1,True,-5,3,-1,Banner,Pen,Desk,1.3749998807907104,1,False
+814,"conflict, M larger",1,False,-5,3,-1,Banner,Pen,Desk,-0.5000000596046448,-1,True
+815,"conflict, M larger",1,False,-3,2,-1,Anna,Kevin,Tom,1.7500000894069672,1,False
+815,"conflict, M larger",1,True,-3,2,-1,Anna,Kevin,Tom,3.625000089406967,1,False
+816,"conflict, M larger",1,False,4,-2,1,Arrow,Bucket,Leaf,-2.0000000298023224,-1,False
+816,"conflict, M larger",1,True,4,-2,1,Arrow,Bucket,Leaf,-1.6250001192092896,-1,False
+817,"conflict, M larger",0,False,-5,3,-1,Jane,David,Jake,1.375,1,False
+817,"conflict, M larger",0,True,-5,3,-1,Jane,David,Jake,4.000000074505806,1,False
+818,"conflict, M larger",1,True,-4,1,-1,Amy,Henry,Dan,-1.25,-1,True
+818,"conflict, M larger",1,False,-4,1,-1,Amy,Henry,Dan,-3.0000000298023224,-1,True
+819,"conflict, M larger",1,True,-2,1,-1,Carl,Beth,Rachel,1.9999999403953552,1,False
+819,"conflict, M larger",1,False,-2,1,-1,Carl,Beth,Rachel,-0.625,-1,True
+820,"conflict, M larger",1,True,-5,3,-1,Greg,George,Eric,1.2500001192092896,1,False
+820,"conflict, M larger",1,False,-5,3,-1,Greg,George,Eric,-3.7500000596046448,-1,True
+821,"conflict, M larger",0,True,-5,4,-1,Box,Mask,Brush,0.875,1,False
+821,"conflict, M larger",0,False,-5,4,-1,Box,Mask,Brush,-1.1249999403953552,-1,True
+822,"conflict, M larger",0,False,-4,3,-1,Basket,Mask,Flag,-3.3749998807907104,-1,True
+822,"conflict, M larger",0,True,-4,3,-1,Basket,Mask,Flag,-1.1249999403953552,-1,True
+823,"conflict, M larger",1,False,5,-4,1,Tower,Pipe,Box,-2.4999999403953552,-1,False
+823,"conflict, M larger",1,True,5,-4,1,Tower,Pipe,Box,-0.375,-1,False
+824,"conflict, M larger",1,False,-5,3,-1,Henry,Alice,Leo,0.6250000596046448,1,False
+824,"conflict, M larger",1,True,-5,3,-1,Henry,Alice,Leo,1.625,1,False
+825,"conflict, M larger",1,True,4,-3,1,Hat,Pipe,Pen,-0.6249999403953552,-1,False
+825,"conflict, M larger",1,False,4,-3,1,Hat,Pipe,Pen,-2.624999910593033,-1,False
+826,"conflict, M larger",0,False,-4,1,-1,Kate,Cole,Ben,-1.4999998807907104,-1,True
+826,"conflict, M larger",0,True,-4,1,-1,Kate,Cole,Ben,-0.125,-1,True
+827,"conflict, M larger",1,False,-3,2,-1,Jane,Brian,Adam,-2.2500000596046448,-1,True
+827,"conflict, M larger",1,True,-3,2,-1,Jane,Brian,Adam,0.125,1,False
+828,"conflict, M larger",1,True,5,-3,1,Kate,David,Beth,1.0,1,True
+828,"conflict, M larger",1,False,5,-3,1,Kate,David,Beth,-2.0,-1,False
+829,"conflict, M larger",1,True,5,-4,1,Eric,Steve,Ben,3.1249999403953552,1,True
+829,"conflict, M larger",1,False,5,-4,1,Eric,Steve,Ben,0.5,1,True
+830,"conflict, M larger",1,False,5,-4,1,Plate,Mirror,Pot,-4.5000001937150955,-1,False
+830,"conflict, M larger",1,True,5,-4,1,Plate,Mirror,Pot,-3.000000089406967,-1,False
+831,"conflict, M larger",1,False,-3,2,-1,Cart,Bag,Basket,-1.1250000596046448,-1,True
+831,"conflict, M larger",1,True,-3,2,-1,Cart,Bag,Basket,1.3749998807907104,1,False
+832,"conflict, M larger",1,True,-4,3,-1,Coin,Shell,Clock,1.3750000596046448,1,False
+832,"conflict, M larger",1,False,-4,3,-1,Coin,Shell,Clock,0.75,1,False
+833,"conflict, M larger",0,False,-5,2,-1,Bell,Shell,Box,-2.874999925494194,-1,True
+833,"conflict, M larger",0,True,-5,2,-1,Bell,Shell,Box,0.625,1,False
+834,"conflict, M larger",0,False,-5,1,-1,Sean,Beth,Alan,-2.4999999403953552,-1,True
+834,"conflict, M larger",0,True,-5,1,-1,Sean,Beth,Alan,-0.125,-1,True
+835,"conflict, M larger",1,False,-3,1,-1,Paul,Ben,David,-0.75,-1,True
+835,"conflict, M larger",1,True,-3,1,-1,Paul,Ben,David,0.12500005960464478,1,False
+836,"conflict, M larger",0,True,3,-2,1,Basket,Coin,Glass,-0.875,-1,False
+836,"conflict, M larger",0,False,3,-2,1,Basket,Coin,Glass,-3.4999999552965164,-1,False
+837,"conflict, M larger",1,False,5,-4,1,Ben,Henry,Peter,-1.375,-1,False
+837,"conflict, M larger",1,True,5,-4,1,Ben,Henry,Peter,-0.5,-1,False
+838,"conflict, M larger",1,False,-3,1,-1,Tower,Gate,Cart,4.375000208616257,1,False
+838,"conflict, M larger",1,True,-3,1,-1,Tower,Gate,Cart,4.000000059604645,1,False
+839,"conflict, M larger",0,True,5,-1,1,Rock,Brush,Mirror,-0.375,-1,False
+839,"conflict, M larger",0,False,5,-1,1,Rock,Brush,Mirror,-1.7500000298023224,-1,False
+840,"conflict, M larger",0,False,3,-2,1,Eric,Jake,Emma,-4.499999850988388,-1,False
+840,"conflict, M larger",0,True,3,-2,1,Eric,Jake,Emma,1.8749999701976776,1,True
+841,"conflict, M larger",1,False,3,-2,1,Eric,Kate,Beth,1.3749999403953552,1,True
+841,"conflict, M larger",1,True,3,-2,1,Eric,Kate,Beth,4.874999895691872,1,True
+842,"conflict, M larger",1,False,4,-1,1,Alan,George,Fred,-1.3749999403953552,-1,False
+842,"conflict, M larger",1,True,4,-1,1,Alan,George,Fred,0.25,1,True
+843,"conflict, M larger",1,False,4,-2,1,Rick,Sean,Bob,-2.4999999701976776,-1,False
+843,"conflict, M larger",1,True,4,-2,1,Rick,Sean,Bob,0.8750000596046448,1,True
+844,"conflict, M larger",1,True,3,-1,1,Rachel,Ben,Anna,0.625,1,True
+844,"conflict, M larger",1,False,3,-1,1,Rachel,Ben,Anna,-3.999999761581421,-1,False
+845,"conflict, M larger",0,True,-4,2,-1,Greg,Rick,Jack,0.375,1,False
+845,"conflict, M larger",0,False,-4,2,-1,Greg,Rick,Jack,-3.0000000596046448,-1,True
+846,"conflict, M larger",0,False,-5,1,-1,Chair,Table,Ring,-2.2500000596046448,-1,True
+846,"conflict, M larger",0,True,-5,1,-1,Chair,Table,Ring,0.125,1,False
+847,"conflict, M larger",1,True,5,-4,1,David,Amy,Brian,-0.625,-1,False
+847,"conflict, M larger",1,False,5,-4,1,David,Amy,Brian,-1.2499998807907104,-1,False
+848,"conflict, M larger",0,False,-4,3,-1,Pot,Coin,Gate,-3.499999925494194,-1,True
+848,"conflict, M larger",0,True,-4,3,-1,Pot,Coin,Gate,0.3749999403953552,1,False
+849,"conflict, M larger",0,False,-4,3,-1,Book,Box,Ball,-2.749999910593033,-1,True
+849,"conflict, M larger",0,True,-4,3,-1,Book,Box,Ball,-0.875,-1,True
+850,"conflict, M larger",0,False,3,-2,1,George,Rachel,Emma,-3.250000074505806,-1,False
+850,"conflict, M larger",0,True,3,-2,1,George,Rachel,Emma,0.5,1,True
+851,"conflict, M larger",0,True,-3,1,-1,Rick,Carl,Henry,1.25,1,False
+851,"conflict, M larger",0,False,-3,1,-1,Rick,Carl,Henry,-0.8750000596046448,-1,True
+852,"conflict, M larger",1,True,5,-1,1,Tower,Ball,Basket,0.875,1,True
+852,"conflict, M larger",1,False,5,-1,1,Tower,Ball,Basket,-2.2499998807907104,-1,False
+853,"conflict, M larger",1,True,4,-1,1,Jake,Eric,Rachel,1.25,1,True
+853,"conflict, M larger",1,False,4,-1,1,Jake,Eric,Rachel,-4.374999940395355,-1,False
+854,"conflict, M larger",0,True,-4,3,-1,Kevin,Amy,Sam,0.25,1,False
+854,"conflict, M larger",0,False,-4,3,-1,Kevin,Amy,Sam,-0.5,-1,True
+855,"conflict, M larger",1,True,-4,3,-1,Shell,Brush,Glass,-0.75,-1,True
+855,"conflict, M larger",1,False,-4,3,-1,Shell,Brush,Glass,-0.125,-1,True
+856,"conflict, M larger",1,True,-5,1,-1,Ring,Car,Box,-2.8750000596046448,-1,True
+856,"conflict, M larger",1,False,-5,1,-1,Ring,Car,Box,-4.249999940395355,-1,True
+857,"conflict, M larger",1,False,5,-4,1,Mask,Stone,Gate,-2.250000089406967,-1,False
+857,"conflict, M larger",1,True,5,-4,1,Mask,Stone,Gate,-0.375,-1,False
+858,"conflict, M larger",0,True,-3,1,-1,Kim,Eric,Carl,1.0,1,False
+858,"conflict, M larger",0,False,-3,1,-1,Kim,Eric,Carl,-2.2499999701976776,-1,True
