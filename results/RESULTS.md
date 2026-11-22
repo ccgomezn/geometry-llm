@@ -2862,3 +2862,53 @@ reasoning recomputes from the words; it does not read the composed state that th
 the one-sentence rule's answer) follows the sentence 0.075 less often than the plain decisive question (paired, [−0.15,
 −0.005]; 32 questions go right → wrong, 17 wrong → right): a small pull of the processed state, towards the answer the
 rule would give. Nothing comparable in mixed B or in Qwen.
+
+## 2026-11-21 23:14 · Blind reply: can written reasoning use the processed state when M's sentence is hidden? (qwen3-8b) — preregistered
+Model **qwen3-8b**. 200 decisive questions (flow set's generator, seed 1601), greedy step-by-step replies in four conditions: *normal*; *blind reply* (prompt read normally, the reply cannot attend to M's sentence); *floor* (neither the prompt positions after M's sentence nor the reply can attend to it); *list control* (the reply cannot attend to the object list). Positions numbered as in the normal prompt. Balanced accuracy, 95% scene-bootstrap CIs; no answer = wrong.
+
+| condition | balanced accuracy | accuracy | no answer |
+|---|---|---|---|
+| normal | 0.99 [0.97, 1.00] | 0.99 | 1 |
+| blind reply | 0.12 [0.07, 0.17] | 0.12 | 56 |
+| floor | 0.06 [0.03, 0.10] | 0.04 | 168 |
+| list control | 0.98 [0.96, 1.00] | 0.98 | 0 |
+
+**Recovery** (blind reply − floor) / (normal − floor): 0.06 [-0.00, 0.12].
+
+Exploratory, blind-reply replies: 71 give M a position relative to R, on the correct side in 0.37; 29 of 200 say something is not given or unknown.
+
+Preregistered verdict: **the processed state is not usable by the reply**. Rules: docs/preregistration_blind_reply.md.
+
+## 2026-11-22 02:20 · Blind reply: can written reasoning use the processed state when M's sentence is hidden? (gemma3-12b-8bit) — preregistered
+Model **gemma3-12b-8bit**. 200 decisive questions (flow set's generator, seed 1601), greedy step-by-step replies in four conditions: *normal*; *blind reply* (prompt read normally, the reply cannot attend to M's sentence); *floor* (neither the prompt positions after M's sentence nor the reply can attend to it); *list control* (the reply cannot attend to the object list). Positions numbered as in the normal prompt. Balanced accuracy, 95% scene-bootstrap CIs; no answer = wrong.
+
+| condition | balanced accuracy | accuracy | no answer |
+|---|---|---|---|
+| normal | 0.81 [0.74, 0.87] | 0.84 | 2 |
+| blind reply | 0.23 [0.17, 0.29] | 0.26 | 4 |
+| floor | 0.16 [0.10, 0.21] | 0.12 | 23 |
+| list control | 0.76 [0.69, 0.83] | 0.81 | 1 |
+
+**Recovery** (blind reply − floor) / (normal − floor): 0.11 [-0.01, 0.23].
+
+Exploratory, blind-reply replies: 8 give M a position relative to R, on the correct side in 0.88; 14 of 200 say something is not given or unknown.
+
+Preregistered verdict: **partial**. Rules: docs/preregistration_blind_reply.md.
+
+
+*Hand note (2026-11-22).* Run on Colab (L4; Gemma 3 12B in 8-bit). Recomputed locally from the raw replies with an
+independent parser: identical balanced accuracies and recovery. **Preregistered verdicts: Qwen3-8B, the processed state
+is not usable by the reply (recovery 0.06 [−0.00, 0.12]); Gemma 3 12B, partial (recovery 0.11 [−0.01, 0.23]; the upper
+bound misses the "not usable" threshold of 0.20 by 0.03).** Both runs are informative: normal 0.99 and 0.81, list
+control 0.98 and 0.76 (masking a span as such barely matters), floor 0.06 and 0.16. With the prompt read normally but
+the reply unable to look at M's sentence, decisive accuracy falls from 0.99 to 0.12 (Qwen) and from 0.81 to 0.23
+(Gemma), close to the floor. Written reasoning cannot use the processed state in place of the words.
+
+*Exploratory, defined after seeing the data* (`scripts/blind_reply_explore.py`). The blind replies do not say M's
+position is unknown (29 and 14 of 200 do); they reconstruct M's sentence. M's step size is written as C's step size
+in 91% (Qwen, 158 replies giving a size) and 93% (Gemma, 107) of blind replies, and as M's true size in 1% and 3%;
+in normal replies it is M's true size in 100%. M's direction is written correctly (balanced) in 0.63 [0.54, 0.72]
+(Qwen, 164 replies) and 0.81 [0.73, 0.88] (Gemma, 161). On these questions M's direction is always opposite to C's, a
+cue the blind reply can read from C's sentence; the floor, which has the same cue and nothing of M, gives 0.93 (Qwen,
+only 11 replies) and 0.50 (Gemma, 25). So the reply gets none of M's size from the processed state, and possibly, in
+Gemma, some of its direction.
