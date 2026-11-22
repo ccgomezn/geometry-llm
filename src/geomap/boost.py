@@ -70,39 +70,60 @@ def _variance(Xc, B) -> float:
     return float(((Xc @ np.asarray(B, dtype=np.float64)) ** 2).sum(1).mean())
 
 
-def feasible_k(X, Q, k0: int = 64) -> int:
-    """Smallest k = k0 · 2^j for which a rank-r subspace of the top-k principal components can match S's variance
-    (the top components can always reach it from above; low-variance probe directions may need more components)."""
+def feasible_k(X, Q, k0: int = 64, margin: float = 0.95) -> int:
+    """Smallest k = k0 · 2^j whose top-k principal components can match S's variance with room to spare: the least
+    variance a rank-r subspace of them can have (their r smallest components) must be at most margin × S's. (The most
+    is always enough: the top r components carry the most variance of any rank-r subspace.)"""
     Xc = np.asarray(X, dtype=np.float64) - np.asarray(X, dtype=np.float64).mean(0)
     target, r = _variance(Xc, Q), Q.shape[1]
+    lam_all = _pcs(X, min(Xc.shape))[2]
     k = k0
-    while True:
-        lam = _pcs(X, min(k, min(Xc.shape)))[2]
-        if lam[-r:].sum() <= target * (1 + 0.1) or k >= min(Xc.shape):
-            return min(k, min(Xc.shape))
+    while k < len(lam_all) and lam_all[k - r:k].sum() > margin * target:
         k *= 2
+    return min(k, len(lam_all))
+
+
+def _tilted(G0, loglam, t):
+    """Orthonormal basis of diag(λ^t) G0 (weights normalised to avoid overflow)."""
+    s = t * loglam
+    return np.linalg.qr(np.exp(s - s.max())[:, None] * G0)[0]
 
 
 def matched_random_subspaces(X, Q, k: int = 64, n: int = 3, tol: float = 0.1, seed: int = 0,
-                             max_tries: int = 200000) -> list[torch.Tensor]:
+                             max_draws: int = 1000) -> list[torch.Tensor]:
     """n random rank-r orthonormal subspaces inside the span of the top-k principal components of X, each with total
-    projected variance within ±tol of S's. Draws are rotations of Gaussian matrices whose rows are tilted by a random
-    power of the component variances (so low- and high-variance targets are both reachable); a draw is kept only if
-    it matches."""
+    projected variance within ±tol of S's. Each draw is a Gaussian matrix G0 whose rows are tilted by a power t of the
+    component variances; t is found by bisection so that the variance matches (t → −∞ gives the r smallest
+    components, t → +∞ the r largest, and the variance is continuous in t). A draw whose bracket does not contain
+    the target is skipped."""
     Xc, U, lam = _pcs(X, k)
     r = Q.shape[1]
     target = _variance(Xc, Q.detach().cpu().numpy() if isinstance(Q, torch.Tensor) else Q)
+    loglam = np.log(lam / lam.max())
+    var = lambda Qg: float((lam[:, None] * Qg ** 2).sum())
     rng = np.random.default_rng(seed)
+    dtype = Q.dtype if isinstance(Q, torch.Tensor) else torch.float64
     out = []
-    for _ in range(max_tries):
-        gamma = rng.uniform(-4, 4)
-        G = rng.normal(size=(len(lam), r)) * ((lam / lam.max()) ** (gamma / 2))[:, None]
-        Qg = np.linalg.qr(G)[0]
-        v = float((lam[:, None] * Qg ** 2).sum())
-        if abs(v / target - 1) <= tol:
-            out.append(torch.as_tensor(U @ Qg, dtype=Q.dtype if isinstance(Q, torch.Tensor) else torch.float64))
-            if len(out) == n:
-                return out
+    for _ in range(max_draws):
+        G0 = rng.normal(size=(len(lam), r))
+        lo, hi = -40.0, 40.0
+        f = lambda t: var(_tilted(G0, loglam, t)) - target
+        if f(lo) > 0 or f(hi) < 0:
+            continue
+        Qg = None
+        for _ in range(200):
+            mid = (lo + hi) / 2
+            Qm = _tilted(G0, loglam, mid)
+            v = var(Qm)
+            if abs(v / target - 1) <= tol / 2:
+                Qg = Qm
+                break
+            lo, hi = (mid, hi) if v < target else (lo, mid)
+        if Qg is None:
+            continue
+        out.append(torch.as_tensor(U @ Qg, dtype=dtype))
+        if len(out) == n:
+            return out
     raise ValueError(f"no matched random subspace in the top {k} components (target variance {target:.3g})")
 
 

@@ -56,7 +56,7 @@ def test_random_subspaces_are_matched_in_variance_and_lie_in_the_top_components(
     X = rng.normal(size=(500, 30)) * np.linspace(5, 0.1, 30)
     Q = orthonormal(torch.as_tensor(rng.normal(size=(30, 4))))
     k = feasible_k(X, Q, k0=10)            # a random 4-d subspace has less variance than any 4 of the top 10
-    assert k == 20
+    assert k in (20, 30)                  # 10 · 2 = 20, capped at the 30 components there are
     got = matched_random_subspaces(X, Q, k=k, n=3, tol=0.1, seed=0)
     Xc = torch.as_tensor(X - X.mean(0))
     var = lambda B: float(((Xc @ B) ** 2).sum(1).mean())
@@ -149,3 +149,20 @@ def test_transfer_verdict():
     assert transfer_verdict(overall=0.01, gains={"C vs M": (0.05, 0.01)}) == "transfers"
     assert transfer_verdict(overall=0.0, gains={"C vs M": (0.02, -0.01)}) == "specific"
     assert transfer_verdict(overall=-0.04, gains={"C vs M": (0.05, 0.01)}) == "harmful"
+
+
+def test_controls_match_a_target_near_the_variance_floor_of_the_top_components():
+    """The layer-32 failure on Gemma: S's variance is at the floor of the top 64 components (heavy-tailed spectrum)."""
+    rng = np.random.default_rng(2)
+    d = 200
+    scales = np.logspace(3, -1, d)
+    X = rng.normal(size=(3000, d)) * scales
+    E = np.eye(d)
+    Q = orthonormal(torch.as_tensor(np.stack([E[62], E[63]], 1)))       # exactly the 63rd and 64th components
+    k = feasible_k(X, Q, k0=64)
+    assert k > 64                                                       # the floor of the top 64 is the target itself
+    got = matched_random_subspaces(X, Q, k=k, n=3, tol=0.1, seed=0)
+    Xc = X - X.mean(0)
+    var = lambda B: float(((Xc @ np.asarray(B, dtype=float)) ** 2).sum(1).mean())
+    assert len(got) == 3 and all(abs(var(R) / var(Q) - 1) <= 0.1 for R in got)
+    assert not torch.allclose(got[0], got[1])

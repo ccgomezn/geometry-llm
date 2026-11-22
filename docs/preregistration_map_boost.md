@@ -133,6 +133,12 @@ the rule.
 - **Control pool.** Variance-matched random subspaces need the top 64 components to be able to reach S's variance.
   If S's projected variance is below that of the 64th–61st components, the pool doubles (128, 256, …) until a match
   is possible. The report states the number of components used.
-- **Draws.** Random draws tilt the Gaussian rows by a random power of the component variances, so that both low- and
+- **Draws.** Random draws tilt the Gaussian rows by a power of the component variances, so that both low- and
   high-variance targets can be matched; a draw is kept only if within ±10%.
+- **Change to the draws (2026-11-22, after the first Colab attempt stopped in the control step at layer 32, before any
+  boosted answer existed).** At layer 32 the map's variance was at the floor of the top 64 components, and random
+  tilts never landed within ±10%. Now:
+  - the pool doubles until the r smallest of its components carry at most 95% of S's variance;
+  - for each random Gaussian draw, the tilt is found by bisection so that the variance matches.
+  The control is still a random subspace of the same rank, inside the top components, with matched variance.
 - **Not computed.** The exploratory logit lens is not computed in this run.
