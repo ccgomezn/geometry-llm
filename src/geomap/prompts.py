@@ -54,17 +54,19 @@ def render_chat(tok, family: str, content: str, thinking: bool = False) -> str:
 
 
 def build_prompt(scene: Scene, question: Question | None, tok, family: str, thinking: bool = False,
-                 include_list: bool = True, fmt: str = "chat") -> PromptSpec:
+                 include_list: bool = True, fmt: str = "chat", shots: str = "") -> PromptSpec:
     """fmt "chat": the scene and question as one user turn of the chat template, ending in the assistant prefix.
     fmt "plain" (docs/preregistration_base_plain.md): begin-of-text token (if any), the same scene text, then
-    "Question: <question>" and "Answer:" on its own line; candidates are read with a leading space."""
+    "Question: <question>" and "Answer:" on its own line; candidates are read with a leading space.
+    shots (plain only, docs/preregistration_base_fewshot.md): worked examples placed after the begin-of-text token and
+    before the scene; all positions still point into the test item."""
     if family not in FAMILIES:
         raise ValueError(family)
-    if fmt not in ("chat", "plain"):
+    if fmt not in ("chat", "plain") or (shots and fmt != "plain"):
         raise ValueError(fmt)
     # content pieces, tracking character spans inside the content string
     rel_spans_chars: dict[str, tuple[int, int]] = {}
-    content = ""
+    content = shots
     for i, r in enumerate(scene.relations):
         if i:
             content += " "
