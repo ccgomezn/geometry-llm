@@ -99,3 +99,20 @@ def test_general_items_are_unambiguous_one_token_answers(tiny):
     assert len(ex) == len(items)
     acc = first_token_accuracy(tiny.hf, ex[:5], tiny.tok.pad_token_id or 0)
     assert 0.0 <= acc <= 1.0
+
+
+def test_attaching_a_saved_adapter_reproduces_the_trained_model(tiny):
+    from geomap.connect import attach_lora
+    hf = copy.deepcopy(tiny.hf)
+    ids = [[1, 5, 9, 14, 3], [2, 7, 7]]
+    pad = tiny.tok.pad_token_id or 0
+    loras = add_lora(hf, "model.layers", from_layer=1, r=4, alpha=8.0, targets=("q_proj", "down_proj"))
+    with torch.no_grad():
+        for v in loras.values():
+            v.B.normal_(0, 0.5)
+        want = last_token_logits(hf, ids, pad)
+    fresh = copy.deepcopy(tiny.hf)
+    attach_lora(fresh, "model.layers", lora_state(loras))
+    with torch.no_grad():
+        assert torch.allclose(last_token_logits(fresh, ids, pad), want, atol=1e-5)
+    assert all(not p.requires_grad for p in fresh.parameters())

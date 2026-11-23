@@ -150,6 +150,26 @@ def merge_lora(hf, layers_path: str, state: dict) -> None:
             W += (scale * (B.float() @ A.float())).to(W.device, W.dtype)
 
 
+def attach_lora(hf, layers_path: str, state: dict) -> None:
+    """Wrap exactly the linears named in a saved adapter and load its weights, for models whose weights cannot absorb
+    the adapter (8-bit). The model is frozen; outputs equal the trained model's."""
+    for p in hf.parameters():
+        p.requires_grad_(False)
+    dec = _decoder(hf, layers_path)
+    for key, (A, B, scale) in state.items():
+        l, name = key.split(".", 1)
+        blk = dec[int(l)]
+        mod = blk.get_submodule(name)
+        parent = blk.get_submodule(name.rsplit(".", 1)[0]) if "." in name else blk
+        w = LoRALinear(mod, A.shape[0], scale * A.shape[0], seed=0)
+        with torch.no_grad():
+            w.A.copy_(A.to(w.A.device))
+            w.B.copy_(B.to(w.B.device))
+        w.A.requires_grad_(False)
+        w.B.requires_grad_(False)
+        setattr(parent, name.rsplit(".", 1)[-1], w)
+
+
 def unwrap_lora(hf, layers_path: str) -> None:
     """Replace live LoRA wrappers by their (unchanged) base linears."""
     dec = _decoder(hf, layers_path)

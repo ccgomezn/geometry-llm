@@ -28,11 +28,12 @@ import map_boost as mb
 from geomap.axis import CELLS
 from geomap.boost import DEC, EASY, FIRST, boost_edit, feasible_k, map_directions, matched_random_subspaces, orthonormal
 from geomap.checkpoint import notify
-from geomap.connect import (SEED_DEV, SEED_DEV_NAMES, SEED_TRAIN, add_lora, first_token_accuracy, general_prompts,
+from geomap.connect import (SEED_DEV, SEED_DEV_NAMES, SEED_TRAIN, add_lora, attach_lora, first_token_accuracy,
+                            general_prompts,
                             last_token_logits, lora_state, make_set, merge_lora, training_examples)
 from geomap.flow import axis_r2, layer_grid
 from geomap.followups import attention_knockout
-from geomap.models import load
+from geomap.models import load, quant_config
 from geomap.probes import scene_split
 from geomap.prompts import build_prompt
 from geomap.scoring import score
@@ -40,7 +41,7 @@ from geomap.study2 import balanced_accuracy
 
 ROOT = Path(__file__).resolve().parents[1]
 SEED_LOCATE = 3401
-TRAIN_PER_CELL, DEV_PER_CELL, NAMES_PER_CELL, LOCATE_PER_CELL = 1800, 200, 60, 240
+TRAIN_PER_CELL, DEV_PER_CELL, NAMES_PER_CELL, LOCATE_PER_CELL = 1200, 200, 60, 240
 ALPHAS_M2 = (-1.0, 0.0, 4.0)
 N_CTRL = 3
 
@@ -83,29 +84,33 @@ def train(a):
     total = steps_per_epoch * a.epochs if a.max_steps is None else a.max_steps
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1.0, (s + 1) / 30) * max(0.0, 1 - s / max(total, 1)))
     hist, step, run_loss, run_acc = [], 0, [], []
+    micro = a.batch_size // a.grad_accum
     for ep in range(a.epochs):
         order = rng.permutation(len(ex))
         for b in range(steps_per_epoch):
             if step >= total:
                 break
             batch = [ex[i] for i in order[b * a.batch_size:(b + 1) * a.batch_size]]
-            lg = last_token_logits(m.hf, [x for x, _ in batch], pad).float()
-            tgt = torch.tensor([t for _, t in batch], device=lg.device)
-            loss = torch.nn.functional.cross_entropy(lg, tgt)
             opt.zero_grad()
-            loss.backward()
+            for k in range(0, len(batch), micro):
+                mb_ = batch[k:k + micro]
+                lg = last_token_logits(m.hf, [x for x, _ in mb_], pad).float()
+                tgt = torch.tensor([t for _, t in mb_], device=lg.device)
+                loss = torch.nn.functional.cross_entropy(lg, tgt) * len(mb_) / len(batch)
+                loss.backward()
+                run_loss.append(loss.item() * len(batch) / len(mb_))
+                run_acc.append(float((lg.argmax(-1) == tgt).float().mean()))
+                del lg
             torch.nn.utils.clip_grad_norm_(params, 1.0)
             opt.step()
             sched.step()
             step += 1
-            run_loss.append(loss.item())
-            run_acc.append(float((lg.argmax(-1) == tgt).float().mean()))
             if step % 50 == 0 or step == total:
                 hist.append(dict(step=step, loss=float(np.mean(run_loss)), acc=float(np.mean(run_acc))))
                 log(f"step {step}/{total}: loss {hist[-1]['loss']:.3f}, train accuracy {hist[-1]['acc']:.3f}")
                 run_loss, run_acc = [], []
     cfg = dict(tag=a.tag, model=a.model, from_layer=from_layer, rank=a.rank, alpha=2.0 * a.rank, targets=a.targets,
-               lr=a.lr, epochs=a.epochs, batch_size=a.batch_size, steps=step, n_train=len(ex), kinds=kinds,
+               lr=a.lr, epochs=a.epochs, batch_size=a.batch_size, grad_accum=a.grad_accum, steps=step, n_train=len(ex), kinds=kinds,
                train_per_cell=a.train_per_cell, one_step_per_scene=a.one_step_per_scene, seed=a.seed,
                minutes=round((time.time() - t0) / 60, 1))
     torch.save(lora_state(loras), out / "adapter.pt")
@@ -263,8 +268,12 @@ def evaluate_cmd(a):
         log("evaluating the base model (once)")
         base = evaluate(m, la, a.batch_size, sets, log)
         bpath.write_text(json.dumps(base, indent=1))
-    merge_lora(m.hf, m.layers_path, torch.load(rdir / "adapter.pt"))
-    log(f"adapter {a.tag} merged; evaluating")
+    state = torch.load(rdir / "adapter.pt")
+    if quant_config(a.model) is None:
+        merge_lora(m.hf, m.layers_path, state)                # bf16: fold into the weights
+    else:
+        attach_lora(m.hf, m.layers_path, state)               # 8-bit: keep the adapter as a separate path
+    log(f"adapter {a.tag} loaded; evaluating")
     conn = evaluate(m, la, a.batch_size, sets, log)
     (rdir / "eval.json").write_text(json.dumps(conn, indent=1))
     rep = report(a.tag, cfg, base, conn, la)
@@ -289,7 +298,8 @@ def main():
     ap.add_argument("--epochs", type=int, default=1)
     ap.add_argument("--max-steps", type=int, default=None)
     ap.add_argument("--train-per-cell", type=int, default=TRAIN_PER_CELL)
-    ap.add_argument("--one-step-per-scene", type=int, default=2)
+    ap.add_argument("--one-step-per-scene", type=int, default=1)
+    ap.add_argument("--grad-accum", type=int, default=1, help="split each batch into this many pieces (memory)")
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
     train(a) if a.cmd == "train" else evaluate_cmd(a)
